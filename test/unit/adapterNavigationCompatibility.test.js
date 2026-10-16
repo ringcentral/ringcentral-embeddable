@@ -316,6 +316,36 @@ describe("Adapter navigation compatibility", () => {
     expect(adapter._router.push).toHaveBeenCalledWith(path);
   });
 
+  test("lets the log call view open the log page, so a call page stays open", async () => {
+    const adapter = createAdapter({
+      _router: { currentPath: "/calling", push: jest.fn(async () => {}) },
+      _logCallView: { openLogCallPage: jest.fn(async () => true) },
+    });
+
+    await Adapter.prototype._navigateTo.call(
+      adapter,
+      "/log/call/session-id?source=ringcx"
+    );
+
+    expect(adapter._logCallView.openLogCallPage).toHaveBeenCalledWith(
+      "/log/call/session-id?source=ringcx"
+    );
+    expect(adapter._router.push).not.toHaveBeenCalled();
+  });
+
+  test("routes other pages when the log call view does not take them", async () => {
+    const adapter = createAdapter({
+      _logCallView: { openLogCallPage: jest.fn(async () => false) },
+    });
+
+    await Adapter.prototype._navigateTo.call(adapter, "/log/messages/c-1");
+
+    expect(adapter._logCallView.openLogCallPage).toHaveBeenCalledWith(
+      "/log/messages/c-1"
+    );
+    expect(adapter._router.push).toHaveBeenCalledWith("/log/messages/c-1");
+  });
+
   test.each([
     "/HUD",
     "/glip",

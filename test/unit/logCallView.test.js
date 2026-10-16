@@ -12,9 +12,36 @@ jest.mock(
   () => ({ CallViewState: class CallViewState {} })
 );
 
-jest.mock("../../src/app/views/LogCallView/LogCallPage", () => ({
-  LogCallPage: () => null,
+jest.mock("../../src/app/views/SideWidgetView", () => ({
+  SideWidgetView: class SideWidgetView {},
 }));
+
+jest.mock("@ringcentral-integration/micro-phone/src/app/services", () => ({
+  CALLING_ROUTE_PATH: "/calling",
+  CallLogger: class CallLogger {},
+}));
+
+jest.mock("@ringcentral-integration/next-core", () => {
+  const { Route, Switch, useLocation } = jest.requireActual("react-router-dom");
+  return {
+    ...jest.requireActual("../mocks/nextCoreMock"),
+    Route,
+    Switch,
+    useLocation,
+  };
+});
+
+const mockLogCallPageProps = [];
+jest.mock("../../src/app/views/LogCallView/LogCallPage", () => ({
+  LogCallPage: (props) => {
+    mockLogCallPageProps.push(props);
+    return null;
+  },
+}));
+
+const { act, render } = require("@testing-library/react");
+const React = require("react");
+const { MemoryRouter } = require("react-router-dom");
 
 const {
   LogCallView,
@@ -114,6 +141,247 @@ describe("LogCallView", () => {
       contact: formContact,
       redirect: true,
       triggerType: "viewLog",
+    });
+  });
+});
+
+describe("LogCallView from the call page", () => {
+  beforeEach(() => {
+    mockLogCallPageProps.length = 0;
+  });
+
+  function createRouter(currentPath = "/calling") {
+    return {
+      currentPath,
+      goBack: jest.fn(),
+      push: jest.fn().mockResolvedValue(undefined),
+    };
+  }
+
+  function createSideWidgetView() {
+    const handles = [];
+    return {
+      handles,
+      createContent: jest.fn((options) => {
+        const handle = { options };
+        handles.push(handle);
+        return handle;
+      }),
+      openContent: jest.fn(),
+      closeTabFromPanel: jest.fn().mockResolvedValue(undefined),
+    };
+  }
+
+  function createView({
+    callLogger = {},
+    router = createRouter(),
+    sideWidgetView,
+  } = {}) {
+    const view = new LogCallView(
+      callLogger,
+      { callLoggerTitle: null, customizedLogCallPage: null },
+      router,
+      {},
+      { getExtraLogData: jest.fn(() => ({})) },
+      sideWidgetView
+    );
+    // next-core binds these on a real module.
+    view.component = view.component.bind(view);
+    return view;
+  }
+
+  test("opens the log page in a side widget tab and stays on the call page", async () => {
+    const router = createRouter("/calling");
+    const sideWidgetView = createSideWidgetView();
+    const view = createView({ router, sideWidgetView });
+    const [handle] = sideWidgetView.handles;
+
+    await expect(
+      view.openLogCallPage("/log/call/session-1")
+    ).resolves.toBe(true);
+
+    expect(handle.options).toEqual(
+      expect.objectContaining({
+        id: "call-page-log-call",
+        scope: "contact",
+      })
+    );
+    expect(sideWidgetView.openContent).toHaveBeenCalledWith(handle);
+    expect(router.push).not.toHaveBeenCalled();
+  });
+
+  test("routes to the log page outside the call page", async () => {
+    const router = createRouter("/dialer");
+    const sideWidgetView = createSideWidgetView();
+    const view = createView({ router, sideWidgetView });
+
+    await expect(
+      view.openLogCallPage("/log/call/session-1")
+    ).resolves.toBe(true);
+
+    expect(router.push).toHaveBeenCalledWith("/log/call/session-1");
+    expect(sideWidgetView.openContent).not.toHaveBeenCalled();
+    expect(sideWidgetView.closeTabFromPanel).not.toHaveBeenCalled();
+  });
+
+  test("routes to the log page when there is no side widget", async () => {
+    const router = createRouter("/calling");
+    const view = createView({ router });
+
+    await view.openLogCallPage("/log/call/session-1");
+
+    expect(router.push).toHaveBeenCalledWith("/log/call/session-1");
+  });
+
+  test("leaves other paths to the caller", async () => {
+    const router = createRouter("/calling");
+    const sideWidgetView = createSideWidgetView();
+    const view = createView({ router, sideWidgetView });
+
+    await expect(view.openLogCallPage("/log/messages/c-1")).resolves.toBe(
+      false
+    );
+
+    expect(router.push).not.toHaveBeenCalled();
+    expect(sideWidgetView.openContent).not.toHaveBeenCalled();
+  });
+
+  test("closes the call page tab when the log page opens as a routed page", async () => {
+    const router = createRouter("/calling");
+    const sideWidgetView = createSideWidgetView();
+    const view = createView({ router, sideWidgetView });
+
+    await view.openLogCallPage("/log/call/session-1");
+    router.currentPath = "/dialer";
+    await view.openLogCallPage("/log/call/session-2");
+
+    expect(sideWidgetView.closeTabFromPanel).toHaveBeenCalledWith(
+      "call-page-log-call"
+    );
+    expect(router.push).toHaveBeenCalledWith("/log/call/session-2");
+  });
+
+  test("leaves side widget tabs alone once the call page tab closed", async () => {
+    const router = createRouter("/calling");
+    const sideWidgetView = createSideWidgetView();
+    const view = createView({ router, sideWidgetView });
+    const [handle] = sideWidgetView.handles;
+
+    await view.openLogCallPage("/log/call/session-1");
+    handle.options.onClose(null);
+    router.currentPath = "/dialer";
+    await view.openLogCallPage("/log/call/session-2");
+
+    expect(sideWidgetView.closeTabFromPanel).not.toHaveBeenCalled();
+  });
+
+  test("closes the tab from its side widget back button instead of routing", async () => {
+    const router = createRouter("/calling");
+    const sideWidgetView = createSideWidgetView();
+    const view = createView({ router, sideWidgetView });
+    const [handle] = sideWidgetView.handles;
+
+    await view.openLogCallPage("/log/call/session-1");
+    handle.options.onBack();
+
+    expect(sideWidgetView.closeTabFromPanel).toHaveBeenCalledWith(
+      "call-page-log-call"
+    );
+    expect(router.goBack).not.toHaveBeenCalled();
+  });
+
+  describe("tab page", () => {
+    function renderTab(view) {
+      const { view: HandleView } = view._callPageLogHandle.options;
+      return render(
+        React.createElement(
+          MemoryRouter,
+          { initialEntries: ["/calling"] },
+          React.createElement(() => HandleView.call(view))
+        )
+      );
+    }
+
+    test("loads the call of the tab's log path, not the router's", async () => {
+      const sideWidgetView = createSideWidgetView();
+      const view = createView({ sideWidgetView });
+      const loadCall = jest
+        .spyOn(view, "loadCall")
+        .mockResolvedValue(undefined);
+
+      await view.openLogCallPage("/log/call/session-1?source=ringcx");
+      renderTab(view);
+
+      expect(loadCall).toHaveBeenCalledWith("session-1", "ringcx");
+      expect(mockLogCallPageProps).not.toHaveLength(0);
+    });
+
+    test("renders nothing once the tab closed", async () => {
+      const sideWidgetView = createSideWidgetView();
+      const view = createView({ sideWidgetView });
+      jest.spyOn(view, "loadCall").mockResolvedValue(undefined);
+
+      renderTab(view);
+
+      expect(mockLogCallPageProps).toHaveLength(0);
+    });
+
+    test("closes the tab from the page's back button", async () => {
+      const router = createRouter("/calling");
+      const sideWidgetView = createSideWidgetView();
+      const view = createView({ router, sideWidgetView });
+      jest.spyOn(view, "loadCall").mockResolvedValue(undefined);
+
+      await view.openLogCallPage("/log/call/session-1");
+      renderTab(view);
+      mockLogCallPageProps[mockLogCallPageProps.length - 1].onBack();
+
+      expect(sideWidgetView.closeTabFromPanel).toHaveBeenCalledWith(
+        "call-page-log-call"
+      );
+      expect(router.goBack).not.toHaveBeenCalled();
+    });
+
+    test("closes the tab after saving the log, so the call page stays", async () => {
+      const call = { sessionId: "session-1", telephonySessionId: "t-1" };
+      const router = createRouter("/calling");
+      const sideWidgetView = createSideWidgetView();
+      const callLogger = { logCall: jest.fn().mockResolvedValue(undefined) };
+      const view = createView({ callLogger, router, sideWidgetView });
+      jest.spyOn(view, "loadCall").mockResolvedValue(undefined);
+      view.currentCall = call;
+
+      await view.openLogCallPage("/log/call/session-1");
+      renderTab(view);
+      await act(() =>
+        mockLogCallPageProps[mockLogCallPageProps.length - 1].onSubmit({
+          note: "Note",
+        })
+      );
+
+      expect(callLogger.logCall).toHaveBeenCalledWith(
+        expect.objectContaining({ call, triggerType: "logForm" })
+      );
+      expect(sideWidgetView.closeTabFromPanel).toHaveBeenCalledWith(
+        "call-page-log-call"
+      );
+      expect(router.goBack).not.toHaveBeenCalled();
+    });
+
+    test("still goes back in the router on the routed log page", async () => {
+      const router = createRouter("/dialer");
+      const view = createView({ router });
+      jest.spyOn(view, "loadCall").mockResolvedValue(undefined);
+
+      render(
+        React.createElement(view.component, {
+          location: { search: "" },
+          match: { params: { callSessionId: "session-1" } },
+        })
+      );
+      mockLogCallPageProps[mockLogCallPageProps.length - 1].onBack();
+
+      expect(router.goBack).toHaveBeenCalledTimes(1);
     });
   });
 });

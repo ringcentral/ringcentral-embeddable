@@ -1,21 +1,30 @@
 import { callDirection } from "@ringcentral-integration/commons/enums/callDirections";
 import type { Entity } from "@ringcentral-integration/commons/interfaces/Entity.interface";
-import { CallLogger } from "@ringcentral-integration/micro-phone/src/app/services";
+import {
+  CALLING_ROUTE_PATH,
+  CallLogger,
+} from "@ringcentral-integration/micro-phone/src/app/services";
 import { CallsListViewSpring } from "@ringcentral-integration/micro-phone/src/app/views/CallsListViewSpring";
 import { CallViewState } from "@ringcentral-integration/micro-phone/src/app/views/CallView/services";
 import {
   action,
+  autobind,
   delegate,
   inject,
   injectable,
+  optional,
   RcViewModule,
+  Route as RouterRoute,
   RouterPlugin,
   type RouteComponentProps,
   state,
+  Switch,
   useConnector,
+  useLocation,
 } from "@ringcentral-integration/next-core";
 import React, { useEffect, useRef } from "react";
 
+import { t } from "../../i18n";
 import type {
   CompatibleCall,
   EmbeddableCallLogger,
@@ -26,21 +35,124 @@ import {
 } from "../../services/CallLogger/CallLogSourceRegistry";
 import { ThirdParty } from "../../services/ThirdParty";
 import type { ThirdPartyCall, UnknownRecord } from "../../services/ThirdParty";
+import {
+  type SideWidgetContentHandle,
+  SideWidgetView,
+} from "../SideWidgetView";
 
 import { LogCallPage } from "./LogCallPage";
+
+const LOG_CALL_PATH_PREFIX = "/log/call/";
+const LOG_CALL_ROUTE_PATH = "/log/call/:callSessionId";
+
+type LogCallPageProps = RouteComponentProps<{ callSessionId: string }> & {
+  /** Replaces going back in the router, for a page not opened by a route. */
+  onClose?: () => void;
+};
 
 @injectable({
   name: "LogCallView",
 })
 export class LogCallView extends RcViewModule {
+  /** The log page path shown in the tab opened from the call page. */
+  @state
+  private _callPageLogPath: string | null = null;
+
+  private readonly _callPageLogHandle: SideWidgetContentHandle | null;
+
   constructor(
     @inject(CallLogger) private _callLogger: EmbeddableCallLogger,
     private _thirdParty: ThirdParty,
     private _router: RouterPlugin,
     private _callsListView: CallsListViewSpring,
-    private _callViewState: CallViewState
+    private _callViewState: CallViewState,
+    @optional() private _sideWidgetView?: SideWidgetView
   ) {
     super();
+    this._callPageLogHandle =
+      this._sideWidgetView?.createContent({
+        id: "call-page-log-call",
+        name: t("logCall"),
+        getName: () => t("logCall"),
+        scope: "contact",
+        onBack: () => this._closeCallPageLog(),
+        onClose: () => this._setCallPageLogPath(null),
+        view: this.CallPageLogCall,
+      }) ?? null;
+  }
+
+  /**
+   * Opens a log page path, such as `/log/call/<sessionId>?source=ringcx`.
+   *
+   * Leaving the call page closes the call on it and blanks the main column, so
+   * from the call page the log page opens in the side widget while the call
+   * page stays in the main column.
+   *
+   * @returns Whether the path was a log call page.
+   */
+  @delegate("server")
+  async openLogCallPage(path: string): Promise<boolean> {
+    if (!path.startsWith(LOG_CALL_PATH_PREFIX)) {
+      return false;
+    }
+    if (
+      this._callPageLogHandle &&
+      this._router.currentPath === CALLING_ROUTE_PATH
+    ) {
+      this._setCallPageLogPath(path);
+      this._sideWidgetView!.openContent(this._callPageLogHandle);
+      return true;
+    }
+    this._closeCallPageLog();
+    await this._router.push(path);
+    return true;
+  }
+
+  @action
+  private _setCallPageLogPath(path: string | null): void {
+    this._callPageLogPath = path;
+  }
+
+  /** The routed log page replaces the call page's tab. */
+  private _closeCallPageLog(): void {
+    if (this._callPageLogHandle && this._callPageLogPath) {
+      void this._sideWidgetView!.closeTabFromPanel(
+        this._callPageLogHandle.options.id
+      );
+    }
+  }
+
+  /**
+   * Renders the call page's log page at its log route, which the router is
+   * not on, so the page reads its params as usual.
+   */
+  @autobind
+  private CallPageLogCall(): React.ReactElement | null {
+    const location = useLocation();
+    const path = useConnector(() => this._callPageLogPath);
+    if (!path) {
+      return null;
+    }
+    const [pathname, search = ""] = path.split("?");
+    return (
+      <Switch
+        location={{
+          ...location,
+          pathname,
+          search: search ? `?${search}` : "",
+        }}
+      >
+        <RouterRoute
+          path={LOG_CALL_ROUTE_PATH}
+          render={(props) => (
+            <this.component
+              {...(props as LogCallPageProps)}
+              onClose={() => this._closeCallPageLog()}
+            />
+          )}
+        />
+      </Switch>
+    );
   }
 
   @state
@@ -170,10 +282,7 @@ export class LogCallView extends RcViewModule {
     });
   }
 
-  component({
-    location,
-    match,
-  }: RouteComponentProps<{ callSessionId: string }>): React.ReactElement {
+  component({ location, match, onClose }: LogCallPageProps): React.ReactElement {
     const sessionId = match.params.callSessionId;
     const rawSource = new URLSearchParams(location?.search || "").get("source");
     const source =
@@ -193,8 +302,15 @@ export class LogCallView extends RcViewModule {
     }, [sessionId, source]);
     const callRef = useRef(call);
     callRef.current = call;
+    const goBack = (): void => {
+      if (onClose) {
+        onClose();
+        return;
+      }
+      this._router.goBack();
+    };
     const { current: handlers } = useRef({
-      onBack: () => this._router.goBack(),
+      onBack: goBack,
       onButtonClick: (buttonId: string, formData: UnknownRecord) => {
         void this._thirdParty.onClickButtonInCustomizedPage(
           buttonId,
@@ -227,7 +343,7 @@ export class LogCallView extends RcViewModule {
             redirect: true,
             triggerType: "logForm",
           });
-          this._router.goBack();
+          goBack();
         } finally {
           this.setSaving(false);
         }

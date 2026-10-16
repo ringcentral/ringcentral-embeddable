@@ -42,12 +42,25 @@ describe("EmbeddableCallLogger compatibility APIs", () => {
 
   function createLogger({
     calls,
+    activeCalls = [],
     dataMapping = {},
     hasPermission = true,
     thirdParty: thirdPartyOverrides = {},
   }) {
     const storage = { enable: jest.fn() };
-    const callHistory = { calls };
+    // Like the upstream maps, which add the call monitor's calls to history.
+    const callHistory = {
+      calls,
+      allCallsMap: Object.fromEntries(
+        [...activeCalls, ...calls].map((call) => [call.sessionId, call])
+      ),
+      allCallsTelephonySessionIdMap: Object.fromEntries(
+        [...activeCalls, ...calls].map((call) => [
+          call.telephonySessionId,
+          call,
+        ])
+      ),
+    };
     const callMonitor = {};
     const callLog = { calls: [] };
     const callLoggerOptions = {
@@ -211,6 +224,94 @@ describe("EmbeddableCallLogger compatibility APIs", () => {
     const { logger } = createLogger({ calls: [] });
 
     await expect(logger.getCall("missing", "missing")).resolves.toBeNull();
+  });
+
+  describe("active calls", () => {
+    function createActiveCall(overrides = {}) {
+      return {
+        sessionId: "active-session",
+        telephonySessionId: "active-telephony",
+        direction: "Outbound",
+        startTime: now - 5_000,
+        from: { phoneNumber: "+16505550100" },
+        to: { phoneNumber: "+16505550102" },
+        fromMatches: [],
+        toMatches: [],
+        telephonySession: { on: jest.fn() },
+        webphoneSession: { accept: jest.fn() },
+        ...overrides,
+      };
+    }
+
+    test("finds a call that is still in progress by session ID", async () => {
+      const activityMatches = [{ type: "contact" }];
+      const { logger, smartNotes } = createLogger({
+        calls: [],
+        activeCalls: [createActiveCall()],
+        dataMapping: { "active-session": activityMatches },
+      });
+
+      const call = await logger.getCall("active-session", "active-session");
+
+      expect(call).toEqual(
+        expect.objectContaining({
+          sessionId: "active-session",
+          telephonySessionId: "active-telephony",
+          activityMatches,
+          aiNote: "AI note",
+          recording: null,
+        })
+      );
+      expect(smartNotes.queryNotedCalls).toHaveBeenCalledWith([
+        "active-telephony",
+      ]);
+    });
+
+    test("finds a call that is still in progress by telephony session ID", async () => {
+      const { logger } = createLogger({
+        calls: [],
+        activeCalls: [createActiveCall()],
+        hasPermission: false,
+      });
+
+      await expect(
+        logger.getCall("active-telephony", "active-telephony")
+      ).resolves.toEqual(
+        expect.objectContaining({ sessionId: "active-session" })
+      );
+    });
+
+    test("leaves out the live session objects", async () => {
+      const { logger } = createLogger({
+        calls: [],
+        activeCalls: [createActiveCall()],
+        hasPermission: false,
+      });
+
+      const call = await logger.getCall("active-session", "active-session");
+
+      expect(call).not.toHaveProperty("telephonySession");
+      expect(call).not.toHaveProperty("webphoneSession");
+    });
+
+    test("prefers the history call once the call is in history", async () => {
+      const historyCall = createCall({ recording: undefined });
+      const { logger } = createLogger({
+        calls: [historyCall],
+        activeCalls: [
+          createActiveCall({
+            sessionId: "session-id",
+            telephonySessionId: "telephony-session-id",
+          }),
+        ],
+        hasPermission: false,
+      });
+
+      const call = await logger.getCall("session-id", "telephony-session-id");
+
+      expect(call).toEqual(expect.objectContaining({ id: "call-id" }));
+      expect(call).not.toHaveProperty("telephonySession");
+    });
   });
 
   test("applies and exposes the third-party auto-log policy", () => {

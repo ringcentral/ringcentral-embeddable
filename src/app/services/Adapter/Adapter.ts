@@ -86,6 +86,7 @@ import { runOnAllPorts } from '../../../lib/runOnAllPorts';
 import type { RingCXCommandBridge } from './RingCXCommandBridge';
 import { parseUri } from '../../../lib/Adapter/parseUri';
 import { isDuplicated } from '../../../lib/isDuplicated';
+import type { LogCallView } from '../../views/LogCallView/LogCall.view';
 import {
   getSideWidgetCallContact,
   SideWidgetView,
@@ -421,6 +422,7 @@ export class Adapter extends RcModule {
     @optional() protected _ringCX?: RingCX,
     @optional() protected _phoneNumberFormat?: PhoneNumberFormat,
     @optional() protected _numberFormatter?: NumberFormatter,
+    @optional('LogCallView') protected _logCallView?: LogCallView,
   ) {
     super();
     if (this._smartNotes) {
@@ -2757,6 +2759,9 @@ export class Adapter extends RcModule {
       case 'route':
         if (intent.path === '/composeFax' && !this._appFeaturesV2.canSendFax) {
           this.logger.warn('Fax sending is not available', intent);
+          return;
+        }
+        if (await this._logCallView?.openLogCallPage(intent.path)) {
           return;
         }
         if (this._router.currentPath !== intent.path) {

@@ -194,23 +194,56 @@ class CallLogger extends CallLoggerBase {
   }
 
   /**
-   * Finds and enriches one historical call by either supported identifier.
+   * Finds and enriches one historical or active call by either supported
+   * identifier.
    */
   @delegate("server")
   async getCall(
     sessionId?: string,
     telephonySessionId?: string
   ): Promise<CompatibleCall | null> {
-    const call = this._callHistory.calls.find(
-      (item) =>
-        item.sessionId === sessionId ||
-        item.telephonySessionId === telephonySessionId
-    );
+    const call = this._findCall(sessionId, telephonySessionId);
     if (!call) {
       return null;
     }
     await this._querySmartNotes([call]);
     return this._enrichCall(call, true);
+  }
+
+  /**
+   * History calls only cover call log records and ended calls, so fall back
+   * to the call monitor for calls that are still in progress.
+   */
+  private _findCall(
+    sessionId?: string,
+    telephonySessionId?: string
+  ): HistoryCall | null {
+    const historyCall = this._callHistory.calls.find(
+      (item) =>
+        item.sessionId === sessionId ||
+        item.telephonySessionId === telephonySessionId
+    );
+    if (historyCall) {
+      return historyCall;
+    }
+    const activeCall =
+      (sessionId ? this._callHistory.allCallsMap[sessionId] : undefined) ??
+      (telephonySessionId
+        ? this._callHistory.allCallsTelephonySessionIdMap[telephonySessionId]
+        : undefined);
+    if (!activeCall) {
+      return null;
+    }
+    // Live session objects can't cross ports or be kept in state.
+    const {
+      telephonySession: _telephonySession,
+      webphoneSession: _webphoneSession,
+      ...call
+    } = activeCall as typeof activeCall & {
+      telephonySession?: unknown;
+      webphoneSession?: unknown;
+    };
+    return call as HistoryCall;
   }
 
   /**
