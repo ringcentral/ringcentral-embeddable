@@ -46,7 +46,32 @@ export const createWorker = (): void => {
   );
 };
 
-loadWorker();
+const resolvePrefix = (): string =>
+  new URLSearchParams(window.location.search).get('prefix') ||
+  process.env.PREFIX ||
+  '';
 
-// Keep the root entry small and bind all runtime chunks to its build directory.
-import(/* webpackChunkName: "main" */ './appMain');
+/**
+ * Moves legacy (2.x) localStorage tokens into IndexedDB before anything reads
+ * them. The worker has no `localStorage`, so this runs in the window first.
+ */
+const migrateLegacyStorage = async (): Promise<void> => {
+  try {
+    const { migrateLegacyAuthToken } = await import(
+      /* webpackChunkName: "migrate-legacy" */ './lib/migrateLegacyAuthToken'
+    );
+    await migrateLegacyAuthToken(resolvePrefix());
+  } catch (error: unknown) {
+    // Never block app startup on migration.
+    console.warn('migrate legacy storage fail', error);
+  }
+};
+
+const start = async (): Promise<void> => {
+  await migrateLegacyStorage();
+  loadWorker();
+  // Keep the root entry small and bind all runtime chunks to its build directory.
+  await import(/* webpackChunkName: "main" */ './appMain');
+};
+
+start();
