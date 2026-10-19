@@ -93,6 +93,8 @@ function createWidgets({
   hasScript = false,
   hasAssistant = false,
   activityCallId = '',
+  cxCallIds = [],
+  isDialing = false,
   leadInfo = createLeadInfo(),
   portManager = { shared: false, isServer: false },
 } = {}) {
@@ -113,8 +115,8 @@ function createWidgets({
     sideWidgetView,
     { hasVisibleScript: hasScript },
     { hasVisibleAssistant: hasAssistant },
-    { activityCallId },
-    {},
+    { activityCallId, isDialing },
+    { callIds: cxCallIds },
     leadInfo,
     cxLeadInfoView,
     portManager,
@@ -148,13 +150,29 @@ describe('RingCXSideWidgets', () => {
         id,
         name,
         scope: 'global',
-        keepActiveOnCallApps: true,
+        keepActiveOnCallApps: expect.any(Function),
         keepMounted: true,
         minExpandedWidth: RINGCX_SIDE_WIDGET_WIDTH,
       }),
     );
     expect(RINGCX_SIDE_WIDGET_WIDTH).toBe(360);
     expect(options.getName()).toBe(name);
+  });
+
+  test.each([
+    ['a CX call is up', { cxCallIds: [CALL_ID] }, true],
+    ['a CX call is dialing', { isDialing: true }, true],
+    ['the CX call ended, during its disposition', {}, false],
+  ])('keeps the tabs in front of call apps only while %s', (_name, state, keep) => {
+    const { handles } = createWidgets(state);
+
+    [
+      RINGCX_AGENT_SCRIPT_WIDGET_ID,
+      RINGCX_AGENT_ASSISTANT_WIDGET_ID,
+      RINGCX_LEAD_INFO_WIDGET_ID,
+    ].forEach((id) => {
+      expect(handles.get(id).options.keepActiveOnCallApps()).toBe(keep);
+    });
   });
 
   test('opens the script as the active tab and the assistant behind it', () => {
@@ -219,7 +237,7 @@ describe('RingCXSideWidgets', () => {
           id: RINGCX_LEAD_INFO_WIDGET_ID,
           name: 'Lead',
           scope: 'global',
-          keepActiveOnCallApps: true,
+          keepActiveOnCallApps: expect.any(Function),
           minExpandedWidth: RINGCX_SIDE_WIDGET_WIDTH,
         }),
       );

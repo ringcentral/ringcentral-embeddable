@@ -816,6 +816,11 @@ export class AppView extends RcViewModule {
     );
     // Pages outside the signed-in shell, such as the call page, cannot be
     // rendered in the main column behind a routed page either.
+    this._routedSideWidgetView.setOutsideShellPaths(
+      this.routes
+        .filter((route) => !route.authentication)
+        .map((route) => route.path),
+    );
     this._routedSideWidgetView.setRouterOwningPaths(
       this.routes
         .filter((route) => route.ownsRouter || !route.authentication)
@@ -863,6 +868,8 @@ export class AppView extends RcViewModule {
       currentPath,
       previousBackgroundPath: backgroundPathRef.current,
       routes: this.routes,
+      isOutsideShellPath: (path) =>
+        this._routedSideWidgetView.isOutsideShellPath(path),
     });
     useLayoutEffect(() => {
       backgroundPathRef.current = backgroundPath;

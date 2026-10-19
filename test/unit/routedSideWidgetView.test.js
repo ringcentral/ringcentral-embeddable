@@ -799,6 +799,84 @@ describe('RoutedSideWidgetView', () => {
     );
   });
 
+  test('reopens a page on a client after a call took the router and returned', async () => {
+    const dispositionConfig = {
+      id: 'cx-disposition',
+      name: 'Disposition',
+      scope: 'global',
+      backgroundPath: '/agent/home/dialer',
+      closeWhenLeft: true,
+    };
+    const dispositionPath = '/agent/calls/call-1/disposition';
+    const { handles, router, sideWidgetView, view } =
+      createRoutedSideWidget(dispositionPath);
+    view._root.expanded = true;
+    view.setRouterOwningPaths(['/calling']);
+    view.setOutsideShellPaths(['/calling']);
+    sideWidgetView.closeContent.mockImplementation((handle) =>
+      handle.options.onClose(null),
+    );
+    // A client runs no router watcher: only renders and `syncPath` reach it.
+    const openDisposition = () =>
+      view.open({
+        config: dispositionConfig,
+        detailComponent: () => null,
+        detailProps: {},
+        path: dispositionPath,
+        routePath: '/agent/calls/:id/disposition',
+      });
+    openDisposition();
+    view.syncPath(dispositionPath, true);
+
+    // A RingEX call takes the router, which closes the disposition.
+    router.currentPath = '/calling';
+    view.syncPath('/calling');
+    expect(sideWidgetView.closeContent).toHaveBeenCalledWith(
+      handles.get('cx-disposition'),
+      expect.anything(),
+    );
+    sideWidgetView.openContent.mockClear();
+
+    // The call ends and the router goes back. The route renders before
+    // `syncPath` hears of the move, and must still show the page.
+    router.currentPath = dispositionPath;
+    openDisposition();
+
+    expect(sideWidgetView.openContent).toHaveBeenCalledWith(
+      handles.get('cx-disposition'),
+      {},
+    );
+  });
+
+  test('returns a preserved page to the page from before a call, not the call', async () => {
+    const logConfig = {
+      id: 'log-call',
+      name: 'Log call',
+      scope: 'contact',
+      backgroundPath: '/dialer',
+      preserveBackground: true,
+    };
+    const { handles, router, view } = createRoutedSideWidget('/history');
+    view.setOutsideShellPaths(['/calling']);
+    view.syncPath('/history');
+    router.currentPath = '/calling';
+    view.syncPath('/calling');
+
+    // The call ended and the router went back to a log page.
+    router.currentPath = '/log/call/call-1';
+    view.open({
+      config: logConfig,
+      detailComponent: () => null,
+      detailProps: {},
+      path: '/log/call/call-1',
+      routePath: '/log/call/:callSessionId',
+    });
+    view.syncPath('/log/call/call-1', true);
+    await handles.get('log-call').options.onClose(null);
+
+    expect(router.push).toHaveBeenLastCalledWith('/history');
+  });
+
   test('waits for the route component when navigating within one tab type', () => {
     const { handles, sideWidgetView, view } =
       createRoutedSideWidget('/conversations/first');

@@ -60,9 +60,9 @@ const APP_CLOSE: SideWidgetCloseTabOptions = { collapseWhenLast: true };
  * call screen's toggle brings it back.
  *
  * Both tabs are `global`, so contact-scoped host tabs, such as the Apps tab a
- * RingEX call opens, never evict them mid-call. They also keep focus when the
- * call opens its Apps tab, which happens right after the script loads on an
- * outbound or auto-answered call.
+ * RingEX call opens, never evict them mid-call. While a CX call is up they
+ * also keep focus when the call opens its Apps tab, which happens right after
+ * the script loads on an outbound or auto-answered call.
  *
  * Both are kept mounted while another tab is active: each hosts an iframe that
  * would otherwise reload, losing the script progress or re-running the
@@ -177,13 +177,21 @@ export class RingCXSideWidgets extends RcModule {
     );
   };
 
+  /**
+   * The CX tabs stay in front of a call's apps only while a CX call is up,
+   * such as when the CX call's own audio leg opens the Apps tab. After the
+   * call ended, during its disposition, a RingEX call's apps take focus.
+   */
+  private readonly _isCxCallUp = (): boolean =>
+    this._cxPresence.callIds.length > 0 || this._cxCall.isDialing;
+
   private readonly _agentScriptHandle =
     this._sideWidgetView.createOrUpdateContent({
       id: RINGCX_AGENT_SCRIPT_WIDGET_ID,
       name: tScript('agentScript'),
       getName: () => tScript('agentScript'),
       scope: 'global',
-      keepActiveOnCallApps: true,
+      keepActiveOnCallApps: this._isCxCallUp,
       keepMounted: true,
       minExpandedWidth: RINGCX_SIDE_WIDGET_WIDTH,
       view: this._AgentScriptContent,
@@ -195,7 +203,7 @@ export class RingCXSideWidgets extends RcModule {
       name: tAssistant('agentAssistant'),
       getName: () => tAssistant('agentAssistant'),
       scope: 'global',
-      keepActiveOnCallApps: true,
+      keepActiveOnCallApps: this._isCxCallUp,
       keepMounted: true,
       minExpandedWidth: RINGCX_SIDE_WIDGET_WIDTH,
       view: this._AgentAssistantContent,
@@ -207,7 +215,7 @@ export class RingCXSideWidgets extends RcModule {
       name: tLead('lead'),
       getName: () => tLead('lead'),
       scope: 'global',
-      keepActiveOnCallApps: true,
+      keepActiveOnCallApps: this._isCxCallUp,
       minExpandedWidth: RINGCX_SIDE_WIDGET_WIDTH,
       view: this._LeadInfoContent,
       // Runs on the port that owns the tabs, however the tab was closed.

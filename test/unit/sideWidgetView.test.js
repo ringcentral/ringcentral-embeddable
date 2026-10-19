@@ -593,6 +593,29 @@ describe('SideWidgetView', () => {
     expect(view.tabs.some(({ appId }) => appId === 'crm')).toBe(true);
   });
 
+  test('opens call apps behind a tab that keeps focus only while it asks to', () => {
+    const { view } = createSideWidget();
+    let keepActive = true;
+    const script = view.createContent({
+      id: 'script',
+      name: 'Script',
+      scope: 'global',
+      keepActiveOnCallApps: () => keepActive,
+      view: () => null,
+    });
+    view.openContent(script);
+
+    view.onCallRing({ from: '+16505550100', fromUserName: 'Caller' });
+    expect(view.currentTabId).toBe('script');
+    expect(view.tabs.some(({ id }) => id === 'side-widget-apps')).toBe(true);
+
+    // Its own call ended, so a new call's apps take focus.
+    keepActive = false;
+    view.onCallInit({ to: '+16505550101', toUserName: 'Callee' });
+    expect(view.currentTabId).toBe('side-widget-apps');
+    expect(view.tabs.some(({ id }) => id === 'script')).toBe(true);
+  });
+
   test('preserves same-contact pages and atomically replaces different-contact pages', () => {
     const { view } = createSideWidget();
     const onCallDetailsClose = jest.fn();

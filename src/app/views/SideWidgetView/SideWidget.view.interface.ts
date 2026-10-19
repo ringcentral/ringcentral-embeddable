@@ -38,9 +38,10 @@ export interface SideWidgetContentOptions {
   /**
    * Keeps this tab in front while it is open and a new call opens its apps:
    * the Apps tab and the pinned app tabs open behind it instead of taking
-   * focus.
+   * focus. A function is checked when the call opens its apps, for a tab that
+   * only belongs in front while its own call is up.
    */
-  keepActiveOnCallApps?: boolean;
+  keepActiveOnCallApps?: boolean | (() => boolean);
   /**
    * Keeps the view rendered while another tab is active, so its state, such as
    * a loaded iframe, survives tab switches. Routed pages leave it off, because
