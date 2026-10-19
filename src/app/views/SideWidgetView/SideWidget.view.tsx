@@ -628,9 +628,11 @@ export class SideWidgetView extends RcViewModule {
     contact: ThirdPartyWidgetContact,
     openPinnedApps = false,
   ): void {
-    const activate = !this.tabs.some(
-      ({ id }) => this._contentHandles.get(id)?.options.keepActiveOnCallApps,
-    );
+    const activate = !this.tabs.some(({ id }) => {
+      const keepActive =
+        this._contentHandles.get(id)?.options.keepActiveOnCallApps;
+      return typeof keepActive === 'function' ? keepActive() : !!keepActive;
+    });
     this.openApps(contact, { activate });
     if (!openPinnedApps) {
       return;

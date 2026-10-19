@@ -48,6 +48,13 @@ import type {
  */
 const BLANK_CONTACT_SETTLE_MS = 200;
 
+/** Whether a path is one of the routes, or a page nested under one. */
+function matchesPathPrefix(path: string, routes: readonly string[]): boolean {
+  return routes.some(
+    (route) => path === route || path.startsWith(`${route}/`),
+  );
+}
+
 interface RoutedSideWidgetEntry extends RoutedSideWidgetConfig {
   component: RoutedSideWidgetViewProps['detailComponent'];
   /**
@@ -71,6 +78,12 @@ interface ClosedRoutedSideWidgetEntry {
   backgroundPath: string;
   path: string;
   shouldNavigateToBackground: boolean;
+  /**
+   * The page closed because the router left it, so the router arriving at it
+   * again is the user going back to it, such as when a call that took the
+   * router ends, not a stale render of the close.
+   */
+  routerLeft: boolean;
 }
 
 @injectable({
@@ -111,6 +124,9 @@ export class RoutedSideWidgetView extends RcViewModule {
   /** The main-column page the user was last on. */
   private _lastMainPath: string | null = null;
 
+  /** A route change is closing the page the router left. */
+  private _closingLeftPage = false;
+
   private readonly _blankContactTimers = new Map<
     string,
     ReturnType<typeof setTimeout>
@@ -131,6 +147,9 @@ export class RoutedSideWidgetView extends RcViewModule {
    */
   private _routerOwningPaths: readonly string[] = [];
 
+  /** Main paths outside the signed-in shell, such as the call page. */
+  private _outsideShellPaths: readonly string[] = [];
+
   @action
   private _updateMainPath(path: string | null): void {
     this.mainPath = path;
@@ -138,9 +157,20 @@ export class RoutedSideWidgetView extends RcViewModule {
 
   private _setMainPath(path: string | null): void {
     if (path) {
-      this._lastMainPath = path;
+      this._rememberMainPath(path);
     }
     this._updateMainPath(path);
+  }
+
+  /**
+   * Records the main page a `preserveBackground` page returns to. A page
+   * outside the signed-in shell, such as the call page, closes with its call,
+   * so the page from before it stays the one to return to.
+   */
+  private _rememberMainPath(path: string): void {
+    if (!this.isOutsideShellPath(path)) {
+      this._lastMainPath = path;
+    }
   }
 
   override onInit(): void {
@@ -190,10 +220,21 @@ export class RoutedSideWidgetView extends RcViewModule {
     this._routerOwningPaths = paths;
   }
 
+  /**
+   * Declares main paths outside the signed-in shell, such as the call page.
+   * They close with what they show, so they never become the page behind a
+   * routed page.
+   */
+  setOutsideShellPaths(paths: readonly string[]): void {
+    this._outsideShellPaths = paths;
+  }
+
+  isOutsideShellPath(path: string): boolean {
+    return matchesPathPrefix(path, this._outsideShellPaths);
+  }
+
   private _ownsRouter(path: string): boolean {
-    return this._routerOwningPaths.some(
-      (owning) => path === owning || path.startsWith(`${owning}/`),
-    );
+    return matchesPathPrefix(path, this._routerOwningPaths);
   }
 
   /**
@@ -261,7 +302,14 @@ export class RoutedSideWidgetView extends RcViewModule {
     }
     const closedEntry = this._closedPaths.get(config.id);
     if (closedEntry?.path === path) {
-      return;
+      // A client runs no router watcher, and the route opens before
+      // `syncPath` hears of the move, so the record of a page the router left
+      // and came back to, such as a disposition behind a RingEX call, is
+      // cleared here. Otherwise the tab stays open without its page.
+      if (!closedEntry.routerLeft) {
+        return;
+      }
+      this._closedPaths.delete(config.id);
     }
     const existingEntry = this._entries.get(config.id);
     const isSamePage = existingEntry?.path === path;
@@ -373,7 +421,7 @@ export class RoutedSideWidgetView extends RcViewModule {
         if (this.mainPath) {
           this._setMainPath(null);
         }
-        this._lastMainPath = path;
+        this._rememberMainPath(path);
         if (decision.closePage) {
           this._closeEntry(
             decision.closePage.pageId,
@@ -413,10 +461,17 @@ export class RoutedSideWidgetView extends RcViewModule {
     }));
   }
 
+  /** Closes a page the router left, see `ClosedRoutedSideWidgetEntry`. */
   private _closeEntry(id: string, collapseWhenLast: boolean): void {
     const entry = this._entries.get(id);
-    if (entry) {
+    if (!entry) {
+      return;
+    }
+    this._closingLeftPage = true;
+    try {
       this._sideWidgetView.closeContent(entry.handle, { collapseWhenLast });
+    } finally {
+      this._closingLeftPage = false;
     }
   }
 
@@ -454,7 +509,7 @@ export class RoutedSideWidgetView extends RcViewModule {
       return;
     }
     this._setMainPath(null);
-    this._lastMainPath = mainColumn.mainPath;
+    this._rememberMainPath(mainColumn.mainPath);
     if (mainColumn.mainPath !== path) {
       this._requestedPath = mainColumn.mainPath;
       void this._router.replace(mainColumn.mainPath);
@@ -776,6 +831,7 @@ export class RoutedSideWidgetView extends RcViewModule {
       backgroundPath,
       path: entry.path,
       shouldNavigateToBackground: decision.type !== 'stay',
+      routerLeft: this._closingLeftPage,
     });
     if (decision.type === 'handOver') {
       this._requestedPath = decision.requestedPath;

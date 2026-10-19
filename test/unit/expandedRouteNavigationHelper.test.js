@@ -96,6 +96,37 @@ describe('resolveExpandedRouteBackgroundPath', () => {
     ).toBe('/settings/region');
   });
 
+  test('falls back to the route background when no main page preceded it', () => {
+    expect(
+      resolveExpandedRouteBackgroundPath({
+        currentPath: '/customized/crm-details',
+        previousBackgroundPath: null,
+        routes,
+      }),
+    ).toBe('/dialer');
+  });
+
+  test('keeps the previous background across a page outside the shell', () => {
+    const isOutsideShellPath = (path) => path === '/calling';
+    // The call page closes with its call, so the page a call returns to, such
+    // as a log page, keeps what was behind it before the call.
+    const duringCall = resolveExpandedRouteBackgroundPath({
+      currentPath: '/calling',
+      previousBackgroundPath: '/messages',
+      routes,
+      isOutsideShellPath,
+    });
+    expect(duringCall).toBe('/messages');
+    expect(
+      resolveExpandedRouteBackgroundPath({
+        currentPath: '/customized/crm-details',
+        previousBackgroundPath: duringCall,
+        routes,
+        isOutsideShellPath,
+      }),
+    ).toBe('/messages');
+  });
+
   test('does not preserve the background for a customized tab', () => {
     expect(
       resolveExpandedRouteBackgroundPath({
