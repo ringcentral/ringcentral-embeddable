@@ -18,4 +18,6 @@ export default {
   callDispositionSuccess: 'Disposição da chamada salva com sucesso.',
   callDispositionFailed: 'Falha ao salvar a disposição da chamada.',
   callLogNotFound: 'Registro de chamadas não encontrado',
+  // Lead
+  viewLead: 'Ver lead',
 } as const;

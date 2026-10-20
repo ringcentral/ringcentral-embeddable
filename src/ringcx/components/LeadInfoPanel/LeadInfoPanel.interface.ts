@@ -17,6 +17,8 @@ import type {
 export interface LeadInfoPreviewActions {
   /** Numbers the agent can dial; empty in progressive dial mode. */
   dialNumbers: string[];
+  /** Numbers already dialed, which cannot be dialed again, as in Agent One. */
+  dialedNumbers: string[];
   isDialDisabled: boolean;
   onDial: (phoneNumber: string) => void;
   /** Whether the agent may manually pass leads. */

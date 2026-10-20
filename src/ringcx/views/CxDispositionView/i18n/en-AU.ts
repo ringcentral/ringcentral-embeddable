@@ -18,5 +18,7 @@ export default {
   callDispositionSuccess: 'Call disposition saved successfully.',
   callDispositionFailed: 'Failed to save call disposition.',
   callLogNotFound: 'Call log not found',
+  // Lead
+  viewLead: 'View lead',
 } as const;
 

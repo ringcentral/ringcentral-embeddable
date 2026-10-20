@@ -4,6 +4,7 @@ import {
   CX_LEAD_MAX_PHONE_NUMBERS,
   parseCxLeadPhoneNumbers,
 } from '../../src/ringcx/lib/parseCxLeadPhoneNumbers';
+import { isLeadNumberDialed } from '../../src/ringcx/lib/isLeadNumberDialed';
 import { formatHistoryLead } from '../../src/ringcx/services/CxCallHistory/formatHistoryLead';
 
 describe('formatCxLeadPassDate', () => {
@@ -226,5 +227,34 @@ describe('formatHistoryLead', () => {
     ['a lead call without a lead', { type: 'LEAD' }],
   ])('has no lead for %s', (_name, outbound) => {
     expect(formatHistoryLead(outbound)).toBeUndefined();
+  });
+});
+
+describe('isLeadNumberDialed', () => {
+  test('tells a number in the lead dialed list', () => {
+    const lead = { dialedList: ['+16505550100'] };
+
+    expect(isLeadNumberDialed(lead, '+16505550100')).toBe(true);
+    expect(isLeadNumberDialed(lead, '+16505550101')).toBe(false);
+  });
+
+  test('ignores formatting and a country code one side leaves out', () => {
+    // The progressive dialer reports the number the server dialed, which
+    // may come without the country code the lead's number has.
+    const lead = { dialedList: ['6505550100'] };
+
+    expect(isLeadNumberDialed(lead, '+1 (650) 555-0100')).toBe(true);
+  });
+
+  test('does not match a short number by its end', () => {
+    const lead = { dialedList: ['+16505550100'] };
+
+    expect(isLeadNumberDialed(lead, '0100')).toBe(false);
+  });
+
+  test('knows no dialed number without a list, a lead or a number', () => {
+    expect(isLeadNumberDialed({}, '+16505550100')).toBe(false);
+    expect(isLeadNumberDialed(null, '+16505550100')).toBe(false);
+    expect(isLeadNumberDialed({ dialedList: ['+16505550100'] }, '')).toBe(false);
   });
 });

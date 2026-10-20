@@ -60,6 +60,10 @@ jest.mock('../../src/ringcx/components/DispositionForm', () => ({
   DispositionForm: () => null,
 }));
 
+jest.mock('../../src/ringcx/services/RingCXSideWidgets', () => ({
+  RingCXSideWidgets: class RingCXSideWidgets {},
+}));
+
 jest.mock('../../src/app/services/MatchedContactSelection', () => ({
   MatchedContactSelection: class MatchedContactSelection {},
 }));
@@ -84,6 +88,7 @@ const DISPOSITION_PATH = `/agent/calls/${CALL_ID}/disposition`;
 function createView({
   liveCallIds = [CALL_ID],
   homeTabAfterCall = 'dialer',
+  ringCXSideWidgets,
 } = {}) {
   const router = {
     currentPath: DISPOSITION_PATH,
@@ -114,6 +119,10 @@ function createView({
     { enable: jest.fn() },
     {},
     {},
+    undefined,
+    undefined,
+    undefined,
+    ringCXSideWidgets,
   );
   view._reset = jest.fn();
   view._setViewCallId = jest.fn();
@@ -200,5 +209,41 @@ describe('CxDispositionView submit hand-over', () => {
     expect(router.replace).toHaveBeenCalledWith(
       `/agent/home/${homeTabAfterCall}`,
     );
+  });
+});
+
+describe('CxDispositionView lead', () => {
+  function createSideWidgets(hasLeadInfo) {
+    return { hasLeadInfo, viewLeadInfo: jest.fn(async () => undefined) };
+  }
+
+  test("offers the call's lead while the call has one", () => {
+    const withLead = createView({ ringCXSideWidgets: createSideWidgets(true) });
+    const withoutLead = createView({
+      ringCXSideWidgets: createSideWidgets(false),
+    });
+
+    expect(withLead.view.hasLeadInfo).toBe(true);
+    expect(withoutLead.view.hasLeadInfo).toBe(false);
+  });
+
+  test('opens the Lead tab on the call being dispositioned', async () => {
+    // A Lead tab the agent closed after the call ended comes back from here.
+    const ringCXSideWidgets = createSideWidgets(true);
+    const { view } = createView({ ringCXSideWidgets });
+
+    await view.getUIFunctions().onViewLead();
+
+    expect(ringCXSideWidgets.viewLeadInfo).toHaveBeenCalledWith({
+      type: 'call',
+      callId: CALL_ID,
+    });
+  });
+
+  test('offers no lead without the side widgets', async () => {
+    const { view } = createView();
+
+    expect(view.hasLeadInfo).toBe(false);
+    await expect(view.getUIFunctions().onViewLead()).resolves.toBeUndefined();
   });
 });

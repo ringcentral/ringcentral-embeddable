@@ -142,7 +142,10 @@ const LeadInfoHeader: FunctionComponent<LeadInfoHeaderProps> = ({
                   ? previewActions?.onDial
                   : undefined
               }
-              isDialDisabled={!!previewActions?.isDialDisabled}
+              isDialDisabled={
+                !!previewActions?.isDialDisabled ||
+                !!previewActions?.dialedNumbers.includes(phoneNumber)
+              }
             />
           ))}
         </div>

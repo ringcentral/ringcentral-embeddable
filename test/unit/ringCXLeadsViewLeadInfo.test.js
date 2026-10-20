@@ -22,8 +22,12 @@ jest.mock('../../src/ringcx/services/CxAuth', () => ({ CxAuth: class {} }));
 jest.mock('../../src/ringcx/services/RingCXSideWidgets', () => ({
   RingCXSideWidgets: class RingCXSideWidgets {},
 }));
+const mockLeadItemProps = [];
 jest.mock('../../src/ringcx/components/LeadItem', () => ({
-  LeadItem: () => null,
+  LeadItem: (props) => {
+    mockLeadItemProps.push(props);
+    return null;
+  },
 }));
 jest.mock('../../src/ringcx/components/ManualPassForm', () => ({
   ManualPassForm: () => null,
@@ -34,6 +38,9 @@ jest.mock('../../src/ringcx/components/ProgressiveDialFooter', () => ({
 jest.mock('../../src/ringcx/lib/FormatPhoneNumber', () => ({
   formatPhoneNumber: ({ phoneNumber }) => phoneNumber,
 }));
+
+const { render } = require('@testing-library/react');
+const React = require('react');
 
 const { CxLeadsView } = require('../../src/ringcx/views/CxLeadsView/CxLeadsView.view');
 
@@ -57,5 +64,31 @@ describe('CxLeadsView', () => {
       type: 'lead',
       requestId: 'request-1',
     });
+  });
+
+  test('marks the numbers of a lead already dialed', () => {
+    const lead = {
+      leadId: '5725',
+      requestId: 'request-1',
+      leadState: 'PENDING',
+      destination: '+16505550100|+16505550101',
+      dialedList: ['6505550100'],
+    };
+    const view = new CxLeadsView(
+      { filteredLeads: [lead], loading: false, noLeadsReturned: false },
+      {},
+      { isDialing: false },
+      { isPendingDisposition: false, agentState: { agentState: 'AVAILABLE' } },
+      { isProgressiveDialMode: false },
+      { agentConfig: { agentPermissions: { allowManualPass: true } } },
+    );
+    mockLeadItemProps.length = 0;
+    const Harness = () => view.component();
+    render(React.createElement(Harness));
+
+    expect(mockLeadItemProps[0].phoneNumbers).toEqual([
+      { formatted: '+16505550100', destination: '+16505550100', dialed: true },
+      { formatted: '+16505550101', destination: '+16505550101', dialed: false },
+    ]);
   });
 });

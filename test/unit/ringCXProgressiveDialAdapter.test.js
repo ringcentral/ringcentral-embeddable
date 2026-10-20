@@ -303,6 +303,25 @@ describe('RingCXAdapterBridge progressive dial', () => {
     });
   });
 
+  test("relays a saved edit to the host page as the lead's update", () => {
+    const { bridge, adapter } = createBridge();
+    let leadListener;
+    bridge._cxLeads.onLeadEvent = jest.fn((listener) => {
+      leadListener = listener;
+      return jest.fn();
+    });
+    bridge._bindHostNotifications();
+
+    leadListener({ action: 'updated', lead: { ...lead, firstName: 'Grace' } });
+
+    expect(adapter.notifyRingCXLead).toHaveBeenCalledWith({
+      action: 'updated',
+      leads: undefined,
+      lead: expect.objectContaining({ leadId: 'lead-1', firstName: 'Grace' }),
+      destination: undefined,
+    });
+  });
+
   test('relays the dialer status with the lead the countdown dials', () => {
     const { bridge, adapter, emitStatus, unregisterStatus } = createBridge();
     const unbind = bridge._bindHostNotifications();

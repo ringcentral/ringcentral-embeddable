@@ -18,4 +18,6 @@ export default {
   callDispositionSuccess: 'コールの処理が正常に保存されました。',
   callDispositionFailed: '通話処理を保存できませんでした。',
   callLogNotFound: '通話ログが見つかりません',
+  // Lead
+  viewLead: 'リードを表示',
 } as const;

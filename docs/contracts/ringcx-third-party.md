@@ -35,6 +35,7 @@ A host that already integrates RingCentral Embeddable MUST be able to log, match
 8. Contact match requests MUST use plain phone numbers.
 9. History log actions MUST use the same labels and disabled states as RingEX rows, and MUST be hidden when `callLoggerPath` is not registered. History rows MUST show the same logged status as RingEX rows, derived from call log matches.
 10. `rc-adapter-ringcx-start-progressive-dial` MUST behave as **Start dialing** on the Leads tab, including the go-available prompt, which MUST bring the widget up. A refused start MUST post `rc-ringcx-progressive-dial-notify` with `running: false` and a `reason`.
+11. A lead edit the server accepted MUST post `rc-ringcx-lead-notify` with `action: 'updated'` and the lead with the saved fields. A refused edit MUST NOT post it.
 
 ## Registry
 
@@ -46,6 +47,7 @@ A host that already integrates RingCentral Embeddable MUST be able to log, match
 - Adapter command routing when the RingCX bridge is absent.
 - Log page resolution for `?source=ringcx`.
 - Disposition-then-log failure isolation.
+- Rule 11: `test/unit/ringCXLeadEdit.test.js` covers that a saved edit notifies the leads service with the saved fields, and that a refused one does not; `test/unit/ringCXProgressiveDialAdapter.test.js` covers relaying the `updated` action to the host page.
 
 ## Related Decision
 

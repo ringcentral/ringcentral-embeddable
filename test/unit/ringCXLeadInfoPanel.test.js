@@ -119,6 +119,7 @@ function createInfo(overrides = {}) {
 function createPreviewActions(overrides = {}) {
   return {
     dialNumbers: ['+16508446685'],
+    dialedNumbers: [],
     isDialDisabled: false,
     onDial: jest.fn(),
     showManualPass: true,
@@ -253,6 +254,21 @@ describe('LeadInfoPanel', () => {
     ]);
     fireEvent.click(buttons[1]);
     expect(previewActions.onDial).toHaveBeenCalledWith('+16505550100');
+  });
+
+  test('disables a number already dialed and keeps the others', () => {
+    const numbers = ['+16508446685', '+16505550100'];
+    renderPanel({
+      info: createInfo({ phoneNumbers: numbers }),
+      previewActions: createPreviewActions({
+        dialNumbers: numbers,
+        dialedNumbers: ['+16508446685'],
+      }),
+    });
+    const [dialed, other] = allBySign('leadPhoneNumberButton');
+
+    expect(dialed).toBeDisabled();
+    expect(other).not.toBeDisabled();
   });
 
   test('disables what the Leads list would disable', () => {

@@ -11,6 +11,7 @@ import type {
   LeadInfoEditActions,
   LeadInfoPreviewActions,
 } from '../../components/LeadInfoPanel';
+import { isLeadNumberDialed } from '../../lib/isLeadNumberDialed';
 import { CxAgentSession } from '../../services/CxAgentSession';
 import { CxAuth } from '../../services/CxAuth';
 import { CxCall } from '../../services/CxCall';
@@ -42,6 +43,8 @@ interface PreviewActionState {
   /** Request id of the fetched lead; `''` for a call's lead. */
   previewRequestId: string;
   dialNumbers: string[];
+  /** The lead's `dialedList`, as the state holds it. */
+  dialedList: string[];
   isDialDisabled: boolean;
   showManualPass: boolean;
   isManualPassDisabled: boolean;
@@ -50,6 +53,7 @@ interface PreviewActionState {
 const NO_PREVIEW_ACTIONS: PreviewActionState = {
   previewRequestId: '',
   dialNumbers: NO_DIAL_NUMBERS,
+  dialedList: NO_DIAL_NUMBERS,
   isDialDisabled: true,
   showManualPass: false,
   isManualPassDisabled: true,
@@ -113,6 +117,7 @@ export class CxLeadInfoView extends RcViewModule {
       dialNumbers: this._cxAgentSession.isProgressiveDialMode
         ? NO_DIAL_NUMBERS
         : (this._cxLeadInfo.info?.phoneNumbers ?? NO_DIAL_NUMBERS),
+      dialedList: lead.dialedList ?? NO_DIAL_NUMBERS,
       isDialDisabled: isBlocked || !ALLOW_DIAL_STATES.includes(lead.leadState),
       showManualPass:
         !!this._cxAuth.agentConfig?.agentPermissions?.allowManualPass,
@@ -134,6 +139,7 @@ export class CxLeadInfoView extends RcViewModule {
       editPermission,
       previewRequestId,
       dialNumbers,
+      dialedList,
       isDialDisabled,
       showManualPass,
       isManualPassDisabled,
@@ -151,6 +157,9 @@ export class CxLeadInfoView extends RcViewModule {
         previewRequestId
           ? {
               dialNumbers,
+              dialedNumbers: dialNumbers.filter((phoneNumber) =>
+                isLeadNumberDialed({ dialedList }, phoneNumber),
+              ),
               isDialDisabled,
               showManualPass,
               isManualPassDisabled,
@@ -161,6 +170,7 @@ export class CxLeadInfoView extends RcViewModule {
       [
         previewRequestId,
         dialNumbers,
+        dialedList,
         isDialDisabled,
         showManualPass,
         isManualPassDisabled,

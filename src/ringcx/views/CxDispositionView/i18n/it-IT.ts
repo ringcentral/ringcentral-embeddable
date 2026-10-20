@@ -18,4 +18,6 @@ export default {
   callDispositionSuccess: 'Disposizione chiamata salvata correttamente.',
   callDispositionFailed: 'Impossibile salvare la disposizione della chiamata.',
   callLogNotFound: 'Registro chiamate non trovato',
+  // Lead
+  viewLead: 'Visualizza lead',
 } as const;

@@ -127,6 +127,7 @@ describe('CxLeadInfoView', () => {
       expect(view._getPreviewActionState()).toEqual({
         previewRequestId: 'request-1',
         dialNumbers: ['+16508446685', '+16505550100'],
+        dialedList: [],
         isDialDisabled: false,
         showManualPass: true,
         isManualPassDisabled: false,
@@ -209,6 +210,16 @@ describe('CxLeadInfoView', () => {
     view._onDial('+16505550100');
 
     expect(cxLeads.dialLead).not.toHaveBeenCalled();
+  });
+
+  test('tells the panel which numbers of the fetched lead were dialed', () => {
+    const { view } = createView({
+      previewLead: { ...PREVIEW_LEAD, dialedList: ['6505550100'] },
+    });
+
+    expect(renderView(view).panel.previewActions.dialedNumbers).toEqual([
+      '+16505550100',
+    ]);
   });
 
   test('opens the Manual pass tab on the fetched lead, which passes it there', () => {
