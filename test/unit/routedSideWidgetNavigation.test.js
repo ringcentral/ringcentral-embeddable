@@ -5,6 +5,7 @@ import {
   decideOpenerParking,
   decideRouteChange,
   decideRouteClose,
+  resolveMainColumnPath,
 } from '../../src/app/views/RoutedSideWidgetView/RoutedSideWidget.navigation';
 
 const callDetails = {
@@ -470,5 +471,95 @@ describe('decideCloseCompletion', () => {
         backgroundPath: '/dialer',
       }),
     ).toBeNull();
+  });
+});
+
+describe('resolveMainColumnPath', () => {
+  const routedPage = {
+    backgroundPath: '/dialer',
+    preserveBackground: false,
+    rendersOwnBackground: false,
+  };
+  const preservedPage = {
+    backgroundPath: '/dialer',
+    preserveBackground: true,
+    rendersOwnBackground: false,
+  };
+
+  test('renders a main route itself, even with a stale parked page', () => {
+    expect(
+      resolveMainColumnPath({
+        currentPath: '/contacts',
+        mainPath: '/messages',
+        routedPage: null,
+        lastMainPath: '/messages',
+      }),
+    ).toBe('/contacts');
+  });
+
+  test('renders the parked page behind a routed page', () => {
+    expect(
+      resolveMainColumnPath({
+        currentPath: '/history/call-1',
+        mainPath: '/agent/home',
+        routedPage,
+        lastMainPath: '/dialer',
+      }),
+    ).toBe('/agent/home');
+  });
+
+  test("renders a routed page's own background when nothing is parked", () => {
+    expect(
+      resolveMainColumnPath({
+        currentPath: '/history/call-1',
+        mainPath: null,
+        routedPage,
+        lastMainPath: '/messages',
+      }),
+    ).toBe('/dialer');
+  });
+
+  test('keeps the page a preserved page was opened from', () => {
+    expect(
+      resolveMainColumnPath({
+        currentPath: '/customized/crm-details',
+        mainPath: null,
+        routedPage: preservedPage,
+        lastMainPath: '/messages',
+      }),
+    ).toBe('/messages');
+  });
+
+  test('falls back to the background when no main page preceded a preserved page', () => {
+    expect(
+      resolveMainColumnPath({
+        currentPath: '/log/call/call-1',
+        mainPath: null,
+        routedPage: preservedPage,
+        lastMainPath: null,
+      }),
+    ).toBe('/dialer');
+  });
+
+  test('stays on a route that renders its own background', () => {
+    expect(
+      resolveMainColumnPath({
+        currentPath: '/extension/page-1',
+        mainPath: null,
+        routedPage: { ...routedPage, rendersOwnBackground: true },
+        lastMainPath: '/messages',
+      }),
+    ).toBe('/extension/page-1');
+  });
+
+  test('renders a parked page over a route with its own background', () => {
+    expect(
+      resolveMainColumnPath({
+        currentPath: '/extension/page-1',
+        mainPath: '/contacts',
+        routedPage: { ...routedPage, rendersOwnBackground: true },
+        lastMainPath: '/messages',
+      }),
+    ).toBe('/contacts');
   });
 });

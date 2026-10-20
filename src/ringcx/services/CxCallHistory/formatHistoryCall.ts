@@ -2,6 +2,7 @@ import { callDirection } from '../../enums';
 import { formatPhoneNumber } from '../../lib/FormatPhoneNumber/formatPhoneNumber';
 import { OutboundType } from '../CxClient/interfaces';
 import type { HistoryItemResponse } from '../CxClient/interfaces';
+import { formatHistoryLead } from './formatHistoryLead';
 import type {
   ActivityMatch,
   ContactMatch,
@@ -256,6 +257,7 @@ export function formatHistoryCall(
         ? item.outbound.type
         : undefined,
     dialogState: dialog?.state,
+    lead: formatHistoryLead(item.outbound),
     dialableNumber: rawPhoneNumber
       ? sessionInformation?.rcExtention
         ? `${rawPhoneNumber}@RC_EXT`

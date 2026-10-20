@@ -16,7 +16,7 @@ import {
   DISABLE_MANUAL_PASS_STATES,
   PHONE_DELIMETER,
 } from '../../services/CxLeads';
-import type { Lead, DispositionItem } from '../../services/CxLeads';
+import type { Lead } from '../../services/CxLeads';
 import { CxProgressiveDial } from '../../services/CxProgressiveDial';
 import type {
   ProgressiveDialPhase,
@@ -29,7 +29,7 @@ import { CxAuth } from '../../services/CxAuth';
 import { RingCXSideWidgets } from '../../services/RingCXSideWidgets';
 import { LeadItem } from '../../components/LeadItem';
 import { ProgressiveDialFooter } from '../../components/ProgressiveDialFooter';
-import type { PhoneNumberData, ManualPassParams } from '../../components/LeadItem';
+import type { PhoneNumberData } from '../../components/LeadItem';
 import { formatPhoneNumber } from '../../lib/FormatPhoneNumber';
 import i18n from './i18n';
 
@@ -132,12 +132,12 @@ class CxLeadsView extends RcViewModule {
     await this.cxProgressiveDial.stop({ source: 'widget' });
   };
 
-  manualPassLead = async (params: ManualPassParams) => {
-    await this.cxLeads.manualPassLead(params);
+  /**
+   * Opens the Manual pass side widget tab on the lead.
+   */
+  openManualPass = (lead: Lead) => {
+    void this._ringCXSideWidgets?.openManualPass(lead.requestId);
   };
-
-  fetchDispositionList = (campaignId: string): Promise<DispositionItem[]> =>
-    this.cxLeads.fetchManualPassDispositions(campaignId);
 
   /**
    * Opens the lead in the Lead side widget tab, which links on to the host
@@ -161,7 +161,6 @@ class CxLeadsView extends RcViewModule {
       pendingDisposition,
       agentState,
       allowManualPass,
-      defaultTimezone,
       isProgressiveDialMode,
       progressiveRunning,
       progressivePhase,
@@ -176,7 +175,6 @@ class CxLeadsView extends RcViewModule {
       pendingDisposition: this.cxWorkingState.isPendingDisposition,
       agentState: this.cxWorkingState.agentState?.agentState || '',
       allowManualPass: this.cxAuth.agentConfig?.agentPermissions?.allowManualPass ?? false,
-      defaultTimezone: (this.cxAuth.authenticateResponse as any)?.regionalSettings?.timezoneName || 'America/New_York',
       isProgressiveDialMode: this.cxAgentSession.isProgressiveDialMode,
       progressiveRunning: this.cxProgressiveDial.running,
       progressivePhase: this.cxProgressiveDial.phase,
@@ -245,11 +243,9 @@ class CxLeadsView extends RcViewModule {
                       isProgressiveDialMode &&
                       lead.requestId === nextLeadRequestId
                     }
-                    onPass={this.manualPassLead}
+                    onManualPass={this.openManualPass}
                     showManualPassButton={allowManualPass}
                     disableManualPass={disableManualPass}
-                    fetchDispositionList={this.fetchDispositionList}
-                    defaultTimezone={defaultTimezone}
                     showViewLeadButton
                     onViewLead={this.viewLead}
                   />

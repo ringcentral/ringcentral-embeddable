@@ -25,6 +25,9 @@ jest.mock('../../src/ringcx/services/RingCXSideWidgets', () => ({
 jest.mock('../../src/ringcx/components/LeadItem', () => ({
   LeadItem: () => null,
 }));
+jest.mock('../../src/ringcx/components/ManualPassForm', () => ({
+  ManualPassForm: () => null,
+}));
 jest.mock('../../src/ringcx/components/ProgressiveDialFooter', () => ({
   ProgressiveDialFooter: () => null,
 }));

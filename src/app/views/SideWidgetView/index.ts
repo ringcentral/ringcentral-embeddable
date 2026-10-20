@@ -1,4 +1,5 @@
 export { SideWidgetView } from './SideWidget.view';
+export { useSideWidgetBack } from './useSideWidgetBack';
 export { useSideWidgetTabsShown } from './useSideWidgetTabsShown';
 export {
   getSideWidgetCallContact,
@@ -7,6 +8,7 @@ export {
 export type {
   SideWidgetContentHandle,
   SideWidgetContentOptions,
+  SideWidgetCloseReason,
   SideWidgetCloseTabOptions,
   SideWidgetContentViewProps,
   SideWidgetOpenAppsOptions,

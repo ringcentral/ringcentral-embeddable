@@ -50,23 +50,23 @@ jest.mock('@ringcentral-integration/next-widgets/components', () => ({
   ),
 }));
 
-jest.mock('../../src/ringcx/components/ManualPassModal', () => ({
-  ManualPassModal: ({ open, campaignId, onSubmit }) =>
-    open ? (
-      <button
-        type="button"
-        data-sign="manualPassSubmit"
-        data-campaign={campaignId}
-        onClick={() =>
-          onSubmit({
-            dispositionId: 'disposition-1',
-            notes: '',
-            callback: false,
-            callbackDTS: '',
-          })
-        }
-      />
-    ) : null,
+jest.mock('../../src/ringcx/components/ManualPassForm', () => ({
+  // Shown in place of the panel's content while the agent passes the lead.
+  ManualPassForm: ({ campaignId, onSubmit }) => (
+    <button
+      type="button"
+      data-sign="manualPassSubmit"
+      data-campaign={campaignId}
+      onClick={() =>
+        onSubmit({
+          dispositionId: 'disposition-1',
+          notes: '',
+          callback: false,
+          callbackDTS: '',
+        })
+      }
+    />
+  ),
 }));
 
 // The shared mock's `Block` passes `borderRadius` on to the DOM, and its

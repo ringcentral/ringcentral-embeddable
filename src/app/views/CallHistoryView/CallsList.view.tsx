@@ -215,7 +215,8 @@ export class CallsListView extends CallsListViewSpringBase {
   private readonly _matchedContactSelection: MatchedContactSelection;
 
   override onInitOnce(): void {
-    super.onInitOnce();
+    // The micro-phone base may not define this optional hook.
+    void super.onInitOnce?.();
     // Runs where the call log pages, so the loaded older calls switch with the
     // filter even before the list asks for more.
     watch(

@@ -6,35 +6,18 @@ import {
   PageHeaderBackButton,
 } from '@ringcentral-integration/next-widgets/components';
 import type { ActionMenuListButtonProps } from '@ringcentral-integration/next-widgets/components/ActionMenuList';
-import { LinkContactMd, MissedCallMd } from '@ringcentral/spring-icon';
+import { EditMd, LinkContactMd, MissedCallMd } from '@ringcentral/spring-icon';
 import { Button } from '@ringcentral/spring-ui';
 import clsx from 'clsx';
 import type { FunctionComponent } from 'react';
-import React, { useState } from 'react';
+import React from 'react';
 
 import { formatPhoneNumber } from '../../lib/FormatPhoneNumber';
-import type {
-  CxLeadInfoData,
-  CxLeadInfoGroup,
-  CxLeadInfoRow,
-} from '../../services/CxLeadInfo/CxLeadInfo.interface';
-import { DetailCard, DetailField } from '../DetailCard';
-import { ManualPassModal } from '../ManualPassModal';
+import type { CxLeadInfoData } from '../../services/CxLeadInfo/CxLeadInfo.interface';
+import { LeadHistoryCard } from './LeadHistoryCard';
+import { LeadInfoCards } from './LeadInfoCards';
 import type { LeadInfoPanelProps } from './LeadInfoPanel.interface';
-import { LeadRecordingPlayer } from './LeadRecordingPlayer';
 import i18n from './i18n';
-
-/** Shown for an extra data field the lead left empty. */
-const EMPTY_VALUE = '-';
-
-/** Card order, top to bottom. */
-const GROUP_ORDER: readonly CxLeadInfoGroup[] = [
-  'status',
-  'contact',
-  'ids',
-  'aux',
-  'extra',
-];
 
 /** Actions shown as buttons; the rest go in the More menu. */
 const ACTION_DISPLAY_COUNT = 3;
@@ -45,31 +28,6 @@ const PANEL_CLASS_NAME =
   'flex h-full min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-neutral-base';
 
 const BODY_CLASS_NAME = 'min-h-0 flex-1 overflow-y-auto px-4 py-2';
-
-interface LeadInfoFieldProps {
-  row: CxLeadInfoRow;
-  loadRecording: LeadInfoPanelProps['loadRecording'];
-}
-
-const LeadInfoField: FunctionComponent<LeadInfoFieldProps> = ({
-  row,
-  loadRecording,
-}) => {
-  const { t } = useLocale(i18n);
-  const label = row.labelKey ? t(row.labelKey) : row.label ?? '';
-  return (
-    <DetailField
-      label={label}
-      value={row.value || EMPTY_VALUE}
-      className={row.wide ? 'col-span-2' : ''}
-      data-sign={`leadField-${row.id}`}
-    >
-      {row.isRecording ? (
-        <LeadRecordingPlayer value={row.value} loadRecording={loadRecording} />
-      ) : undefined}
-    </DetailField>
-  );
-};
 
 interface LeadPhoneNumberProps {
   phoneNumber: string;
@@ -242,18 +200,23 @@ function createActionButton({
 interface UseLeadActionButtonsOptions {
   info: CxLeadInfoData | null;
   previewActions: LeadInfoPanelProps['previewActions'];
+  canEdit: boolean;
+  onOpenEdit: () => void;
   showViewLeadButton: boolean;
   onViewLead: LeadInfoPanelProps['onViewLead'];
   onOpenManualPass: () => void;
 }
 
 /**
- * Manual pass for a lead not on a call, and the host lead viewer for any
- * lead. The lead's numbers dial it themselves.
+ * Edit when the campaign allows it, manual pass for a lead not on a call,
+ * and the host lead viewer for any lead. The lead's numbers dial it
+ * themselves.
  */
 function useLeadActionButtons({
   info,
   previewActions,
+  canEdit,
+  onOpenEdit,
   showViewLeadButton,
   onViewLead,
   onOpenManualPass,
@@ -262,6 +225,16 @@ function useLeadActionButtons({
   if (!info) {
     return [];
   }
+  const editButtons = canEdit
+    ? [
+        createActionButton({
+          actionType: 'edit',
+          label: t('edit'),
+          symbol: EditMd,
+          onClick: onOpenEdit,
+        }),
+      ]
+    : [];
   const manualPassButtons = previewActions?.showManualPass
     ? [
         createActionButton({
@@ -284,43 +257,8 @@ function useLeadActionButtons({
         }),
       ]
     : [];
-  return [...manualPassButtons, ...viewLeadButtons];
+  return [...editButtons, ...manualPassButtons, ...viewLeadButtons];
 }
-
-/**
- * The rows of each non-empty card, in card order.
- */
-function getCardRows(rows: readonly CxLeadInfoRow[]): CxLeadInfoRow[][] {
-  return GROUP_ORDER.map((group) =>
-    rows.filter((row) => row.group === group),
-  ).filter((groupRows) => groupRows.length > 0);
-}
-
-interface LeadInfoCardsProps {
-  info: CxLeadInfoData;
-  loadRecording: LeadInfoPanelProps['loadRecording'];
-}
-
-const LeadInfoCards: FunctionComponent<LeadInfoCardsProps> = ({
-  info,
-  loadRecording,
-}) => (
-  <>
-    {getCardRows(info.rows).map((rows) => (
-      <DetailCard key={rows[0].group} data-sign={`leadCard-${rows[0].group}`}>
-        <div className="grid w-full grid-cols-2 gap-3">
-          {rows.map((row) => (
-            <LeadInfoField
-              key={row.id}
-              row={row}
-              loadRecording={loadRecording}
-            />
-          ))}
-        </div>
-      </DetailCard>
-    ))}
-  </>
-);
 
 /**
  * The RingCX Lead side widget tab, laid out as the EX call detail page: a
@@ -328,25 +266,28 @@ const LeadInfoCards: FunctionComponent<LeadInfoCardsProps> = ({
  * Agent One shows (`containers/CallDetails/LeadInfoPanel`) in cards.
  *
  * With no tab bar above it, the header starts with a back button that
- * closes the tab.
+ * closes the tab. Edit and manual pass open their own tabs.
  */
 export const LeadInfoPanel: FunctionComponent<LeadInfoPanelProps> = ({
   info,
   showViewLeadButton,
   onViewLead,
   previewActions,
+  editActions,
   loadRecording,
+  loadLeadHistory,
   showCloseButton,
   onClose,
 }) => {
   const { t } = useLocale(i18n);
-  const [isManualPassOpen, setManualPassOpen] = useState(false);
   const buttons = useLeadActionButtons({
     info,
     previewActions,
+    canEdit: !!editActions,
+    onOpenEdit: () => editActions?.onOpenEdit(),
     showViewLeadButton,
     onViewLead,
-    onOpenManualPass: () => setManualPassOpen(true),
+    onOpenManualPass: () => previewActions?.onOpenManualPass(),
   });
   if (!info) {
     return (
@@ -369,22 +310,15 @@ export const LeadInfoPanel: FunctionComponent<LeadInfoPanelProps> = ({
         onClose={onClose}
       />
       <div className={BODY_CLASS_NAME}>
-        <LeadInfoCards info={info} loadRecording={loadRecording} />
+        <LeadInfoCards rows={info.rows} loadRecording={loadRecording} />
+        {loadLeadHistory && info.lead.leadId ? (
+          <LeadHistoryCard
+            key={info.lead.leadId}
+            leadId={info.lead.leadId}
+            loadLeadHistory={loadLeadHistory}
+          />
+        ) : null}
       </div>
-      {previewActions?.showManualPass ? (
-        <ManualPassModal
-          open={isManualPassOpen}
-          onClose={() => setManualPassOpen(false)}
-          onSubmit={async (params) => {
-            setManualPassOpen(false);
-            await previewActions.onManualPass(params);
-          }}
-          fetchDispositionList={previewActions.fetchDispositionList}
-          campaignId={info.lead.campaignId || ''}
-          defaultTimezone={previewActions.defaultTimezone}
-          disabled={previewActions.isManualPassDisabled}
-        />
-      ) : null}
     </section>
   );
 };

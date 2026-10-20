@@ -5,8 +5,10 @@ import {
   RcViewModule,
   Redirect,
   Route,
+  RouterPlugin,
   Switch,
   useConnector,
+  useLocation,
 } from '@ringcentral-integration/next-core';
 
 import { CxAgentView } from './views/CxAgentView';
@@ -32,6 +34,7 @@ export class CxAppView extends RcViewModule {
     private readonly _activeCallView: CxActiveCallView,
     private readonly _transferView: CxTransferView,
     private readonly _activeCallListView: CxActiveCallListView,
+    private readonly _router: RouterPlugin,
   ) {
     super();
   }
@@ -50,6 +53,13 @@ export class CxAppView extends RcViewModule {
       isOnlyOneAgent: this._cxAuth.isOnlyOneAgent,
       loginStatus: this._cxAuth.loginStatus,
     }));
+    // Behind a routed side widget page the main column hands this shell the
+    // location of the page parked there, while the router is on the routed
+    // page. A redirect would replace that route and close the page, so the
+    // shell renders nothing until the parked page is dropped.
+    const location = useLocation();
+    const currentPath = useConnector(() => this._router.currentPath);
+    const parked = location.pathname !== currentPath;
     const hasAgent = isOnlyOneAgent || !!agentId;
     // The session can end while the user is looking at an agent page, for
     // example when another device takes the login over, and a stored
@@ -110,7 +120,7 @@ export class CxAppView extends RcViewModule {
             component={this._activeCallView.component}
           />
         )}
-        <Redirect to={fallback} />
+        {parked ? null : <Redirect to={fallback} />}
       </Switch>
     );
   }

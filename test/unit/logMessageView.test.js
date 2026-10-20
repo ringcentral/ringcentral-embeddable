@@ -10,6 +10,12 @@ jest.mock(
   () => ({ ConversationsViewSpring: class ConversationsViewSpring {} })
 );
 
+jest.mock("../../src/app/views/SideWidgetView", () => ({
+  useSideWidgetBack: jest.requireActual(
+    "../../src/app/views/SideWidgetView/useSideWidgetBack"
+  ).useSideWidgetBack,
+}));
+
 jest.mock("../../src/app/views/LogMessageView/LogMessagePage", () => ({
   LogMessagePage: ({ conversation, onFormDataChange, onSubmit, onViewLog }) => (
     <div>
@@ -40,6 +46,9 @@ jest.mock("../../src/app/views/LogMessageView/LogMessagePage", () => ({
 const {
   LogMessageView,
 } = require("../../src/app/views/LogMessageView/LogMessage.view");
+const {
+  SideWidgetBackContext,
+} = require("../../src/app/views/SideWidgetView/SideWidgetBackContext");
 
 describe("LogMessageView", () => {
   test("uses the route id as the match-selection key when the record omits it", () => {
@@ -214,5 +223,43 @@ describe("LogMessageView", () => {
         triggerType: "viewLog",
       })
     );
+  });
+
+  test("closes its routed side widget tab after saving, instead of going back through history", async () => {
+    const conversation = {
+      conversationId: "conversation-id",
+      correspondentMatches: [],
+    };
+    const conversationLogger = {
+      conversationLogMap: { "conversation-id": {} },
+      dataMapping: {},
+      logConversation: jest.fn(async () => {}),
+    };
+    const router = { goBack: jest.fn() };
+    const closeTab = jest.fn();
+    const view = new LogMessageView(
+      conversationLogger,
+      {
+        formattedConversationsMap: new Map([["conversation-id", conversation]]),
+      },
+      { useConversationItemInfo: jest.fn() },
+      { customizedLogMessagesPage: undefined },
+      router
+    );
+    const Host = () =>
+      view.component({
+        match: { params: { conversationId: "conversation-id" } },
+      });
+
+    render(
+      <SideWidgetBackContext.Provider value={closeTab}>
+        <Host />
+      </SideWidgetBackContext.Provider>
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Save" }));
+
+    await waitFor(() => expect(closeTab).toHaveBeenCalledTimes(1));
+    expect(conversationLogger.logConversation).toHaveBeenCalled();
+    expect(router.goBack).not.toHaveBeenCalled();
   });
 });

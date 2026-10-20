@@ -19,6 +19,7 @@ import { t as tAssistant } from '../../components/AgentAssistantPanel/i18n';
 import { AgentScriptPanel } from '../../components/AgentScriptPanel';
 import { t as tScript } from '../../components/AgentScriptPanel/i18n';
 import { t as tLead } from '../../components/LeadInfoPanel/i18n';
+import { t as tPass } from '../../components/ManualPassForm/i18n';
 import { CxAgentAssistant } from '../CxAgentAssistant';
 import { CxAgentScript } from '../CxAgentScript';
 import { CxCall } from '../CxCall';
@@ -26,11 +27,15 @@ import type { CxBaseCall } from '../CxClient/interfaces';
 import { CxLeadInfo } from '../CxLeadInfo';
 import type { CxLeadInfoTarget } from '../CxLeadInfo';
 import { CxLeadInfoView } from '../../views/CxLeadInfoView';
+import { CxLeadUpdateView } from '../../views/CxLeadUpdateView';
+import { CxManualPassView } from '../../views/CxManualPassView';
 import { CxPresence } from '../CxPresence';
 
 export const RINGCX_AGENT_SCRIPT_WIDGET_ID = 'ringcx-agent-script';
 export const RINGCX_AGENT_ASSISTANT_WIDGET_ID = 'ringcx-agent-assistant';
 export const RINGCX_LEAD_INFO_WIDGET_ID = 'ringcx-lead-info';
+export const RINGCX_MANUAL_PASS_WIDGET_ID = 'ringcx-manual-pass';
+export const RINGCX_LEAD_UPDATE_WIDGET_ID = 'ringcx-lead-update';
 
 type RingCXWidgetId =
   | typeof RINGCX_AGENT_SCRIPT_WIDGET_ID
@@ -85,12 +90,17 @@ export class RingCXSideWidgets extends RcModule {
     private readonly _cxPresence: CxPresence,
     private readonly _cxLeadInfo: CxLeadInfo,
     private readonly _cxLeadInfoView: CxLeadInfoView,
+    private readonly _cxManualPassView: CxManualPassView,
+    private readonly _cxLeadUpdateView: CxLeadUpdateView,
     private readonly _portManager: PortManager,
   ) {
     super();
-    // `onInit` binds the widgets' auto-open; the Lead tab's view only renders
-    // there, so its many dependencies must not hold that back.
+    // `onInit` binds the widgets' auto-open; the Lead, Manual pass and Update
+    // lead tabs' views only render there, so their dependencies must not
+    // hold that back.
     this._ignoreModuleReadiness(this._cxLeadInfoView);
+    this._ignoreModuleReadiness(this._cxManualPassView);
+    this._ignoreModuleReadiness(this._cxLeadUpdateView);
   }
 
   private _stopWatchers: Array<() => void> = [];
@@ -173,6 +183,48 @@ export class RingCXSideWidgets extends RcModule {
       <LeadInfoView
         showCloseButton={showCloseButton}
         onClose={this._onCloseLeadInfo}
+        onOpenManualPass={this._onOpenManualPass}
+        onOpenLeadUpdate={this._onOpenLeadUpdate}
+      />
+    );
+  };
+
+  private readonly _onOpenLeadUpdate = () => {
+    void this.openLeadUpdate();
+  };
+
+  private readonly _onCloseLeadUpdate = () => {
+    void this.closeLeadUpdate();
+  };
+
+  private readonly _LeadUpdateContent = ({
+    showCloseButton,
+  }: SideWidgetContentViewProps) => {
+    const LeadUpdateView = this._cxLeadUpdateView.component;
+    return (
+      <LeadUpdateView
+        showCloseButton={showCloseButton}
+        onClose={this._onCloseLeadUpdate}
+      />
+    );
+  };
+
+  private readonly _onOpenManualPass = (requestId: string) => {
+    void this.openManualPass(requestId);
+  };
+
+  private readonly _onCloseManualPass = () => {
+    void this.closeManualPass();
+  };
+
+  private readonly _ManualPassContent = ({
+    showCloseButton,
+  }: SideWidgetContentViewProps) => {
+    const ManualPassView = this._cxManualPassView.component;
+    return (
+      <ManualPassView
+        showCloseButton={showCloseButton}
+        onClose={this._onCloseManualPass}
       />
     );
   };
@@ -222,6 +274,32 @@ export class RingCXSideWidgets extends RcModule {
       onClose: () => this._cxLeadInfo.setTarget(null),
     },
   );
+
+  private readonly _manualPassHandle =
+    this._sideWidgetView.createOrUpdateContent({
+      id: RINGCX_MANUAL_PASS_WIDGET_ID,
+      name: tPass('manualPass'),
+      getName: () => tPass('manualPass'),
+      scope: 'global',
+      keepActiveOnCallApps: this._isCxCallUp,
+      minExpandedWidth: RINGCX_SIDE_WIDGET_WIDTH,
+      view: this._ManualPassContent,
+      onClose: () => this._cxManualPassView.setRequestId(null),
+    });
+
+  private readonly _leadUpdateHandle =
+    this._sideWidgetView.createOrUpdateContent({
+      id: RINGCX_LEAD_UPDATE_WIDGET_ID,
+      name: tLead('updateLead'),
+      getName: () => tLead('updateLead'),
+      scope: 'global',
+      keepActiveOnCallApps: this._isCxCallUp,
+      // Keeps the draft while the agent looks at the script or the lead.
+      keepMounted: true,
+      minExpandedWidth: RINGCX_SIDE_WIDGET_WIDTH,
+      view: this._LeadUpdateContent,
+      onClose: () => this._cxLeadUpdateView.setTarget(null),
+    });
 
   get hasScript(): boolean {
     return this._cxAgentScript.hasVisibleScript;
@@ -304,6 +382,16 @@ export class RingCXSideWidgets extends RcModule {
         () => !!this._cxLeadInfo.info,
         (resolved) => this._syncLeadInfo(resolved),
       ),
+      watch(
+        this,
+        () => !!this._cxManualPassView.lead,
+        (hasLead) => this._syncManualPass(hasLead),
+      ),
+      watch(
+        this,
+        () => this._isCxCallUp(),
+        (isCallUp) => this._closeManualPassOnCall(isCallUp),
+      ),
     ];
   }
 
@@ -311,6 +399,8 @@ export class RingCXSideWidgets extends RcModule {
     this._stopWatchers.forEach((stop) => stop());
     this._stopWatchers = [];
     this._closeWidgets(APP_CLOSE);
+    this._sideWidgetView.closeContent(this._manualPassHandle, APP_CLOSE);
+    this._sideWidgetView.closeContent(this._leadUpdateHandle, APP_CLOSE);
   }
 
   /**
@@ -367,6 +457,50 @@ export class RingCXSideWidgets extends RcModule {
   /**
    * Closes the Lead tab from its own header, when no tab bar shows it.
    */
+  /**
+   * Opens the Manual pass tab on a fetched lead, active. A lead that is no
+   * longer fetched opens nothing.
+   */
+  @delegate('server')
+  async openManualPass(requestId: string): Promise<void> {
+    this._cxManualPassView.setRequestId(requestId);
+    if (!this._cxManualPassView.lead) {
+      this._cxManualPassView.setRequestId(null);
+      return;
+    }
+    this._openWidget(this._manualPassHandle, true);
+  }
+
+  /**
+   * Opens the Update lead tab, active, on the lead the Lead tab shows. Its
+   * campaign must let the agent edit leads.
+   */
+  @delegate('server')
+  async openLeadUpdate(): Promise<void> {
+    const info = this._cxLeadInfo.info;
+    if (!info) {
+      return;
+    }
+    this._cxLeadUpdateView.setTarget({
+      lead: info.lead,
+      phoneNumbers: info.phoneNumbers,
+      auxLabels: info.auxLabels,
+    });
+    this._openWidget(this._leadUpdateHandle, true);
+  }
+
+  /** Closes the Update lead tab, from its own back or after a save. */
+  @delegate('server')
+  async closeLeadUpdate(): Promise<void> {
+    this._sideWidgetView.closeContent(this._leadUpdateHandle);
+  }
+
+  /** Closes the Manual pass tab, from its own back or after a pass. */
+  @delegate('server')
+  async closeManualPass(): Promise<void> {
+    this._sideWidgetView.closeContent(this._manualPassHandle);
+  }
+
   @delegate('server')
   async closeLeadInfo(): Promise<void> {
     this._sideWidgetView.closeContent(this._leadInfoHandle);
@@ -379,6 +513,25 @@ export class RingCXSideWidgets extends RcModule {
   private _openCallLeadInfo(callId: string): void {
     if (callId) {
       this._openLeadInfo({ type: 'call', callId }, !this.hasScript);
+    }
+  }
+
+  /**
+   * A CX call starting, dialed or inbound, puts the Manual pass tab away:
+   * leads cannot be passed during a call.
+   */
+  private _closeManualPassOnCall(isCallUp: boolean): void {
+    if (isCallUp) {
+      this._sideWidgetView.closeContent(this._manualPassHandle, APP_CLOSE);
+    }
+  }
+
+  /**
+   * The Manual pass tab closes once its lead is passed or no longer fetched.
+   */
+  private _syncManualPass(hasLead: boolean): void {
+    if (!hasLead) {
+      this._sideWidgetView.closeContent(this._manualPassHandle, APP_CLOSE);
     }
   }
 

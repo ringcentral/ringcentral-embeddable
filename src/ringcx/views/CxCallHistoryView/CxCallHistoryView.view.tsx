@@ -300,10 +300,18 @@ class CxCallHistoryView extends RcViewModule {
    * The History tab is only kept in the location state, so a page pushed from
    * the list must first put the tab in the path. Otherwise Back returns to the
    * agent home on its default tab.
+   *
+   * Only on the agent home itself: behind a routed side widget page the
+   * router is on that page, and replacing it would close the page.
    */
   private _pinHistoryRoute(): void {
+    const currentPath = this._router.currentPath;
     const historyPath = cxPath.home('history');
-    if (this._router.currentPath !== historyPath) {
+    if (
+      currentPath !== historyPath &&
+      (currentPath === cxPath.home() ||
+        currentPath?.startsWith(`${cxPath.home()}/`))
+    ) {
       this._router.replace(historyPath);
     }
   }

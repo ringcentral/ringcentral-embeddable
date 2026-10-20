@@ -21,8 +21,11 @@ import { CxTransferCall } from './services/CxTransferCall';
 import { CxClient } from './services/CxClient';
 import { CxDirectorySearch } from './services/CxDirectorySearch';
 import { CxIntegratedSoftphone } from './services/CxIntegratedSoftphone';
+import { CxLeadEdit } from './services/CxLeadEdit';
 import { CxLeadInfo } from './services/CxLeadInfo';
 import { CxLeadInfoView } from './views/CxLeadInfoView';
+import { CxLeadUpdateView } from './views/CxLeadUpdateView';
+import { CxManualPassView } from './views/CxManualPassView';
 import { CxLeads } from './services/CxLeads';
 import { CxPresence } from './services/CxPresence';
 import { CxProgressiveDial } from './services/CxProgressiveDial';
@@ -127,8 +130,11 @@ export function getRingCXModules(
     CxSessionRecovery,
     CxAgentScript,
     CxAgentAssistant,
+    CxLeadEdit,
     CxLeadInfo,
     CxLeadInfoView,
+    CxManualPassView,
+    CxLeadUpdateView,
     RingCXSideWidgets,
     CxMultiLoginView,
     CxChooseAccountView,

@@ -15,12 +15,10 @@ export interface ManualPassSubmitParams {
 }
 
 /**
- * Props for ManualPassModal component
+ * Props for ManualPassForm
  */
-export interface ManualPassModalProps {
-  /** Whether the modal is open */
-  open: boolean;
-  /** Callback when modal is closed */
+export interface ManualPassFormProps {
+  /** Callback when the form is closed without passing */
   onClose: () => void;
   /** Callback when form is submitted */
   onSubmit: (params: ManualPassSubmitParams) => Promise<void>;
@@ -32,4 +30,11 @@ export interface ManualPassModalProps {
   defaultTimezone: string;
   /** Whether form submission is disabled */
   disabled?: boolean;
+  /** The lead being passed, named where the form is not next to it */
+  leadName?: string;
+  /**
+   * Shows the titled header with a back button; off under a side widget tab
+   * bar, which already names the form.
+   */
+  showHeader?: boolean;
 }

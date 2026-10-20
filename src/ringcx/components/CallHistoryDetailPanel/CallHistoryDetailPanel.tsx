@@ -1,6 +1,11 @@
 import { useFormattedPhoneNumber } from '@ringcentral-integration/micro-auth/src/app/components';
 import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
-import { PageHeader } from '@ringcentral-integration/next-widgets/components';
+import {
+  ActionMenuList,
+  PageHeader,
+  PageHeaderBackButton,
+} from '@ringcentral-integration/next-widgets/components';
+import type { ActionMenuListButtonProps } from '@ringcentral-integration/next-widgets/components/ActionMenuList';
 import {
   AppFooterNav,
   AppHeaderNav,
@@ -23,6 +28,7 @@ import { ContactAvatar } from '@ringcentral-integration/micro-contacts/src/app/c
 
 import { useCxCallContactRenderInfo } from '../../hooks/useCxCallContactRenderInfo';
 import { DetailCard, DetailField } from '../DetailCard';
+import { PastCallTabs } from '../LeadInfoPanel';
 import { formatPhoneNumber } from '../../lib/FormatPhoneNumber/formatPhoneNumber';
 import { ringCXLogId } from '../../lib/formatRingCXCall';
 import type { CallHistoryDetailPanelProps } from './CallHistoryDetailPanel.interface';
@@ -67,11 +73,53 @@ function formatDurationParts(
   return `(${parts.join(' ')})`;
 }
 
+/** Header actions shown as buttons; the rest go in the More menu. */
+const ACTION_DISPLAY_COUNT = 2;
+
+interface CreateHeaderButtonOptions {
+  actionType: string;
+  label: string;
+  symbol: ActionMenuListButtonProps['symbol'];
+  disabled?: boolean;
+  onClick: () => void;
+  dataSign: string;
+}
+
+/**
+ * A header action, styled as the EX call detail page's
+ * (`useCallHistoryActionButtons`).
+ */
+function createHeaderButton({
+  actionType,
+  label,
+  symbol,
+  disabled = false,
+  onClick,
+  dataSign,
+}: CreateHeaderButtonOptions): ActionMenuListButtonProps {
+  return {
+    actionType,
+    color: 'secondary',
+    disabled,
+    label,
+    onClick: (event) => {
+      event.stopPropagation();
+      onClick();
+    },
+    shape: 'squircle',
+    size: 'medium',
+    symbol,
+    variant: 'outlined',
+    'data-sign': dataSign,
+  } as ActionMenuListButtonProps;
+}
+
 /**
  * CallHistoryDetailPanel - Read-only presentational component for call history detail
  *
- * Layout matches the RingCX web-agent history detail: centered contact header,
- * then bordered cards for source, time/status, disposition, and term details.
+ * Laid out as the EX call detail page: a compact header with back, avatar,
+ * name, number and actions, then bordered cards for source, time/status,
+ * disposition and term details, split into pill tabs for a lead call.
  */
 export const CallHistoryDetailPanel: FunctionComponent<
   CallHistoryDetailPanelProps
@@ -90,6 +138,10 @@ export const CallHistoryDetailPanel: FunctionComponent<
   onCopyCallId,
   hostLogActions,
   onHostLogAction,
+  pastLead,
+  showLeadHistory,
+  loadRecording,
+  loadLeadHistory,
 }) => {
   const { t } = useLocale(i18n);
   const hasViewLogAction = Boolean(
@@ -173,6 +225,147 @@ export const CallHistoryDetailPanel: FunctionComponent<
     ? `${directionLabel} ${durationLabel}`
     : directionLabel;
 
+  const actionButtons: ActionMenuListButtonProps[] = [
+    // Hidden when allowHistoricalDialing is off — eag hides the callback
+    // control rather than showing a disabled state.
+    ...(canDial && dialableNumber
+      ? [
+          createHeaderButton({
+            actionType: 'dial',
+            label: t('dial'),
+            symbol: CallMd,
+            disabled: isDialDisabled,
+            onClick: () => onDial(dialableNumber),
+            dataSign: 'historyDetailDialButton',
+          }),
+        ]
+      : []),
+    ...(hostLogActions || []).map((action) =>
+      createHeaderButton({
+        actionType: action.type,
+        label: action.label || action.type,
+        symbol:
+          action.type === 'viewLog'
+            ? ArrowRightUpMd
+            : hasViewLogAction
+            ? EditMd
+            : DispositionMd,
+        disabled: action.disabled,
+        onClick: () => onHostLogAction?.(action.type),
+        dataSign: `historyDetail-${action.type}`,
+      }),
+    ),
+    ...(callMeta.callId
+      ? [
+          createHeaderButton({
+            actionType: 'copyCallId',
+            label: t('copyCallId'),
+            symbol: CopyMd,
+            onClick: () => onCopyCallId(callMeta.callId as string),
+            dataSign: 'historyDetailCopyCallId',
+          }),
+        ]
+      : []),
+  ];
+
+  // Who and when: always on top, as on the EX call detail page.
+  const summaryCards = (
+    <>
+      {(toFromValue || showSource) && (
+        <DetailCard data-sign="sourceBlock">
+          <div className="grid grid-cols-2 gap-3 w-full">
+            <DetailField
+              label={toFromLabel}
+              value={toFromValue}
+              data-sign="toFromField"
+            />
+            {showSource ? (
+              <DetailField
+                label={sourceLabel}
+                value={sourceValue}
+                data-sign="sourceField"
+              />
+            ) : null}
+          </div>
+        </DetailCard>
+      )}
+
+      {(callTimeText || statusLine) && (
+        <DetailCard data-sign="timeStatusBlock">
+          <div className="w-full">
+            {callTimeText ? (
+              <div
+                className="typography-descriptorMini text-neutral-b2"
+                data-sign="callTime"
+              >
+                {callTimeText}
+              </div>
+            ) : null}
+            <div
+              className="typography-mainText text-success-f"
+              data-sign="callStatusLine"
+            >
+              {statusLine}
+            </div>
+          </div>
+        </DetailCard>
+      )}
+    </>
+  );
+
+  const hasDetailCards = Boolean(
+    callMeta.disposition ||
+      callMeta.callState ||
+      formattedDnis ||
+      callMeta.termParty ||
+      callMeta.termReason,
+  );
+
+  // Disposition and term details: under the Call tab for a lead call.
+  const detailCards = (
+    <>
+      {callMeta.disposition ? (
+        <DetailCard data-sign="dispositionBlock">
+          <DetailField
+            label={t('disposition')}
+            value={callMeta.disposition}
+            data-sign="dispositionField"
+          />
+        </DetailCard>
+      ) : null}
+
+      {(callMeta.callState ||
+        formattedDnis ||
+        callMeta.termParty ||
+        callMeta.termReason) && (
+        <DetailCard data-sign="termDetailsBlock">
+          <div className="grid grid-cols-2 gap-3 w-full">
+            <DetailField
+              label={t('state')}
+              value={callMeta.callState}
+              data-sign="stateField"
+            />
+            <DetailField
+              label={t('dnis')}
+              value={formattedDnis}
+              data-sign="dnisField"
+            />
+            <DetailField
+              label={t('termParty')}
+              value={callMeta.termParty}
+              data-sign="termPartyField"
+            />
+            <DetailField
+              label={t('termReason')}
+              value={callMeta.termReason}
+              data-sign="termReasonField"
+            />
+          </div>
+        </DetailCard>
+      )}
+    </>
+  );
+
   if (isLoading && !callDetail) {
     return (
       <div
@@ -214,186 +407,86 @@ export const CallHistoryDetailPanel: FunctionComponent<
       className="flex flex-col h-full bg-neutral-base"
       data-sign="CallHistoryDetailPanel"
     >
-      <AppHeaderNav override>
-        <PageHeader onBackClick={onBack}>{t('callDetails')}</PageHeader>
-      </AppHeaderNav>
-      <div className="flex-1 overflow-y-auto px-4 py-4">
+      <AppHeaderNav override resetImmediately>
         <div
-          className="flex flex-col items-center gap-2 mb-4"
+          className="flex h-[72px] items-center gap-1 px-2 pt-2"
           data-sign="callDetailInfoHeader"
         >
-          <ContactAvatar
-            size="xlarge"
-            variant="circle"
-            contactName={isRealName ? contactName : undefined}
-            phoneNumber={phoneNumber}
-            url={contactAvatarUrl}
+          <PageHeaderBackButton
+            onClick={onBack}
+            className="flex-none"
+            size="medium"
           />
           <div
-            className="typography-title text-neutral-b1 text-center truncate max-w-full"
-            data-sign="matchName"
-            title={displayName}
+            className="flex flex-auto items-center gap-2 overflow-hidden"
+            data-sign="contactDetail"
           >
-            <DisplayName
-              displayControl={{ maybe: true, matchCounts: true, align: 'center' }}
+            <ContactAvatar
+              size="large"
+              variant="circle"
+              contactName={isRealName ? contactName : undefined}
+              phoneNumber={phoneNumber}
+              url={contactAvatarUrl}
             />
-          </div>
-          {phoneNumber ? (
-            <div className="flex items-center gap-1 max-w-full">
-              <span
-                className="typography-mainText text-neutral-b1 truncate"
-                data-sign="followInfo"
-                title={formattedPhoneNumber}
+            <div className="ml-1 flex flex-auto flex-col overflow-hidden">
+              <h2
+                className="typography-subtitle flex items-center gap-1 truncate text-neutral-b0"
+                data-sign="matchName"
+                title={displayName}
               >
-                {formattedPhoneNumber}
-              </span>
-              <IconButton
-                symbol={CopyMd}
-                size="xsmall"
-                variant="icon"
-                color="neutral"
-                onClick={() => onCopyNumber(phoneNumber)}
-                data-sign="historyDetailCopyNumber"
-                aria-label={t('copyNumber')}
-                TooltipProps={{ title: t('copyNumber') }}
+                <DisplayName displayControl={{ maybe: true, matchCounts: true }} />
+              </h2>
+              {phoneNumber ? (
+                <div className="flex items-center gap-1" data-sign="displayNumber">
+                  <p
+                    className="typography-descriptor truncate text-neutral-b2"
+                    data-sign="followInfo"
+                    title={formattedPhoneNumber}
+                  >
+                    {formattedPhoneNumber}
+                  </p>
+                  <IconButton
+                    symbol={CopyMd}
+                    size="xsmall"
+                    variant="icon"
+                    color="neutral"
+                    onClick={() => onCopyNumber(phoneNumber)}
+                    data-sign="historyDetailCopyNumber"
+                    aria-label={t('copyNumber')}
+                    TooltipProps={{ title: t('copyNumber') }}
+                  />
+                </div>
+              ) : null}
+            </div>
+          </div>
+          {actionButtons.length ? (
+            <div
+              className="flex flex-none items-center gap-1"
+              data-sign="historyDetailActions"
+            >
+              <ActionMenuList
+                buttons={actionButtons}
+                displayCount={ACTION_DISPLAY_COUNT}
+                variant="plain"
+                propsMap={{ all: { variant: 'contained' } }}
+                moreButtonProps={{ variant: 'contained' }}
               />
             </div>
           ) : null}
-          <div
-            className="flex items-center justify-center gap-3"
-            data-sign="historyDetailActions"
-          >
-            {/* Hide dial when allowHistoricalDialing is off — eag hides the
-                callback control rather than showing a disabled state. */}
-            {canDial && dialableNumber ? (
-              <IconButton
-                symbol={CallMd}
-                size="small"
-                shape="circular"
-                variant="outlined"
-                color="neutral"
-                disabled={isDialDisabled}
-                onClick={() => onDial(dialableNumber)}
-                data-sign="historyDetailDialButton"
-                aria-label={t('dial')}
-                TooltipProps={{ title: t('dial') }}
-              />
-            ) : null}
-            {(hostLogActions || []).map((action) => (
-              <IconButton
-                key={action.type}
-                symbol={
-                  action.type === 'viewLog'
-                    ? ArrowRightUpMd
-                    : hasViewLogAction
-                    ? EditMd
-                    : DispositionMd
-                }
-                size="small"
-                shape="circular"
-                variant="outlined"
-                color="neutral"
-                disabled={action.disabled}
-                onClick={() => onHostLogAction?.(action.type)}
-                data-sign={`historyDetail-${action.type}`}
-                aria-label={action.label || action.type}
-                TooltipProps={{ title: action.label || action.type }}
-              />
-            ))}
-            {callMeta.callId ? (
-              <IconButton
-                symbol={CopyMd}
-                size="small"
-                shape="circular"
-                variant="outlined"
-                color="neutral"
-                onClick={() => onCopyCallId(callMeta.callId as string)}
-                data-sign="historyDetailCopyCallId"
-                aria-label={t('copyCallId')}
-                TooltipProps={{ title: t('copyCallId') }}
-              />
-            ) : null}
-          </div>
         </div>
-
-        {(toFromValue || showSource) && (
-          <DetailCard data-sign="sourceBlock">
-            <div className="grid grid-cols-2 gap-3 w-full">
-              <DetailField
-                label={toFromLabel}
-                value={toFromValue}
-                data-sign="toFromField"
-              />
-              {showSource ? (
-                <DetailField
-                  label={sourceLabel}
-                  value={sourceValue}
-                  data-sign="sourceField"
-                />
-              ) : null}
-            </div>
-          </DetailCard>
-        )}
-
-        {(callTimeText || statusLine) && (
-          <DetailCard data-sign="timeStatusBlock">
-            <div className="w-full">
-              {callTimeText ? (
-                <div
-                  className="typography-descriptorMini text-neutral-b2"
-                  data-sign="callTime"
-                >
-                  {callTimeText}
-                </div>
-              ) : null}
-              <div
-                className="typography-mainText text-success-f"
-                data-sign="callStatusLine"
-              >
-                {statusLine}
-              </div>
-            </div>
-          </DetailCard>
-        )}
-
-        {callMeta.disposition ? (
-          <DetailCard data-sign="dispositionBlock">
-            <DetailField
-              label={t('disposition')}
-              value={callMeta.disposition}
-              data-sign="dispositionField"
-            />
-          </DetailCard>
-        ) : null}
-
-        {(callMeta.callState ||
-          formattedDnis ||
-          callMeta.termParty ||
-          callMeta.termReason) && (
-          <DetailCard data-sign="termDetailsBlock">
-            <div className="grid grid-cols-2 gap-3 w-full">
-              <DetailField
-                label={t('state')}
-                value={callMeta.callState}
-                data-sign="stateField"
-              />
-              <DetailField
-                label={t('dnis')}
-                value={formattedDnis}
-                data-sign="dnisField"
-              />
-              <DetailField
-                label={t('termParty')}
-                value={callMeta.termParty}
-                data-sign="termPartyField"
-              />
-              <DetailField
-                label={t('termReason')}
-                value={callMeta.termReason}
-                data-sign="termReasonField"
-              />
-            </div>
-          </DetailCard>
+      </AppHeaderNav>
+      <div className="flex-1 overflow-y-auto px-4 py-2">
+        {summaryCards}
+        {pastLead ? (
+          <PastCallTabs
+            callContent={hasDetailCards ? detailCards : undefined}
+            rows={pastLead.rows}
+            leadId={pastLead.leadId}
+            loadRecording={loadRecording}
+            loadLeadHistory={showLeadHistory ? loadLeadHistory : undefined}
+          />
+        ) : (
+          detailCards
         )}
       </div>
       <AppFooterNav />

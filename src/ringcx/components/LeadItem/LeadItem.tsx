@@ -1,11 +1,10 @@
-import React, { useState, useCallback } from 'react';
+import React from 'react';
 import { ListItem, ListItemText, IconButton, Button, Avatar } from '@ringcentral/spring-ui';
 import { CallMd, LinkContactMd, MissedCallMd, ContactsMd } from '@ringcentral/spring-icon';
 import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
 import type { FunctionComponent } from 'react';
 
 import { SEARCH_DISABLE_DIAL_STATES } from '../../services/CxLeads';
-import { ManualPassModal } from '../ManualPassModal';
 import type { LeadItemProps } from './LeadItem.interface';
 import i18n from './i18n';
 
@@ -28,7 +27,7 @@ function getInitials(name: string): string {
  * Features preserved from old LeadItem:
  * - Clickable phone number buttons (clicking dials)
  * - Hover actions: dial (single phone), view lead, manual pass
- * - ManualPassModal rendered inside each item (self-contained state)
+ * - Manual pass hands the lead to the list, which shows the pass form
  * - fromSearch support with SEARCH_DISABLE_DIAL_STATES
  */
 export const LeadItem: FunctionComponent<LeadItemProps> = ({
@@ -42,35 +41,19 @@ export const LeadItem: FunctionComponent<LeadItemProps> = ({
   onDial,
   isNext = false,
   onViewLead,
-  onPass,
+  onManualPass,
   showViewLeadButton = false,
   showManualPassButton = false,
   disableManualPass = false,
-  fetchDispositionList,
-  defaultTimezone = 'America/New_York',
   hoverActions,
   className,
   'data-sign': dataSign,
 }) => {
   const { t } = useLocale(i18n);
-  const [manualPassOpen, setManualPassOpen] = useState(false);
   const isDisabledFromSearch = fromSearch && SEARCH_DISABLE_DIAL_STATES.includes(lead.leadState);
   const isButtonDisabled = disabled || isDialing || !allowDial || isDisabledFromSearch;
   const isManualPassDisabled = disabled || isDialing || disableManualPass;
   const initials = getInitials(displayName);
-
-  const handleManualPassSubmit = useCallback(async (params: {
-    dispositionId: string;
-    notes: string;
-    callback: boolean;
-    callbackDTS: string;
-  }) => {
-    setManualPassOpen(false);
-    await onPass?.({
-      lead,
-      ...params,
-    });
-  }, [lead, onPass]);
 
   const defaultHoverActions = (
     <>
@@ -113,7 +96,7 @@ export const LeadItem: FunctionComponent<LeadItemProps> = ({
           variant="outlined"
           color="danger"
           disabled={isManualPassDisabled}
-          onClick={() => setManualPassOpen(true)}
+          onClick={() => onManualPass?.(lead)}
           data-sign="manualPassButton"
           TooltipProps={{
             title: t('manualPass'),
@@ -193,17 +176,6 @@ export const LeadItem: FunctionComponent<LeadItemProps> = ({
           </span>
         </div>
       </ListItem>
-      {showManualPassButton && fetchDispositionList && (
-        <ManualPassModal
-          open={manualPassOpen}
-          onClose={() => setManualPassOpen(false)}
-          onSubmit={handleManualPassSubmit}
-          fetchDispositionList={fetchDispositionList}
-          campaignId={lead.campaignId || ''}
-          defaultTimezone={defaultTimezone}
-          disabled={isManualPassDisabled}
-        />
-      )}
     </>
   );
 };

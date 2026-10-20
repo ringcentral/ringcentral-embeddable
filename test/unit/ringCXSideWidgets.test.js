@@ -42,6 +42,18 @@ jest.mock('../../src/ringcx/views/CxLeadInfoView', () => ({
   CxLeadInfoView: class CxLeadInfoView {},
 }));
 
+jest.mock('../../src/ringcx/views/CxManualPassView', () => ({
+  CxManualPassView: class CxManualPassView {},
+}));
+
+jest.mock('../../src/ringcx/views/CxLeadUpdateView', () => ({
+  CxLeadUpdateView: class CxLeadUpdateView {},
+}));
+
+jest.mock('../../src/ringcx/components/ManualPassForm/i18n', () => ({
+  t: (key) => (key === 'manualPass' ? 'Manual pass' : key),
+}));
+
 jest.mock('../../src/ringcx/components/LeadInfoPanel/i18n', () => ({
   t: (key) => (key === 'lead' ? 'Lead' : key),
 }));
@@ -111,6 +123,12 @@ function createWidgets({
     closeContent: jest.fn(),
   };
   const cxLeadInfoView = { component: () => null };
+  const cxManualPassView = {
+    lead: null,
+    setRequestId: jest.fn(),
+    component: () => null,
+  };
+  const cxLeadUpdateView = { setTarget: jest.fn(), component: () => null };
   const widgets = new RingCXSideWidgets(
     sideWidgetView,
     { hasVisibleScript: hasScript },
@@ -119,6 +137,8 @@ function createWidgets({
     { callIds: cxCallIds },
     leadInfo,
     cxLeadInfoView,
+    cxManualPassView,
+    cxLeadUpdateView,
     portManager,
   );
   return { cxLeadInfoView, handles, leadInfo, sideWidgetView, widgets };

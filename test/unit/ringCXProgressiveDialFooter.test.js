@@ -10,8 +10,8 @@ jest.mock('@ringcentral-integration/micro-core/src/app/hooks', () => ({
 jest.mock('../../src/ringcx/services/CxLeads', () => ({
   SEARCH_DISABLE_DIAL_STATES: [],
 }));
-jest.mock('../../src/ringcx/components/ManualPassModal', () => ({
-  ManualPassModal: () => null,
+jest.mock('../../src/ringcx/components/ManualPassForm', () => ({
+  ManualPassForm: () => null,
 }));
 
 import React from 'react';

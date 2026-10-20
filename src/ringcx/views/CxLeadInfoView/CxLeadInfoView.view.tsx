@@ -7,11 +7,14 @@ import React, { useMemo } from 'react';
 
 import { ThirdParty } from '../../../app/services/ThirdParty';
 import { LeadInfoPanel } from '../../components/LeadInfoPanel';
-import type { LeadInfoPreviewActions } from '../../components/LeadInfoPanel';
-import type { ManualPassSubmitParams } from '../../components/ManualPassModal';
+import type {
+  LeadInfoEditActions,
+  LeadInfoPreviewActions,
+} from '../../components/LeadInfoPanel';
 import { CxAgentSession } from '../../services/CxAgentSession';
 import { CxAuth } from '../../services/CxAuth';
 import { CxCall } from '../../services/CxCall';
+import { CxLeadEdit } from '../../services/CxLeadEdit';
 import { CxLeadInfo } from '../../services/CxLeadInfo';
 import type { CxLeadDetails } from '../../services/CxLeadInfo';
 import {
@@ -20,10 +23,7 @@ import {
   CxLeads,
   DISABLE_MANUAL_PASS_STATES,
 } from '../../services/CxLeads';
-import type { DispositionItem } from '../../services/CxLeads';
 import { CxWorkingState } from '../../services/CxWorkingState';
-
-const DEFAULT_TIMEZONE = 'America/New_York';
 
 /** Kept stable so the connector does not see a new value on every read. */
 const NO_DIAL_NUMBERS: string[] = [];
@@ -32,24 +32,27 @@ export interface CxLeadInfoViewProps {
   /** Set while no tab bar shows the Lead tab. */
   showCloseButton: boolean;
   onClose: () => void;
+  /** Opens the Manual pass side widget tab on a fetched lead. */
+  onOpenManualPass: (requestId: string) => void;
+  /** Opens the Update lead side widget tab on the tab's lead. */
+  onOpenLeadUpdate: () => void;
 }
 
 interface PreviewActionState {
-  hasPreviewActions: boolean;
+  /** Request id of the fetched lead; `''` for a call's lead. */
+  previewRequestId: string;
   dialNumbers: string[];
   isDialDisabled: boolean;
   showManualPass: boolean;
   isManualPassDisabled: boolean;
-  defaultTimezone: string;
 }
 
 const NO_PREVIEW_ACTIONS: PreviewActionState = {
-  hasPreviewActions: false,
+  previewRequestId: '',
   dialNumbers: NO_DIAL_NUMBERS,
   isDialDisabled: true,
   showManualPass: false,
   isManualPassDisabled: true,
-  defaultTimezone: DEFAULT_TIMEZONE,
 };
 
 /**
@@ -69,6 +72,7 @@ export class CxLeadInfoView extends RcViewModule {
     private readonly _cxAgentSession: CxAgentSession,
     private readonly _cxAuth: CxAuth,
     private readonly _thirdParty: ThirdParty,
+    private readonly _cxLeadEdit: CxLeadEdit,
   ) {
     super();
   }
@@ -80,26 +84,15 @@ export class CxLeadInfoView extends RcViewModule {
   private readonly _loadRecording = (value: string) =>
     this._cxLeadInfo.loadRecording(value);
 
+  private readonly _loadLeadHistory = (leadId: string) =>
+    this._cxLeadInfo.loadLeadHistory(leadId);
+
   private readonly _onDial = (phoneNumber: string) => {
     const lead = this._cxLeadInfo.previewLead;
     if (lead) {
       void this._cxLeads.dialLead(lead, phoneNumber);
     }
   };
-
-  private readonly _onManualPass = async (
-    params: ManualPassSubmitParams,
-  ): Promise<void> => {
-    const lead = this._cxLeadInfo.previewLead;
-    if (lead) {
-      await this._cxLeads.manualPassLead({ lead, ...params });
-    }
-  };
-
-  private readonly _fetchDispositionList = (
-    campaignId: string,
-  ): Promise<DispositionItem[]> =>
-    this._cxLeads.fetchManualPassDispositions(campaignId);
 
   /**
    * Dial and manual pass availability for the tab's fetched lead, as the
@@ -116,7 +109,7 @@ export class CxLeadInfoView extends RcViewModule {
       this._cxWorkingState.isPendingDisposition ||
       AGENT_BUSY_STATES.includes(agentState);
     return {
-      hasPreviewActions: true,
+      previewRequestId: lead.requestId,
       dialNumbers: this._cxAgentSession.isProgressiveDialMode
         ? NO_DIAL_NUMBERS
         : (this._cxLeadInfo.info?.phoneNumbers ?? NO_DIAL_NUMBERS),
@@ -125,49 +118,59 @@ export class CxLeadInfoView extends RcViewModule {
         !!this._cxAuth.agentConfig?.agentPermissions?.allowManualPass,
       isManualPassDisabled:
         isBlocked || DISABLE_MANUAL_PASS_STATES.includes(lead.leadState),
-      defaultTimezone:
-        (this._cxAuth.authenticateResponse as any)?.regionalSettings
-          ?.timezoneName || DEFAULT_TIMEZONE,
     };
   }
 
-  component({ showCloseButton, onClose }: CxLeadInfoViewProps) {
+  component({
+    showCloseButton,
+    onClose,
+    onOpenManualPass,
+    onOpenLeadUpdate,
+  }: CxLeadInfoViewProps) {
     const {
       info,
       showViewLeadButton,
-      hasPreviewActions,
+      showLeadHistory,
+      editPermission,
+      previewRequestId,
       dialNumbers,
       isDialDisabled,
       showManualPass,
       isManualPassDisabled,
-      defaultTimezone,
     } = useConnector(() => ({
       info: this._cxLeadInfo.info,
       showViewLeadButton: this._thirdParty.leadViewerRegistered,
+      showLeadHistory: !!this._cxAuth.agentPermissions?.showLeadHistory,
+      editPermission: this._cxLeadEdit.getPermission(
+        this._cxLeadInfo.info?.lead ?? null,
+      ),
       ...this._getPreviewActionState(),
     }));
     const previewActions = useMemo<LeadInfoPreviewActions | null>(
       () =>
-        hasPreviewActions
+        previewRequestId
           ? {
               dialNumbers,
               isDialDisabled,
               showManualPass,
               isManualPassDisabled,
-              defaultTimezone,
               onDial: this._onDial,
-              onManualPass: this._onManualPass,
-              fetchDispositionList: this._fetchDispositionList,
+              onOpenManualPass: () => onOpenManualPass(previewRequestId),
             }
           : null,
       [
-        hasPreviewActions,
+        previewRequestId,
         dialNumbers,
         isDialDisabled,
         showManualPass,
         isManualPassDisabled,
-        defaultTimezone,
+        onOpenManualPass,
       ],
+    );
+    const editActions = useMemo<LeadInfoEditActions | null>(
+      () =>
+        editPermission === 'none' ? null : { onOpenEdit: onOpenLeadUpdate },
+      [editPermission, onOpenLeadUpdate],
     );
     const target = info?.target;
     const key = target?.type === 'call' ? target.callId : target?.requestId;
@@ -178,7 +181,9 @@ export class CxLeadInfoView extends RcViewModule {
         showViewLeadButton={showViewLeadButton}
         onViewLead={this._onViewLead}
         previewActions={previewActions}
+        editActions={editActions}
         loadRecording={this._loadRecording}
+        loadLeadHistory={showLeadHistory ? this._loadLeadHistory : undefined}
         showCloseButton={showCloseButton}
         onClose={onClose}
       />

@@ -645,9 +645,12 @@ export class SideWidgetView extends RcViewModule {
     });
   }
 
+  /** Tabs a contact change closed, see `getClosedSideWidgetTabIds`. */
   private _notifyClosedTabs(tabIds: string[]): void {
     tabIds.forEach((tabId) => {
-      this._contentHandles.get(tabId)?.options.onClose?.(this.currentTabId);
+      this._contentHandles
+        .get(tabId)
+        ?.options.onClose?.(this.currentTabId, 'contactChange');
     });
   }
 

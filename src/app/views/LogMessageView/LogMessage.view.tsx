@@ -21,6 +21,7 @@ import type {
   ThirdPartyConversation,
   UnknownRecord,
 } from "../../services/ThirdParty";
+import { useSideWidgetBack } from "../SideWidgetView";
 
 import { LogMessagePage } from "./LogMessagePage";
 import type { LoggableConversation } from "./LogMessagePage.helper";
@@ -76,8 +77,22 @@ export class LogMessageView extends RcViewModule {
       });
     const conversationRef = useRef(conversation);
     conversationRef.current = conversation;
+    const sideWidgetBack = useSideWidgetBack();
+    // Read through a ref: the handlers below are created once.
+    const sideWidgetBackRef = useRef(sideWidgetBack);
+    sideWidgetBackRef.current = sideWidgetBack;
+    // In a routed side widget tab, going back through history would land on
+    // the page before the log page, which may route on its own. The tab
+    // closes instead.
+    const goBack = (): void => {
+      if (sideWidgetBackRef.current) {
+        sideWidgetBackRef.current();
+        return;
+      }
+      this._router.goBack();
+    };
     const { current: handlers } = useRef({
-      onBack: () => this._router.goBack(),
+      onBack: goBack,
       onButtonClick: (buttonId: string, formData: UnknownRecord) => {
         void this._thirdParty.onClickButtonInCustomizedPage(
           buttonId,
@@ -113,7 +128,7 @@ export class LogMessageView extends RcViewModule {
             redirect: true,
             triggerType: "logForm",
           });
-          this._router.goBack();
+          goBack();
         } finally {
           this.setSaving(false);
         }

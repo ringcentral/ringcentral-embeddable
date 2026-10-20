@@ -158,14 +158,13 @@ export class HeaderNavViewSpring extends HeaderNavViewSpringBase {
 
   override getUIProps(): UIProps<HeaderNavPanelProps> {
     const props = super.getUIProps();
-    const mainPath = this._routedSideWidgetView.mainPath;
-    // While a routed page owns the router, the main column renders `mainPath`,
-    // so that is the route the bar represents. A main path that belongs to no
-    // tab would leave the whole bar inactive, so it is ignored.
-    const activePath =
-      mainPath && props.tabs.some(({ to }) => to === mainPath)
-        ? mainPath
-        : props.currentPath;
+    const mainPath = this._routedSideWidgetView.getMainColumnPath();
+    // On a routed side widget page the main column renders the page behind
+    // it, so that is the route the bar represents. A main path that belongs
+    // to no tab would leave the whole bar inactive, so it is ignored.
+    const activePath = props.tabs.some(({ to }) => isTabActive(to, mainPath))
+      ? mainPath
+      : props.currentPath;
     return {
       ...props,
       currentPath: activePath,

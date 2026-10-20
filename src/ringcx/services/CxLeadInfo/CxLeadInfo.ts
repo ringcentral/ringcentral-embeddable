@@ -8,6 +8,8 @@ import {
 
 import { CxAuth } from '../CxAuth';
 import { CxClient } from '../CxClient';
+import type { CxLeadHistoryRecord } from '../CxClient/interfaces';
+import { CxLeadEdit } from '../CxLeadEdit';
 import { CxLeads, PHONE_DELIMETER } from '../CxLeads';
 import type { Lead } from '../CxLeads';
 import { CxPresence } from '../CxPresence';
@@ -15,6 +17,7 @@ import { buildCxLeadInfoRows } from './buildCxLeadInfoRows';
 import type {
   CxLeadDetails,
   CxLeadInfoData,
+  CxLeadInfoRow,
   CxLeadInfoTarget,
 } from './CxLeadInfo.interface';
 import { getCxLeadAuxLabels } from './getCxLeadAuxLabels';
@@ -62,6 +65,7 @@ export class CxLeadInfo extends RcModule {
     private readonly _cxPresence: CxPresence,
     private readonly _cxAuth: CxAuth,
     private readonly _cxClient: CxClient,
+    private readonly _cxLeadEdit: CxLeadEdit,
   ) {
     super();
   }
@@ -85,6 +89,7 @@ export class CxLeadInfo extends RcModule {
     that._cxLeads.leadStatesMapping,
     that._cxPresence.callsMapping,
     that._cxAuth.agentConfig,
+    that._cxLeadEdit.edits,
   ])
   get info(): CxLeadInfoData | null {
     const target = this.target;
@@ -94,21 +99,23 @@ export class CxLeadInfo extends RcModule {
     }
     const campaign = this._findCampaign(lead.campaignId);
     const source = this._getSource(lead, campaign);
+    const auxLabels = getCxLeadAuxLabels({
+      campaignLabels: campaign?.customLabels,
+      baggageLabels: lead.customLabels,
+    });
     return {
       target,
       lead,
       name: getLeadName(lead),
       phoneNumbers: getLeadPhoneNumbers(lead),
       source,
+      auxLabels,
       rows: buildCxLeadInfoRows({
         lead,
         source,
         leadState: this._getLeadState(lead),
         isCallLead: target.type === 'call',
-        auxLabels: getCxLeadAuxLabels({
-          campaignLabels: campaign?.customLabels,
-          baggageLabels: lead.customLabels,
-        }),
+        auxLabels,
       }),
     };
   }
@@ -180,6 +187,32 @@ export class CxLeadInfo extends RcModule {
     }
   }
 
+  /**
+   * The Lead details rows of a past call's lead, as Agent One's call history
+   * shows them: no source, which the page shows already, and "Lead passes",
+   * or "Pre-call lead passes" while the call is still active.
+   */
+  getPastLeadRows(lead: CxLeadDetails, isActiveCall: boolean): CxLeadInfoRow[] {
+    const campaign = this._findCampaign(lead.campaignId);
+    return buildCxLeadInfoRows({
+      lead,
+      source: '',
+      leadState: lead.leadState,
+      isCallLead: true,
+      passesLabelKey: isActiveCall ? 'preCallLeadPasses' : 'leadPasses',
+      auxLabels: getCxLeadAuxLabels({
+        campaignLabels: campaign?.customLabels,
+      }),
+    });
+  }
+
+  /**
+   * A lead's past dial attempts, or `null` when the server did not answer.
+   */
+  loadLeadHistory(leadId: string): Promise<CxLeadHistoryRecord[] | null> {
+    return this._cxClient.getLeadHistory(leadId);
+  }
+
   private _getFollowedTarget(callId: string): CxLeadInfoTarget | null {
     const target = this.target;
     if (!target || (target.type === 'call' && target.callId === callId)) {
@@ -197,7 +230,15 @@ export class CxLeadInfo extends RcModule {
     return isSameLead ? { type: 'call', callId } : target;
   }
 
+  /**
+   * The target's lead, with the fields the agent saved on it.
+   */
   private _resolveLead(target: CxLeadInfoTarget): CxLeadDetails | null {
+    const lead = this._resolveSourceLead(target);
+    return lead ? this._cxLeadEdit.applyEdits(lead) : null;
+  }
+
+  private _resolveSourceLead(target: CxLeadInfoTarget): CxLeadDetails | null {
     if (target.type === 'call') {
       return this.getCallLead(target.callId);
     }

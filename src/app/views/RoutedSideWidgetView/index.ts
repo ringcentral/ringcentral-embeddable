@@ -5,5 +5,6 @@ export {
 } from './RoutedSideWidget.helper';
 export type {
   RoutedSideWidgetConfig,
+  RoutedSideWidgetRouterOwner,
   RoutedSideWidgetViewProps,
 } from './RoutedSideWidget.view.interface';

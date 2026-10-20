@@ -4,6 +4,8 @@ import {
 } from '@ringcentral-integration/micro-core/src/app/components';
 import React, { type ReactNode } from 'react';
 
+import { SideWidgetBackContext } from './SideWidgetBackContext';
+
 interface SideWidgetContentPageProps {
   children: ReactNode;
   onBack?: () => void;
@@ -52,7 +54,9 @@ export function SideWidgetContentPage({
         {nav}
       </header>
       <div className="flex min-h-0 flex-auto flex-col overflow-hidden">
-        {children}
+        <SideWidgetBackContext.Provider value={onBack ?? null}>
+          {children}
+        </SideWidgetBackContext.Provider>
       </div>
       <footer className="flex-none">{footer}</footer>
     </div>
