@@ -14,6 +14,9 @@ jest.mock(
 
 jest.mock("../../src/app/views/SideWidgetView", () => ({
   SideWidgetView: class SideWidgetView {},
+  useSideWidgetBack: jest.requireActual(
+    "../../src/app/views/SideWidgetView/useSideWidgetBack"
+  ).useSideWidgetBack,
 }));
 
 jest.mock("@ringcentral-integration/micro-phone/src/app/services", () => ({
@@ -46,6 +49,9 @@ const { MemoryRouter } = require("react-router-dom");
 const {
   LogCallView,
 } = require("../../src/app/views/LogCallView/LogCall.view");
+const {
+  SideWidgetBackContext,
+} = require("../../src/app/views/SideWidgetView/SideWidgetBackContext");
 
 describe("LogCallView", () => {
   test("enriches the logger call with the call-detail contact selection", async () => {
@@ -368,7 +374,7 @@ describe("LogCallView from the call page", () => {
       expect(router.goBack).not.toHaveBeenCalled();
     });
 
-    test("still goes back in the router on the routed log page", async () => {
+    test("still goes back in the router on a log page in the main column", async () => {
       const router = createRouter("/dialer");
       const view = createView({ router });
       jest.spyOn(view, "loadCall").mockResolvedValue(undefined);
@@ -383,5 +389,68 @@ describe("LogCallView from the call page", () => {
 
       expect(router.goBack).toHaveBeenCalledTimes(1);
     });
+  });
+});
+
+describe("LogCallView in a routed side widget tab", () => {
+  beforeEach(() => {
+    mockLogCallPageProps.length = 0;
+  });
+
+  function renderInTab({ callLogger = {}, closeTab }) {
+    const router = {
+      currentPath: "/log/call/session-1",
+      goBack: jest.fn(),
+      push: jest.fn(),
+    };
+    const view = new LogCallView(
+      callLogger,
+      { callLoggerTitle: null, customizedLogCallPage: null },
+      router,
+      {},
+      { getExtraLogData: jest.fn(() => ({})) }
+    );
+    view.component = view.component.bind(view);
+    jest.spyOn(view, "loadCall").mockResolvedValue(undefined);
+    view.currentCall = { sessionId: "session-1", telephonySessionId: "t-1" };
+    render(
+      React.createElement(
+        SideWidgetBackContext.Provider,
+        { value: closeTab },
+        React.createElement(view.component, {
+          location: { search: "?source=ringcx" },
+          match: { params: { callSessionId: "session-1" } },
+        })
+      )
+    );
+    return { router, view };
+  }
+
+  test("closes its tab after saving the log, instead of going back through history", async () => {
+    // The host pushed the log page over a submitted disposition: going back
+    // would reopen the disposition, which then routes to the agent dialer.
+    const closeTab = jest.fn();
+    const callLogger = { logCall: jest.fn().mockResolvedValue(undefined) };
+    const { router } = renderInTab({ callLogger, closeTab });
+
+    await act(() =>
+      mockLogCallPageProps[mockLogCallPageProps.length - 1].onSubmit({
+        note: "Note",
+      })
+    );
+
+    expect(callLogger.logCall).toHaveBeenCalled();
+    expect(closeTab).toHaveBeenCalledTimes(1);
+    expect(router.goBack).not.toHaveBeenCalled();
+  });
+
+  test("closes its tab from the page's back", () => {
+    const closeTab = jest.fn();
+    const { router } = renderInTab({ closeTab });
+
+    mockLogCallPageProps[mockLogCallPageProps.length - 1].onBack();
+
+    expect(closeTab).toHaveBeenCalledTimes(1);
+    expect(router.goBack).not.toHaveBeenCalled();
   });
 });

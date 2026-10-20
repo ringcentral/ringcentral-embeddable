@@ -10,6 +10,7 @@ jest.mock('@ringcentral-integration/next-core', () => ({
   Redirect: require('react-router-dom').Redirect,
   Route: require('react-router-dom').Route,
   Switch: require('react-router-dom').Switch,
+  useLocation: require('react-router-dom').useLocation,
 }));
 
 jest.mock('../../src/app/services/load-ringcx-chunk', () => ({
@@ -229,7 +230,17 @@ describe('RingCX stage while an agent account is picked', () => {
 });
 
 describe('CxAppView fallback route', () => {
-  function renderAt(path, cxAuthState) {
+  /**
+   * Renders the shell at `path`. The router is on `routerPath` when given, as
+   * behind a routed side widget page; otherwise it follows the location.
+   */
+  function renderAt(path, cxAuthState, { routerPath } = {}) {
+    let location;
+    const router = {
+      get currentPath() {
+        return routerPath ?? location?.pathname ?? path;
+      },
+    };
     const view = new CxAppView(
       cxAuthState,
       { configSuccess: false },
@@ -239,9 +250,9 @@ describe('CxAppView fallback route', () => {
       { component: () => null },
       { component: () => null },
       { component: () => null },
+      router,
     );
     const Harness = () => view.component();
-    let location;
     const result = render(
       <MemoryRouter initialEntries={[path]}>
         <Harness />
@@ -267,5 +278,23 @@ describe('CxAppView fallback route', () => {
 
     expect(getPath()).toBe('/agent/chooseAccount');
     expect(queryByTestId('choose-account')).not.toBeNull();
+  });
+
+  test('does not redirect while parked behind a routed side widget page', () => {
+    // The session ended while its home was parked behind call details: the
+    // shell sees the parked home, while the router is on the details.
+    const { container, getPath } = renderAt(
+      '/agent/home',
+      {
+        agentId: 'agent-a',
+        isAgentSelectionPending: false,
+        isOnlyOneAgent: false,
+        loginStatus: 'authSuccess',
+      },
+      { routerPath: '/history/call' },
+    );
+
+    expect(getPath()).toBe('/agent/home');
+    expect(container.innerHTML).toBe('');
   });
 });

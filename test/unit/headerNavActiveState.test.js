@@ -42,14 +42,18 @@ jest.mock('../../src/app/views/RoutedSideWidgetView', () => ({
 
 import { HeaderNavViewSpring } from '../../src/app/views/HeaderNavView';
 
-function createView(currentPath, mainPath = null) {
+/**
+ * `mainColumnPath` is where the main column renders, the current path on a
+ * main page and the page behind it on a routed side widget page.
+ */
+function createView(currentPath, mainColumnPath = currentPath) {
   const view = new HeaderNavViewSpring(
     {},
     { currentPath, push: jest.fn() },
     { isRCV: true },
     { customizedTabs: [] },
     { themeType: 'light' },
-    { mainPath, navigateMain: jest.fn() },
+    { getMainColumnPath: () => mainColumnPath, navigateMain: jest.fn() },
     { enableVideoTab: true },
   );
   view._appFeatures = {
@@ -64,8 +68,8 @@ function createView(currentPath, mainPath = null) {
   return view;
 }
 
-function activeTabs(currentPath, mainPath) {
-  return createView(currentPath, mainPath)
+function activeTabs(currentPath, mainColumnPath) {
+  return createView(currentPath, mainColumnPath)
     .getUIProps()
     .tabs.filter(({ active }) => active)
     .map(({ to }) => to);
@@ -89,8 +93,13 @@ describe('header nav active state', () => {
     expect(activeTabs('/agent/home/dialer')).toEqual(['/agent']);
   });
 
-  test('follows the preserved main path over the routed page', () => {
+  test('follows the main column over the routed page', () => {
     expect(activeTabs('/conversations/first', '/dialer')).toEqual(['/dialer']);
+    expect(activeTabs('/history/call-1', '/dialer')).toEqual(['/dialer']);
+  });
+
+  test('lights the agent tab for an agent home parked behind a routed page', () => {
+    expect(activeTabs('/history/call-1', '/agent/home')).toEqual(['/agent']);
   });
 
   test('ignores a main path that belongs to no tab', () => {

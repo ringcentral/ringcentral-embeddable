@@ -357,3 +357,60 @@ export function decideCloseCompletion({
 }: CloseCompletion): string | null {
   return navigated && currentPath !== backgroundPath ? backgroundPath : null;
 }
+
+/** The routed page the router is on, as the main column sees it. */
+export interface MainColumnRoutedPage {
+  /** The page's background, resolved for its params. */
+  backgroundPath: string;
+  /** The page keeps the main page it was opened from. */
+  preserveBackground: boolean;
+  /**
+   * The route renders its own background component at its own path, for a
+   * background that no main route can show.
+   */
+  rendersOwnBackground: boolean;
+}
+
+export interface MainColumnPathOptions {
+  currentPath: string;
+  /** The page parked in the main column, if any. */
+  mainPath: string | null;
+  /** The routed page the router is on, or `null` on a main route. */
+  routedPage: MainColumnRoutedPage | null;
+  /**
+   * The last main page that can be shown behind a routed page, for a page
+   * that preserves its background. Pages that close with what they show,
+   * such as a call page, are skipped.
+   */
+  lastMainPath: string | null;
+}
+
+/**
+ * Resolves the location the main column renders. On a routed side widget page
+ * that is the page behind it: the parked page, else the page it preserves,
+ * else its own background. The main column then keeps the same route element,
+ * so the page behind a routed page is not remounted when it opens or closes.
+ *
+ * A parked page left over on a main route is stale, so a main route always
+ * renders itself.
+ */
+export function resolveMainColumnPath({
+  currentPath,
+  mainPath,
+  routedPage,
+  lastMainPath,
+}: MainColumnPathOptions): string {
+  if (!routedPage) {
+    return currentPath;
+  }
+  if (mainPath) {
+    return mainPath;
+  }
+  if (routedPage.rendersOwnBackground) {
+    return currentPath;
+  }
+  if (routedPage.preserveBackground) {
+    return lastMainPath ?? routedPage.backgroundPath;
+  }
+  return routedPage.backgroundPath;
+}

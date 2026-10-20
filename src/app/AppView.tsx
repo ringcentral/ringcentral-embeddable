@@ -1,10 +1,4 @@
-import React, {
-  createContext,
-  ReactNode,
-  useContext,
-  useLayoutEffect,
-  useRef,
-} from 'react';
+import React, { ReactNode, useLayoutEffect } from 'react';
 import {
   EnvironmentView,
   LoginView,
@@ -74,12 +68,10 @@ import {
   useLocation,
 } from '@ringcentral-integration/next-core';
 import type { AppViewOptions, Route as AppRoute } from './AppView.interface';
+
 import { resolveDetailViewTransitionId } from './AppView.helper';
 import { t } from './i18n';
-import {
-  isSideWidgetRoutePath,
-  resolveExpandedRouteBackgroundPath,
-} from './ExpandedRouteNavigation.helper';
+import { isSideWidgetRoutePath } from './ExpandedRouteNavigation.helper';
 import { CustomizedPageView } from './views/CustomizedPageView';
 import { ApplicationLogsView } from './views/ApplicationLogsView';
 import { CxAgentSettingsView } from './views/CxAgentSettingsView';
@@ -114,8 +106,6 @@ type InternalRoute = Omit<AppRoute, 'component' | 'backgroundComponent'> & {
   component?: RouteComponent;
   backgroundComponent?: RouteComponent;
 };
-
-const ExpandedRouteBackgroundPathContext = createContext<string | null>(null);
 
 @injectable({
   name: 'AppView',
@@ -244,7 +234,6 @@ export class AppView extends RcViewModule {
       component: this._cxAgentTabView.HistoryDetail,
       authentication: true,
       exact: true,
-      backgroundComponent: this._cxAgentTabView.HistoryBackground,
       sideWidget: {
         // Its own tab: a RingCX history row is a different page from a
         // RingEX call log, even though both are shown as call details.
@@ -261,7 +250,6 @@ export class AppView extends RcViewModule {
       component: this._cxAgentTabView.DispositionDetail,
       authentication: true,
       exact: true,
-      backgroundComponent: this._cxAgentTabView.DispositionBackground,
       sideWidget: {
         id: 'cx-disposition',
         name: () => t('disposition'),
@@ -281,6 +269,8 @@ export class AppView extends RcViewModule {
       component: this._cxAgentTabView.component,
       authentication: true,
       ownsRouter: true,
+      resolveParkedPath: (path) =>
+        this._cxAgentTabView.resolveParkedPath(path),
     },
     {
       path: '/dialer',
@@ -291,7 +281,6 @@ export class AppView extends RcViewModule {
       path: '/history/:callLogId',
       component: this._callDetailView.component,
       authentication: true,
-      backgroundComponent: this._dialerPadView.component,
       sideWidget: {
         id: 'call-details',
         name: () => t('callDetails'),
@@ -331,7 +320,6 @@ export class AppView extends RcViewModule {
       path: '/composeText',
       component: this._composeTextView.component,
       authentication: true,
-      backgroundComponent: this.Text,
       sideWidget: {
         id: 'compose-text',
         name: () => t('composeText'),
@@ -346,7 +334,6 @@ export class AppView extends RcViewModule {
       path: '/composeFax',
       component: this._faxSendView.component,
       authentication: true,
-      backgroundComponent: this.Fax,
       sideWidget: {
         id: 'compose-fax',
         name: () => t('composeFax'),
@@ -360,7 +347,6 @@ export class AppView extends RcViewModule {
       path: '/conversations/:conversationId',
       component: this._conversationView.component,
       authentication: true,
-      backgroundComponent: this.Text,
       sideWidget: {
         id: 'conversation',
         name: () => t('conversation'),
@@ -372,7 +358,6 @@ export class AppView extends RcViewModule {
       path: '/voicemails/:conversationId',
       component: this._voicemailView.component,
       authentication: true,
-      backgroundComponent: this._dialerPadView.component,
       sideWidget: {
         id: 'voicemail-details',
         name: () => t('voicemail'),
@@ -384,7 +369,6 @@ export class AppView extends RcViewModule {
       path: '/faxes/:conversationId',
       component: this._faxDetailsView.component,
       authentication: true,
-      backgroundComponent: this.Fax,
       sideWidget: {
         id: 'fax-details',
         name: () => t('fax'),
@@ -412,28 +396,24 @@ export class AppView extends RcViewModule {
       path: '/settings/calling',
       component: this._callingSettingsView.component,
       authentication: true,
-      backgroundComponent: this._settingsView.component,
       sideWidget: this._historyBackSettingsSideWidgetConfig,
     },
     {
       path: '/settings/agent',
       component: this._cxAgentSettingsView.component,
       authentication: true,
-      backgroundComponent: this._settingsView.component,
       sideWidget: this._settingsSideWidgetConfig,
     },
     {
       path: '/settings/region',
       component: this._regionSettingsView.component,
       authentication: true,
-      backgroundComponent: this._settingsView.component,
       sideWidget: this._historyBackSettingsSideWidgetConfig,
     },
     {
       path: '/settings/audio',
       component: this._audioSettingsView.component,
       authentication: true,
-      backgroundComponent: this._settingsView.component,
       sideWidget: this._historyBackSettingsSideWidgetConfig,
     },
     ...(this._smsConsentManagementView
@@ -442,7 +422,6 @@ export class AppView extends RcViewModule {
             path: '/settings/consentManagement',
             component: this._smsConsentManagementView.component,
             authentication: true,
-            backgroundComponent: this._settingsView.component,
             sideWidget: this._settingsSideWidgetConfig,
           },
         ]
@@ -451,70 +430,60 @@ export class AppView extends RcViewModule {
       path: '/settings/thirdParty/:sectionId',
       component: this._thirdPartySettingSectionView.component,
       authentication: true,
-      backgroundComponent: this._settingsView.component,
       sideWidget: this._historyBackSettingsSideWidgetConfig,
     },
     {
       path: '/settings/text',
       component: this._textSettingView.component,
       authentication: true,
-      backgroundComponent: this._settingsView.component,
       sideWidget: this._historyBackSettingsSideWidgetConfig,
     },
     {
       path: '/settings/phoneNumberFormat',
       component: this._phoneNumberFormatSettingView.component,
       authentication: true,
-      backgroundComponent: this._settingsView.component,
       sideWidget: this._historyBackSettingsSideWidgetConfig,
     },
     {
       path: '/settings/voicemailDrop',
       component: this._voicemailDropSettingsView.component,
       authentication: true,
-      backgroundComponent: this._settingsView.component,
       sideWidget: this._settingsSideWidgetConfig,
     },
     {
       path: '/settings/applicationLogs',
       component: this._applicationLogsView.component,
       authentication: true,
-      backgroundComponent: this._settingsView.component,
       sideWidget: this._historyBackSettingsSideWidgetConfig,
     },
     {
       path: '/settings/callQueueManagement',
       component: this._callQueueManagementView.component,
       authentication: true,
-      backgroundComponent: this._settingsView.component,
       sideWidget: this._settingsSideWidgetConfig,
     },
     {
       path: '/settings/theme',
       component: this._themeSwitchView.component,
       authentication: true,
-      backgroundComponent: this._settingsView.component,
       sideWidget: this._settingsSideWidgetConfig,
     },
     {
       path: '/settings/autoCallLogSettings/callLogging',
       component: this._callLoggingSettingsView.component,
       authentication: true,
-      backgroundComponent: this._settingsView.component,
       sideWidget: this._settingsSideWidgetConfig,
     },
     {
       path: '/settings/autoCallLogSettings/recordMatching',
       component: this._recordMatchingSettingsView.component,
       authentication: true,
-      backgroundComponent: this._settingsView.component,
       sideWidget: this._settingsSideWidgetConfig,
     },
     {
       path: '/settings/autoCallLogSettings',
       component: this._autoCallLogICSettingsView.component,
       authentication: true,
-      backgroundComponent: this._settingsView.component,
       sideWidget: this._settingsSideWidgetConfig,
     },
     {
@@ -527,14 +496,12 @@ export class AppView extends RcViewModule {
       path: '/meeting/schedule',
       component: this._genericMeetingView?.component,
       authentication: true,
-      backgroundComponent: this.MeetingEntry,
       sideWidget: this._meetingSideWidgetConfig,
     },
     {
       path: '/meeting/personalMeetingSettings',
       component: this._personalMeetingSettingsViewSpring?.component,
       authentication: true,
-      backgroundComponent: this.MeetingEntry,
       sideWidget: this._personalMeetingSettingsSideWidgetConfig,
     },
     {
@@ -547,7 +514,6 @@ export class AppView extends RcViewModule {
       path: '/contacts/:contactType/:contactId',
       component: this._contactDetailsView.component,
       authentication: true,
-      backgroundComponent: this._contactListView.component,
       sideWidget: {
         id: 'contact-details',
         name: () => t('contact'),
@@ -556,41 +522,6 @@ export class AppView extends RcViewModule {
       },
     },
   ];
-
-  private backgroundRoutesMap = this.routes.reduce((routes, route) => {
-    if (route.preserveBackground) {
-      return routes;
-    }
-    const BackgroundComponent = route.sideWidget
-      ? route.backgroundComponent
-      : route.component;
-    if (!BackgroundComponent) {
-      return routes;
-    }
-    routes.push(
-      <RouterRoute
-        key={route.path}
-        path={route.path}
-        exact={route.exact}
-        component={BackgroundComponent}
-      />,
-    );
-    return routes;
-  }, [] as ReactNode[]);
-
-  @autobind
-  private PreservedRouteBackground() {
-    const backgroundPath = useContext(ExpandedRouteBackgroundPathContext);
-    const location = useLocation();
-    if (!backgroundPath) {
-      return null;
-    }
-    return (
-      <Switch location={{ ...location, pathname: backgroundPath }}>
-        {this.backgroundRoutesMap}
-      </Switch>
-    );
-  }
 
   private _resolveRoutedContact(
     tabId: string,
@@ -657,8 +588,12 @@ export class AppView extends RcViewModule {
     return undefined;
   }
 
+  /**
+   * Opens a routed page's side widget tab. The main column renders the page
+   * behind it at its own location, see `MainContent`.
+   */
   @autobind
-  private RoutedSideWidgetRoute({
+  private RoutedSideWidgetOpener({
     route,
     routeProps,
   }: {
@@ -667,11 +602,7 @@ export class AppView extends RcViewModule {
   }) {
     const location = useLocation();
     const expanded = useConnector(() => this._root.expanded);
-    const mainPath = useConnector(
-      () => this._routedSideWidgetView.mainPath,
-    );
     const DetailComponent = route.component;
-    const BackgroundComponent = route.backgroundComponent;
     const config = route.sideWidget;
     const params = routeProps.match.params as Record<
       string,
@@ -684,43 +615,33 @@ export class AppView extends RcViewModule {
       return null;
     }
     return (
-      <>
-        {mainPath ? (
-          <Switch location={{ ...location, pathname: mainPath }}>
-            {this.backgroundRoutesMap}
-          </Switch>
-        ) : BackgroundComponent ? (
-          <BackgroundComponent {...routeProps} />
-        ) : route.preserveBackground ? (
-          <this.PreservedRouteBackground />
-        ) : null}
-        <this._routedSideWidgetView.component
-          config={config}
-          contact={contact}
-          detailComponent={DetailComponent}
-          detailProps={routeProps as unknown as Record<string, unknown>}
-          expand={expanded}
-          path={location.pathname}
-          routeExact={route.exact}
-          routePath={route.path}
-        />
-      </>
+      <this._routedSideWidgetView.component
+        config={config}
+        contact={contact}
+        detailComponent={DetailComponent}
+        detailProps={routeProps as unknown as Record<string, unknown>}
+        expand={expanded}
+        path={location.pathname}
+        routeExact={route.exact}
+        routePath={route.path}
+      />
     );
   }
 
+  /**
+   * The main column's routes. A routed side widget page is not one: the main
+   * column renders the page behind it instead, unless the page brings its own
+   * background component, which is then rendered at the page's own path.
+   */
   private routesMap = this.routes.reduce(
     (acc, curr) => {
+      const component = curr.sideWidget
+        ? curr.backgroundComponent
+        : curr.component;
+      if (!component) {
+        return acc;
+      }
       const target = curr.authentication ? acc.authentication : acc.default;
-      const DetailComponent = curr.component;
-      const component = curr.sideWidget && DetailComponent
-        ? (routeProps: RouteComponentProps) => (
-            <this.RoutedSideWidgetRoute
-              route={curr}
-              routeProps={routeProps}
-            />
-          )
-        : DetailComponent;
-
       target.push(
         <RouterRoute
           key={curr.path}
@@ -729,13 +650,31 @@ export class AppView extends RcViewModule {
           component={component}
         />,
       );
-
       return acc;
     },
     {
       default: [] as ReactNode[],
       authentication: [] as ReactNode[],
     },
+  );
+
+  /** The routed side widget pages, matched against the real location. */
+  private sideWidgetOpeners = this.routes.flatMap((route) =>
+    route.sideWidget && route.component
+      ? [
+          <RouterRoute
+            key={route.path}
+            path={route.path}
+            exact={route.exact}
+            render={(routeProps: RouteComponentProps) => (
+              <this.RoutedSideWidgetOpener
+                route={route}
+                routeProps={routeProps}
+              />
+            )}
+          />,
+        ]
+      : [],
   );
 
   constructor(
@@ -810,6 +749,7 @@ export class AppView extends RcViewModule {
                 detailComponent: route.component,
                 routeExact: route.exact,
                 routePath: route.path,
+                rendersOwnBackground: !!route.backgroundComponent,
               },
             ]
           : [],
@@ -823,10 +763,15 @@ export class AppView extends RcViewModule {
         .filter((route) => !route.authentication)
         .map((route) => route.path),
     );
-    this._routedSideWidgetView.setRouterOwningPaths(
+    this._routedSideWidgetView.setRouterOwners(
       this.routes
         .filter((route) => route.ownsRouter || !route.authentication)
-        .map((route) => route.path),
+        .map((route) => ({
+          path: route.path,
+          resolveParkedPath: route.authentication
+            ? route.resolveParkedPath
+            : undefined,
+        })),
     );
   }
 
@@ -848,13 +793,37 @@ export class AppView extends RcViewModule {
     );
   }
 
+  /**
+   * The main column renders one route tree at the main column's location:
+   * the current page, or on a routed side widget page the page behind it.
+   * Opening or closing a routed page then keeps the same route element, so
+   * the page behind it is not remounted, and a nested router, such as the
+   * RingCX shell, follows the main column's location through the router
+   * context. The side widget openers match the real location.
+   */
   @autobind
   private MainContent() {
+    const location = useLocation();
+    // Resolved from the store alone. A store update (a parked page dropped)
+    // renders synchronously, before the router context catches up with the
+    // push that came first, so pairing the context's location with the
+    // store's parked page would show the routed page's own background for a
+    // frame.
+    const mainPath = useConnector(() =>
+      this._routedSideWidgetView.getMainColumnPath(),
+    );
+    const mainLocation =
+      mainPath === location.pathname
+        ? location
+        : { ...location, pathname: mainPath };
     return (
-      <Switch>
-        {this.routesMap.default}
-        <RouterRoute path="/" component={this.SignedInShell} />
-      </Switch>
+      <>
+        <Switch location={mainLocation}>
+          {this.routesMap.default}
+          <RouterRoute path="/" component={this.SignedInShell} />
+        </Switch>
+        <Switch>{this.sideWidgetOpeners}</Switch>
+      </>
     );
   }
 
@@ -865,54 +834,41 @@ export class AppView extends RcViewModule {
       ringCXLoaded: this._ringCX.loaded,
     }));
     const CxAnnouncements = this._ringCX.announcementsView?.component;
-    const backgroundPathRef = useRef<string | null>(null);
-    const backgroundPath = resolveExpandedRouteBackgroundPath({
-      currentPath,
-      previousBackgroundPath: backgroundPathRef.current,
-      routes: this.routes,
-      isOutsideShellPath: (path) =>
-        this._routedSideWidgetView.isOutsideShellPath(path),
-    });
     useLayoutEffect(() => {
-      backgroundPathRef.current = backgroundPath;
       this._routedSideWidgetView.syncPath(
         currentPath,
         isSideWidgetRoutePath(currentPath, this.routes),
       );
-    }, [backgroundPath, currentPath]);
+    }, [currentPath]);
 
     return (
-      <ExpandedRouteBackgroundPathContext.Provider
-        value={backgroundPath}
-      >
-        <this._appRootView.component
-          header={
-            <div className="flex-none">
-              <AppAnnouncementRender>
-                <this._connectivityView.component />
-                <this._thirdPartyBannerView.component />
-                <this._audioInitView.component />
-                {this._appViewOptions?.headers}
-                <this._callView.Announcement />
-                {ringCXLoaded && CxAnnouncements ? <CxAnnouncements /> : null}
-              </AppAnnouncementRender>
-            </div>
-          }
-        >
-          <div
-            className="flex flex-col h-full flex-auto overflow-hidden bg-neutral-base"
-            id={resolveDetailViewTransitionId(
-              expanded,
-              VIEW_TRANSITION_DETAIL_IDENTIFY,
-            )}
-          >
-            <this.MainContent />
-            <this._callView.IncomingCallList />
-            <this._expandedView.component />
-            <this._environmentView.component />
+      <this._appRootView.component
+        header={
+          <div className="flex-none">
+            <AppAnnouncementRender>
+              <this._connectivityView.component />
+              <this._thirdPartyBannerView.component />
+              <this._audioInitView.component />
+              {this._appViewOptions?.headers}
+              <this._callView.Announcement />
+              {ringCXLoaded && CxAnnouncements ? <CxAnnouncements /> : null}
+            </AppAnnouncementRender>
           </div>
-        </this._appRootView.component>
-      </ExpandedRouteBackgroundPathContext.Provider>
+        }
+      >
+        <div
+          className="flex flex-col h-full flex-auto overflow-hidden bg-neutral-base"
+          id={resolveDetailViewTransitionId(
+            expanded,
+            VIEW_TRANSITION_DETAIL_IDENTIFY,
+          )}
+        >
+          <this.MainContent />
+          <this._callView.IncomingCallList />
+          <this._expandedView.component />
+          <this._environmentView.component />
+        </div>
+      </this._appRootView.component>
     );
   }
 }

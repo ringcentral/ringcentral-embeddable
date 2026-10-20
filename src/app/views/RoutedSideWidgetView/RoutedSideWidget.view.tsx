@@ -32,6 +32,7 @@ import {
   decideOpenerParking,
   decideRouteChange,
   decideRouteClose,
+  resolveMainColumnPath,
   type RoutedPage,
   type RouteChangeDecision,
   type RouteCloseDecision,
@@ -40,6 +41,7 @@ import type {
   RoutedSideWidgetConfig,
   RoutedSideWidgetContactResolver,
   RoutedSideWidgetRouteDefinition,
+  RoutedSideWidgetRouterOwner,
   RoutedSideWidgetViewProps,
 } from './RoutedSideWidget.view.interface';
 
@@ -118,6 +120,8 @@ export class RoutedSideWidgetView extends RcViewModule {
 
   private _stopWatchingPath: (() => void) | null = null;
 
+  private _stopWatchingParkable: (() => void) | null = null;
+
   private _stopWatchingContact: (() => void) | null = null;
 
   /** The last path handed to {@link syncPath}, to handle each change once. */
@@ -125,6 +129,12 @@ export class RoutedSideWidgetView extends RcViewModule {
 
   /** The main-column page the user was last on. */
   private _lastMainPath: string | null = null;
+
+  /**
+   * The main page a `preserveBackground` page returns to: the last one that
+   * can be shown behind a routed page, see {@link _rememberMainPath}.
+   */
+  private _lastReturnPath: string | null = null;
 
   /** A route change is closing the page the router left. */
   private _closingLeftPage = false;
@@ -138,16 +148,17 @@ export class RoutedSideWidgetView extends RcViewModule {
   mainPath: string | null = null;
 
   /**
-   * Main paths whose page renders its own nested router instead of being
-   * driven by `mainPath` alone.
+   * Main paths whose page renders its own nested router, or sits outside the
+   * signed-in shell.
    *
-   * Such a page (`/agent`, the RingCX shell) reads the real location, so it
-   * cannot be shown behind a parked route: its nested `<Switch>` would match
-   * nothing and its fallback `<Redirect>` would replace the real route,
-   * destroying the entry the user came from. Navigation to those paths always
-   * uses the real router.
+   * The main column hands its location to a nested router, so such a page
+   * can be parked once it says where (`resolveParkedPath`), such as the
+   * RingCX agent home in a ready session. Anything else it shows reads the
+   * real location or redirects, which would replace the real route and
+   * destroy the entry the user came from, so navigation to it uses the real
+   * router.
    */
-  private _routerOwningPaths: readonly string[] = [];
+  private _routerOwners: readonly RoutedSideWidgetRouterOwner[] = [];
 
   /** Main paths outside the signed-in shell, such as the call page. */
   private _outsideShellPaths: readonly string[] = [];
@@ -157,22 +168,43 @@ export class RoutedSideWidgetView extends RcViewModule {
     this.mainPath = path;
   }
 
+  /**
+   * Parks a main page, as the page its router owner shows for it: closing the
+   * routed page then routes to the location the main column already shows,
+   * not to a path the owner would redirect, which would remount it.
+   */
   private _setMainPath(path: string | null): void {
-    if (path) {
-      this._rememberMainPath(path);
+    const mainPath = path ? this._toParkedPath(path) : null;
+    if (mainPath) {
+      this._rememberMainPath(mainPath);
     }
-    this._updateMainPath(path);
+    this._updateMainPath(mainPath);
   }
 
   /**
-   * Records the main page a `preserveBackground` page returns to. A page
-   * outside the signed-in shell, such as the call page, closes with its call,
-   * so the page from before it stays the one to return to.
+   * Records the main page the user was on. A page outside the signed-in
+   * shell, such as the call page, closes with its call, so the page from
+   * before it stays the one to return to.
+   *
+   * A `preserveBackground` page also skips a router-owning page that cannot
+   * be parked, such as a RingCX call page: it reads the real route, so behind
+   * a routed page, like the log page a disposition hands over to, it would
+   * render nothing, and its call has usually ended by then.
    */
   private _rememberMainPath(path: string): void {
-    if (!this.isOutsideShellPath(path)) {
-      this._lastMainPath = path;
+    if (this.isOutsideShellPath(path)) {
+      return;
     }
+    this._lastMainPath = path;
+    if (!this._ownsRouter(path)) {
+      this._lastReturnPath = path;
+    }
+  }
+
+  /** The page a `preserveBackground` page returns to, if it still can be. */
+  private _getReturnPath(): string | null {
+    const path = this._lastReturnPath;
+    return path && !this._ownsRouter(path) ? path : null;
   }
 
   override onInit(): void {
@@ -194,6 +226,19 @@ export class RoutedSideWidgetView extends RcViewModule {
       () => this._router.currentPath,
       (path) => this._syncRegisteredPath(path)
     );
+    // A parked page can stop being parkable, such as the agent home when the
+    // RingCX session ends. Its nested router would then redirect and take
+    // the real route over, so the main column returns to the routed page's
+    // background instead.
+    this._stopWatchingParkable = watch(
+      this,
+      () => !!this.mainPath && this._ownsRouter(this.mainPath),
+      (unparkable) => {
+        if (unparkable) {
+          this._updateMainPath(null);
+        }
+      },
+    );
   }
 
   override onReset(): void {
@@ -201,6 +246,8 @@ export class RoutedSideWidgetView extends RcViewModule {
     this._stopWatchingContact = null;
     this._stopWatchingPath?.();
     this._stopWatchingPath = null;
+    this._stopWatchingParkable?.();
+    this._stopWatchingParkable = null;
     this._blankContactTimers.forEach((timer) => clearTimeout(timer));
     this._blankContactTimers.clear();
   }
@@ -215,11 +262,11 @@ export class RoutedSideWidgetView extends RcViewModule {
 
   /**
    * Declares main paths that own the router themselves. Switching to one of
-   * them cannot keep a routed side-widget page visible, so the navigation uses
-   * the real router and the routed tab closes instead.
+   * them keeps a routed side-widget page visible only while it can be parked;
+   * otherwise the navigation uses the real router and the routed tab closes.
    */
-  setRouterOwningPaths(paths: readonly string[]): void {
-    this._routerOwningPaths = paths;
+  setRouterOwners(owners: readonly RoutedSideWidgetRouterOwner[]): void {
+    this._routerOwners = owners;
   }
 
   /**
@@ -235,8 +282,71 @@ export class RoutedSideWidgetView extends RcViewModule {
     return matchesPathPrefix(path, this._outsideShellPaths);
   }
 
+  private _findRouterOwner(
+    path: string,
+  ): RoutedSideWidgetRouterOwner | undefined {
+    return this._routerOwners.find((owner) =>
+      matchesPathPrefix(path, [owner.path]),
+    );
+  }
+
   private _ownsRouter(path: string): boolean {
-    return matchesPathPrefix(path, this._routerOwningPaths);
+    const owner = this._findRouterOwner(path);
+    return !!owner && !owner.resolveParkedPath?.(path);
+  }
+
+  private _toParkedPath(path: string): string {
+    return this._findRouterOwner(path)?.resolveParkedPath?.(path) ?? path;
+  }
+
+  private _findRoute(path: string):
+    | {
+        route: RoutedSideWidgetRouteDefinition;
+        params: Record<string, string | undefined>;
+      }
+    | undefined {
+    for (const route of this._routes) {
+      const match = matchPath<Record<string, string | undefined>>(path, {
+        exact: route.routeExact,
+        path: route.routePath,
+      });
+      if (match) {
+        return { route, params: match.params };
+      }
+    }
+    return undefined;
+  }
+
+  /** Whether the router is on a routed side widget page. */
+  isOnRoutedPage(): boolean {
+    const path = this._router.currentPath;
+    return !!path && !!this._findRoute(path);
+  }
+
+  /**
+   * The location the main column renders, see {@link resolveMainColumnPath}.
+   * Read it in a connector: a background that follows state, such as the
+   * agent tab picked behind a RingCX history detail, changes with that state.
+   */
+  getMainColumnPath(): string {
+    const currentPath = this._router.currentPath ?? '/';
+    const found = this._findRoute(currentPath);
+    const config = found?.route.config;
+    return resolveMainColumnPath({
+      currentPath,
+      mainPath: this.mainPath,
+      routedPage:
+        found && config
+          ? {
+              backgroundPath:
+                config.resolveBackgroundPath?.(found.params) ??
+                config.backgroundPath,
+              preserveBackground: !!config.preserveBackground,
+              rendersOwnBackground: !!found.route.rendersOwnBackground,
+            }
+          : null,
+      lastMainPath: this._getReturnPath(),
+    });
   }
 
   /**
@@ -676,7 +786,7 @@ export class RoutedSideWidgetView extends RcViewModule {
     if (!config.preserveBackground) {
       return undefined;
     }
-    return this.mainPath ?? this._lastMainPath ?? config.backgroundPath;
+    return this.mainPath ?? this._getReturnPath() ?? config.backgroundPath;
   }
 
   /**
@@ -847,7 +957,9 @@ export class RoutedSideWidgetView extends RcViewModule {
     if (decision.type === 'handOver') {
       this._requestedPath = decision.requestedPath;
     } else if (decision.type === 'toBackground') {
-      this._setMainPath(null);
+      // The parked page stays until the router lands on it (`syncPath` drops
+      // it on `showMainPage`). Dropping it first would render the routed
+      // page's own background for a frame in between.
       await this._navigate(decision.backgroundPath);
     }
   }

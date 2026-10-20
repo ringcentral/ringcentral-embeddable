@@ -78,4 +78,22 @@ export interface RoutedSideWidgetRouteDefinition {
   detailComponent: ComponentType<Record<string, unknown>>;
   routeExact?: boolean;
   routePath: string;
+  /**
+   * The route renders its own background component at its own path, so the
+   * main column stays on the route instead of moving to `backgroundPath`.
+   */
+  rendersOwnBackground?: boolean;
+}
+
+/**
+ * A main path whose page renders its own nested router, or sits outside the
+ * signed-in shell, so it cannot always be shown behind a routed page.
+ */
+export interface RoutedSideWidgetRouterOwner {
+  path: string;
+  /**
+   * Where the main column parks a path under this one behind a routed page,
+   * or `null` while it cannot be parked. Without it the page is never parked.
+   */
+  resolveParkedPath?: (path: string) => string | null;
 }

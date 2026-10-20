@@ -11,10 +11,9 @@ import {
   RcViewModule,
   RouterPlugin,
   useConnector,
-  useParams,
 } from '@ringcentral-integration/next-core';
 import { useObservableEagerState } from 'observable-hooks';
-import React, { type ComponentType } from 'react';
+import React from 'react';
 
 import { RingCX } from '../../services/RingCX';
 import type { CxViewModule } from '../../services/RingCX/RingCX.interface';
@@ -33,10 +32,6 @@ const AGENT_DIALER_PATH = `${AGENT_PATH}/home/${AGENT_DIALER_TAB}`;
 const AGENT_TABS_ID = 'agentTabs';
 const AGENT_HOME_TABS: readonly string[] = ['dialer', 'leads', 'history'];
 
-type CxAgentHomeView = {
-  readonly component: ComponentType<{ initialTab?: string }>;
-};
-
 type CxLiveCalls = {
   readonly callIds: readonly string[];
 };
@@ -48,17 +43,11 @@ export class CxAgentTabView extends RcViewModule {
   @dynamic('CxAppView')
   private readonly _cxAppView?: CxViewModule;
 
-  @dynamic('CxAgentView')
-  private readonly _cxAgentView?: CxAgentHomeView;
-
   @dynamic('CxCallHistoryDetailView')
   private readonly _cxCallHistoryDetailView?: CxViewModule;
 
   @dynamic('CxDispositionView')
   private readonly _cxDispositionView?: CxViewModule;
-
-  @dynamic('CxActiveCallView')
-  private readonly _cxActiveCallView?: CxViewModule;
 
   @dynamic('CxCallMonitor')
   private readonly _cxCallMonitor?: CxLiveCalls;
@@ -82,15 +71,6 @@ export class CxAgentTabView extends RcViewModule {
   }
 
   /**
-   * Main column behind a CX history detail opened in the side widget: the
-   * agent home on its History tab.
-   */
-  @autobind
-  HistoryBackground(): React.ReactElement | null {
-    return <this.AgentHomeBackground initialTab={AGENT_HISTORY_TAB} />;
-  }
-
-  /**
    * Where a CX history detail opened in the side widget returns to: the agent
    * home tab picked in the main column behind it, History until another is
    * picked. The column only switches its tab there, as the detail page holds
@@ -106,6 +86,28 @@ export class CxAgentTabView extends RcViewModule {
   }
 
   /**
+   * Where the main column parks an Agent tab path behind a routed side widget
+   * page, or `null` when it cannot be parked. Only the agent home can, and
+   * only in a ready session: the shell redirects any other session state to
+   * a setup page, which would take the real route over, and the call pages
+   * read the real route. The bare tab path parks as the home, so closing the
+   * routed page does not route through the shell's redirect.
+   */
+  resolveParkedPath(path: string): string | null {
+    if (!this._ringCX.loaded || this._ringCX.stage !== 'ready') {
+      return null;
+    }
+    const homePath = `${AGENT_PATH}/home`;
+    if (path === AGENT_PATH || path === homePath) {
+      return homePath;
+    }
+    const tab = path.startsWith(`${homePath}/`)
+      ? path.slice(homePath.length + 1)
+      : null;
+    return tab && AGENT_HOME_TABS.includes(tab) ? path : null;
+  }
+
+  /**
    * Where a CX disposition opened in the side widget returns to: the call's
    * control page while the call is still up, otherwise the agent dialer.
    */
@@ -113,24 +115,6 @@ export class CxAgentTabView extends RcViewModule {
     return callId && this._isLiveCall(callId)
       ? `${AGENT_PATH}/calls/${callId}`
       : AGENT_DIALER_PATH;
-  }
-
-  /**
-   * Main column behind a CX disposition opened in the side widget. A call
-   * that is still up keeps its control page there, so the agent can work the
-   * call while filling in the form; an ended call leaves the agent dialer,
-   * which is where the agent lands after submitting.
-   */
-  @autobind
-  DispositionBackground(): React.ReactElement | null {
-    const { id } = useParams<{ id?: string }>();
-    const isLiveCall = useConnector(() => !!id && this._isLiveCall(id));
-    const hydrated = this._useHydrated();
-    const CxActiveCall = this._cxActiveCallView?.component;
-    if (isLiveCall && hydrated && CxActiveCall) {
-      return <CxActiveCall />;
-    }
-    return <this.AgentHomeBackground initialTab={AGENT_DIALER_TAB} />;
   }
 
   /**
@@ -163,23 +147,6 @@ export class CxAgentTabView extends RcViewModule {
       this._ringCX.stage === 'ready' &&
       !!this._cxCallMonitor?.callIds.includes(callId)
     );
-  }
-
-  @autobind
-  private AgentHomeBackground({
-    initialTab,
-  }: {
-    initialTab: string;
-  }): React.ReactElement | null {
-    const ready = useConnector(
-      () => this._ringCX.loaded && this._ringCX.stage === 'ready',
-    );
-    const hydrated = this._useHydrated();
-    const CxAgentHome = this._cxAgentView?.component;
-    if (!ready || !hydrated || !CxAgentHome) {
-      return <this.component />;
-    }
-    return <CxAgentHome initialTab={initialTab} />;
   }
 
   /**

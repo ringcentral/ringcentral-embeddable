@@ -65,6 +65,13 @@ function createRoutedSideWidget(currentPath = '/messages') {
   };
 }
 
+/** The watchers `onInit` registered last, in order: contact, path, parkable. */
+function getInitWatchers() {
+  const { watch } = require('@ringcentral-integration/next-core');
+  const [contact, path, parkable] = watch.mock.calls.slice(-3);
+  return { contact, path, parkable };
+}
+
 const conversationConfig = {
   id: 'conversation',
   name: 'Conversation',
@@ -431,8 +438,7 @@ describe('RoutedSideWidgetView', () => {
     expect(sideWidgetView.openContent).not.toHaveBeenCalled();
 
     router.currentPath = '/conversations/first';
-    const { watch } = require('@ringcentral-integration/next-core');
-    const pathWatcher = watch.mock.calls.at(-1)[2];
+    const pathWatcher = getInitWatchers().path[2];
     pathWatcher(router.currentPath);
 
     expect(sideWidgetView.openContent).toHaveBeenCalledWith(
@@ -556,6 +562,10 @@ describe('RoutedSideWidgetView', () => {
 
     await handles.get('call-details').options.onClose('side-widget-apps');
     expect(router.push).toHaveBeenCalledWith('/messages');
+    // The parked page stays until the router reports the move, so the main
+    // column never falls back to the call's own background in between.
+    expect(view.mainPath).toBe('/messages');
+    view.syncPath('/messages');
     expect(view.mainPath).toBeNull();
   });
 
@@ -686,9 +696,9 @@ describe('RoutedSideWidgetView', () => {
       () => loadedContact,
     );
     view.onInit();
-    const { watch } = require('@ringcentral-integration/next-core');
-    const [, contactSelector, applyContact] = watch.mock.calls.at(-2);
-    const pathWatcher = watch.mock.calls.at(-1)[2];
+    const watchers = getInitWatchers();
+    const [, contactSelector, applyContact] = watchers.contact;
+    const pathWatcher = watchers.path[2];
 
     // The router opens the page before the contact loads, as on the shared
     // worker, which renders no route to apply it later.
@@ -767,8 +777,7 @@ describe('RoutedSideWidgetView', () => {
       },
     ]);
     view.onInit();
-    const { watch } = require('@ringcentral-integration/next-core');
-    const pathWatcher = watch.mock.calls.at(-1)[2];
+    const pathWatcher = getInitWatchers().path[2];
 
     router.currentPath = '/contacts/company/contact-1';
     pathWatcher(router.currentPath);
@@ -811,7 +820,7 @@ describe('RoutedSideWidgetView', () => {
     const { handles, router, sideWidgetView, view } =
       createRoutedSideWidget(dispositionPath);
     view._root.expanded = true;
-    view.setRouterOwningPaths(['/calling']);
+    view.setRouterOwners([{ path: '/calling' }]);
     view.setOutsideShellPaths(['/calling']);
     sideWidgetView.closeContent.mockImplementation((handle) =>
       handle.options.onClose(null),
@@ -953,5 +962,281 @@ describe('RoutedSideWidgetView', () => {
     });
 
     expect(screen.getByText('Conversation details')).toBeInTheDocument();
+  });
+
+  describe('main column location', () => {
+    const callDetailsConfig = {
+      id: 'call-details',
+      name: 'Call details',
+      scope: 'contact',
+      backgroundPath: '/dialer',
+    };
+    const callDetailsRoute = {
+      config: callDetailsConfig,
+      detailComponent: () => null,
+      routePath: '/history/:callLogId',
+    };
+
+    test('renders the page behind a routed page', () => {
+      const { router, view } = createRoutedSideWidget('/history/call');
+      let agentTab = 'dialer';
+      view.registerRoutes([
+        callDetailsRoute,
+        {
+          config: {
+            id: 'cx-call-details',
+            name: 'Call details',
+            scope: 'contact',
+            backgroundPath: '/agent/home/history',
+            resolveBackgroundPath: () => `/agent/home/${agentTab}`,
+          },
+          detailComponent: () => null,
+          routeExact: true,
+          routePath: '/agent/history/:id',
+        },
+      ]);
+
+      expect(view.isOnRoutedPage()).toBe(true);
+      expect(view.getMainColumnPath()).toBe('/dialer');
+
+      // A resolved background follows the state it reads.
+      router.currentPath = '/agent/history/history-1';
+      expect(view.getMainColumnPath()).toBe('/agent/home/dialer');
+      agentTab = 'leads';
+      expect(view.getMainColumnPath()).toBe('/agent/home/leads');
+
+      router.currentPath = '/messages';
+      expect(view.isOnRoutedPage()).toBe(false);
+      expect(view.getMainColumnPath()).toBe('/messages');
+    });
+
+    test('keeps a parked page, and ignores one left on a main route', () => {
+      const { router, view } = openDockedCallDetails();
+      view.registerRoutes([callDetailsRoute]);
+
+      expect(view.getMainColumnPath()).toBe('/messages');
+
+      // The router moved to a main page before the parked page was dropped.
+      router.currentPath = '/contacts';
+      expect(view.getMainColumnPath()).toBe('/contacts');
+    });
+
+    test('shows the page a preserved page was opened from', () => {
+      const logRoute = {
+        config: {
+          id: 'log-call',
+          name: 'Log call',
+          scope: 'contact',
+          backgroundPath: '/dialer',
+          preserveBackground: true,
+        },
+        detailComponent: () => null,
+        routePath: '/log/call/:callSessionId',
+      };
+      const opened = createRoutedSideWidget('/log/call/call-1');
+      opened.view.registerRoutes([logRoute]);
+      // Nothing came before it, so its own background shows.
+      expect(opened.view.getMainColumnPath()).toBe('/dialer');
+
+      const { router, view } = createRoutedSideWidget('/contacts');
+      view.registerRoutes([logRoute]);
+      view.syncPath('/contacts');
+      router.currentPath = '/log/call/call-1';
+      expect(view.getMainColumnPath()).toBe('/contacts');
+    });
+
+    test('keeps the page from before a call behind a preserved page', () => {
+      const { router, view } = createRoutedSideWidget('/contacts');
+      view.registerRoutes([
+        {
+          config: {
+            id: 'log-call',
+            name: 'Log call',
+            scope: 'contact',
+            backgroundPath: '/dialer',
+            preserveBackground: true,
+          },
+          detailComponent: () => null,
+          routePath: '/log/call/:callSessionId',
+        },
+      ]);
+      view.setOutsideShellPaths(['/calling']);
+      view.syncPath('/contacts');
+      // The call page takes the main column while the call is up.
+      router.currentPath = '/calling';
+      view.syncPath('/calling');
+      expect(view.getMainColumnPath()).toBe('/calling');
+
+      // The call ended and the router went back past it to a log page.
+      router.currentPath = '/log/call/call-1';
+      expect(view.getMainColumnPath()).toBe('/contacts');
+    });
+
+    test('does not return a preserved page to a call page that cannot be parked', async () => {
+      const logConfig = {
+        id: 'log-call',
+        name: 'Log call',
+        scope: 'contact',
+        backgroundPath: '/dialer',
+        preserveBackground: true,
+      };
+      const agent = { parkable: true };
+      const { handles, router, view } = createRoutedSideWidget(
+        '/agent/home/dialer',
+      );
+      view.registerRoutes([
+        {
+          config: logConfig,
+          detailComponent: () => null,
+          routePath: '/log/call/:callSessionId',
+        },
+      ]);
+      // Only the agent home parks, and only in a ready session; a RingCX call
+      // page reads the real route.
+      view.setRouterOwners([
+        {
+          path: '/agent',
+          resolveParkedPath: (path) =>
+            agent.parkable && path.startsWith('/agent/home') ? path : null,
+        },
+      ]);
+      view.syncPath('/agent/home/dialer');
+      router.currentPath = '/agent/calls/call-1';
+      view.syncPath('/agent/calls/call-1');
+
+      // The call ended, and after its disposition the host opens its log page.
+      router.currentPath = '/log/call/call-1';
+      expect(view.getMainColumnPath()).toBe('/agent/home/dialer');
+
+      view.open({
+        config: logConfig,
+        detailComponent: () => null,
+        detailProps: {},
+        path: '/log/call/call-1',
+        routePath: '/log/call/:callSessionId',
+      });
+      view.syncPath('/log/call/call-1', true);
+      await handles.get('log-call').options.onClose(null);
+      expect(router.push).toHaveBeenLastCalledWith('/agent/home/dialer');
+    });
+
+    test('falls back to its background once the page to return to cannot be shown', () => {
+      const agent = { parkable: true };
+      const { router, view } = createRoutedSideWidget('/agent/home/dialer');
+      view.registerRoutes([
+        {
+          config: {
+            id: 'log-call',
+            name: 'Log call',
+            scope: 'contact',
+            backgroundPath: '/dialer',
+            preserveBackground: true,
+          },
+          detailComponent: () => null,
+          routePath: '/log/call/:callSessionId',
+        },
+      ]);
+      view.setRouterOwners([
+        {
+          path: '/agent',
+          resolveParkedPath: (path) => (agent.parkable ? path : null),
+        },
+      ]);
+      view.syncPath('/agent/home/dialer');
+      router.currentPath = '/log/call/call-1';
+      expect(view.getMainColumnPath()).toBe('/agent/home/dialer');
+
+      // The RingCX session ended, so the agent home would redirect.
+      agent.parkable = false;
+      expect(view.getMainColumnPath()).toBe('/dialer');
+    });
+
+    test('stays on a route that renders its own background', () => {
+      const { view } = createRoutedSideWidget('/history/call');
+      view.registerRoutes([{ ...callDetailsRoute, rendersOwnBackground: true }]);
+
+      expect(view.getMainColumnPath()).toBe('/history/call');
+    });
+  });
+
+  describe('router owners', () => {
+    function openDockedWithAgentOwner() {
+      const routed = createRoutedSideWidget('/history/call');
+      const owner = { parkable: true };
+      routed.owner = owner;
+      routed.view.setRouterOwners([
+        {
+          path: '/agent',
+          resolveParkedPath: (path) => {
+            if (!owner.parkable) {
+              return null;
+            }
+            return path === '/agent' ? '/agent/home' : path;
+          },
+        },
+        { path: '/calling' },
+      ]);
+      routed.view.open({
+        config: {
+          id: 'call-details',
+          name: 'Call details',
+          scope: 'contact',
+          backgroundPath: '/dialer',
+        },
+        detailComponent: () => null,
+        detailProps: {},
+        path: '/history/call',
+        routePath: '/history/:callLogId',
+      });
+      routed.sideWidgetView.currentTabId = 'call-details';
+      routed.view._root.expanded = true;
+      return routed;
+    }
+
+    test('parks a router-owning page as the path its owner resolves', () => {
+      const { router, sideWidgetView, view } = openDockedWithAgentOwner();
+
+      view.navigateMain('/agent');
+
+      // The home itself, so closing the page does not route through the
+      // shell's redirect from `/agent`.
+      expect(view.mainPath).toBe('/agent/home');
+      expect(router.push).not.toHaveBeenCalled();
+      expect(sideWidgetView.closeContent).not.toHaveBeenCalled();
+    });
+
+    test('routes to a router-owning page that cannot be parked', () => {
+      const { owner, router, view } = openDockedWithAgentOwner();
+      owner.parkable = false;
+
+      view.navigateMain('/agent');
+
+      expect(view.mainPath).toBeNull();
+      expect(router.push).toHaveBeenCalledWith('/agent');
+    });
+
+    test('never parks an owner that resolves no parked path', () => {
+      const { router, view } = openDockedWithAgentOwner();
+
+      view.navigateMain('/calling');
+
+      expect(view.mainPath).toBeNull();
+      expect(router.push).toHaveBeenCalledWith('/calling');
+    });
+
+    test('drops a parked page that stops being parkable', () => {
+      const { owner, view } = openDockedWithAgentOwner();
+      view.onInit();
+      view.navigateMain('/agent');
+      const [, isUnparkable, onUnparkableChange] = getInitWatchers().parkable;
+      expect(isUnparkable()).toBe(false);
+
+      // The RingCX session ended while its home was parked.
+      owner.parkable = false;
+      expect(isUnparkable()).toBe(true);
+      onUnparkableChange(true);
+
+      expect(view.mainPath).toBeNull();
+    });
   });
 });

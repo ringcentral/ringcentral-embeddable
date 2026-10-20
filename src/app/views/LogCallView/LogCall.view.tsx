@@ -38,6 +38,7 @@ import type { ThirdPartyCall, UnknownRecord } from "../../services/ThirdParty";
 import {
   type SideWidgetContentHandle,
   SideWidgetView,
+  useSideWidgetBack,
 } from "../SideWidgetView";
 
 import { LogCallPage } from "./LogCallPage";
@@ -302,9 +303,20 @@ export class LogCallView extends RcViewModule {
     }, [sessionId, source]);
     const callRef = useRef(call);
     callRef.current = call;
+    const sideWidgetBack = useSideWidgetBack();
+    // Read through a ref: the handlers below are created once.
+    const sideWidgetBackRef = useRef(sideWidgetBack);
+    sideWidgetBackRef.current = sideWidgetBack;
     const goBack = (): void => {
       if (onClose) {
         onClose();
+        return;
+      }
+      // In a routed side widget tab, going back through history would land
+      // on the page before the log page, such as a submitted disposition,
+      // which then routes on its own. The tab closes instead.
+      if (sideWidgetBackRef.current) {
+        sideWidgetBackRef.current();
         return;
       }
       this._router.goBack();
