@@ -18,4 +18,6 @@ export default {
   callDispositionSuccess: 'Anrufdisposition erfolgreich gespeichert.',
   callDispositionFailed: 'Anrufdisposition konnte nicht gespeichert werden.',
   callLogNotFound: 'Anrufprotokoll nicht gefunden',
+  // Lead
+  viewLead: 'Lead anzeigen',
 } as const;

@@ -16,6 +16,8 @@ export interface PhoneNumberData {
   formatted: string;
   /** Raw destination number */
   destination: string;
+  /** Already dialed, so it cannot be dialed again, as in Agent One. */
+  dialed?: boolean;
 }
 
 /**

@@ -22,8 +22,14 @@ import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
 import { AppAnnouncement, AppFooterNav, AppHeaderNav } from '@ringcentral-integration/micro-core/src/app/components';
 import { PageHeader } from '@ringcentral-integration/next-widgets/components';
 import { Toast } from '@ringcentral-integration/micro-core/src/app/services';
-import { Announcement, Button, CircularProgressIndicator, Icon } from '@ringcentral/spring-ui';
-import { CheckMd } from '@ringcentral/spring-icon';
+import {
+  Announcement,
+  Button,
+  CircularProgressIndicator,
+  Icon,
+  IconButton,
+} from '@ringcentral/spring-ui';
+import { CheckMd, ContactsMd } from '@ringcentral/spring-icon';
 
 import { CxPresence } from '../../services/CxPresence';
 import { CxAuth } from '../../services/CxAuth';
@@ -51,6 +57,7 @@ import type {
 
 import { CallInfoHeader } from '../../components/CallInfoHeader';
 import { DispositionForm } from '../../components/DispositionForm';
+import { RingCXSideWidgets } from '../../services/RingCXSideWidgets';
 import { getCallInfos } from '../../utils/getCallInfos';
 import { shouldShowCallLogSummary } from '../../utils/shouldShowCallLogSummary';
 import { shouldShowDispositionSubmitStep } from '../../utils/shouldShowDispositionSubmitStep';
@@ -145,6 +152,8 @@ class CxDispositionView extends RcViewModule {
     private cxAgentScript?: CxAgentScript,
     @optional('RingCXAdapterBridge')
     private ringCXAdapterBridge?: RingCXAdapterBridge,
+    @optional()
+    private ringCXSideWidgets?: RingCXSideWidgets,
   ) {
     super();
     this.storagePlugin.enable(this);
@@ -978,6 +987,11 @@ class CxDispositionView extends RcViewModule {
     return this.cxCallDisposition.getDisposition(this.callId)?.summary || '';
   }
 
+  /** Whether the call has a lead the Lead tab can show. */
+  get hasLeadInfo(): boolean {
+    return this.ringCXSideWidgets?.hasLeadInfo ?? false;
+  }
+
   getUIProps(): UIProps<CxDispositionViewUIProps> {
     const callId = this.callId;
     const summaryState = this.cxCallDisposition.getSummaryState(callId);
@@ -1001,6 +1015,7 @@ class CxDispositionView extends RcViewModule {
       historyActivityDraft: this.historyActivityDraft,
       historyDispositionName: this.historyDispositionName,
       hasHistoryCall: !!this.historyCall,
+      hasLeadInfo: this.hasLeadInfo,
       showSubmitStep: this.showSubmitStep,
       hideCallNote: this.dispositionViewOptions?.hideCallNote ?? false,
       showSummary: this.showSummary,
@@ -1024,6 +1039,12 @@ class CxDispositionView extends RcViewModule {
       onUpdateCallLog: (field, value) => this.onUpdateCallLog(field, value),
       onUpdateSummary: (value) => this.onUpdateSummary(value),
       disposeCall: () => this.disposeCall(),
+      onViewLead: async () => {
+        await this.ringCXSideWidgets?.viewLeadInfo({
+          type: 'call',
+          callId: this.cxCall.activityCallId,
+        });
+      },
     };
   }
 
@@ -1062,6 +1083,7 @@ class CxDispositionView extends RcViewModule {
       historyActivityDraft,
       historyDispositionName,
       hasHistoryCall,
+      hasLeadInfo,
     } = uiProps;
 
     // Decided once per call id: the call becomes disposed and over while the
@@ -1125,6 +1147,22 @@ class CxDispositionView extends RcViewModule {
         <PageHeader onBackClick={uiFunctions.onBack}>{pageTitle}</PageHeader>
       </AppHeaderNav>
     );
+    // A Lead tab the agent closed after the call ended can be brought back
+    // while the call is dispositioned, as Agent One keeps the lead on its
+    // disposition screen. A history row's call log has no live call.
+    const viewLeadButton =
+      !isHistoryMode && hasLeadInfo ? (
+        <IconButton
+          symbol={ContactsMd}
+          size="medium"
+          variant="contained"
+          color="secondary"
+          onClick={() => void uiFunctions.onViewLead()}
+          data-sign="dispositionViewLead"
+          aria-label={t('viewLead')}
+          TooltipProps={{ title: t('viewLead') }}
+        />
+      ) : undefined;
     const isHistoryActivityPending =
       isHistoryMode &&
       !!params.id &&
@@ -1248,6 +1286,7 @@ class CxDispositionView extends RcViewModule {
           isRinging={!showCallEnded}
           followInfos={basicInfo?.followInfos}
           callInfos={basicInfo?.callInfos}
+          actions={viewLeadButton}
         />
 
         <div className="flex-1 flex flex-col overflow-hidden">

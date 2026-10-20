@@ -18,4 +18,6 @@ export default {
   callDispositionSuccess: '呼叫處置已成功保存。',
   callDispositionFailed: '無法儲存呼叫配置。',
   callLogNotFound: '未找到通話記錄',
+  // Lead
+  viewLead: '檢視潛在客戶',
 } as const;

@@ -1,28 +1,19 @@
 import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
-import { RefreshMd } from '@ringcentral/spring-icon';
-import {
-  Button,
-  CircularProgressIndicator,
-  IconButton,
-  List,
-  ListItem,
-  ListItemText,
-} from '@ringcentral/spring-ui';
-import clsx from 'clsx';
+import { Button, List, ListItem, ListItemText } from '@ringcentral/spring-ui';
 import type { FunctionComponent } from 'react';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React from 'react';
 
 import { formatCxLeadPassDate } from '../../lib/formatCxLeadPassDate';
 import { formatCxVoicemailAgentNotes } from '../../lib/formatCxVoicemailAgentNotes';
 import type { CxLeadHistoryRecord } from '../../services/CxClient/interfaces';
 import { DetailCard } from '../DetailCard';
+import { LeadHistoryRefresh } from './LeadHistoryRefresh';
 import type { LeadHistoryCardProps } from './LeadInfoPanel.interface';
 import i18n from './i18n';
+import { useLeadHistory } from './useLeadHistory';
 
 /** Shown for a field the pass left empty, as in Agent One. */
 const EMPTY_VALUE = '-';
-
-type HistoryStatus = 'idle' | 'loading' | 'loaded' | 'failed';
 
 interface LeadHistoryRecordProps {
   record: CxLeadHistoryRecord;
@@ -153,80 +144,45 @@ const LeadHistoryRecord: FunctionComponent<LeadHistoryRecordProps> = ({
 /**
  * The lead's past dial attempts, loaded when the agent asks, as Agent One's
  * History panel does: **Show history** first, then **Refresh**. With
- * `autoLoad` it loads on mount, as Agent One's call history does.
+ * `autoLoad` it loads on mount, as Agent One's call history does. A parent
+ * that passes `history` shows the title and Refresh itself.
  */
 export const LeadHistoryCard: FunctionComponent<LeadHistoryCardProps> = ({
   leadId,
   loadLeadHistory,
   autoLoad = false,
-  showTitle = true,
+  history: parentHistory,
 }) => {
   const { t } = useLocale(i18n);
-  const [status, setStatus] = useState<HistoryStatus>('idle');
-  const [records, setRecords] = useState<CxLeadHistoryRecord[]>([]);
-  const mountedRef = useRef(true);
-  useEffect(
-    () => () => {
-      mountedRef.current = false;
-    },
-    [],
-  );
-  const load = useCallback(async () => {
-    setStatus('loading');
-    const history = await loadLeadHistory(leadId);
-    if (!mountedRef.current) {
-      return;
-    }
-    setRecords(history ?? []);
-    setStatus(history ? 'loaded' : 'failed');
-  }, [leadId, loadLeadHistory]);
-  useEffect(() => {
-    if (autoLoad) {
-      void load();
-    }
-    // Only on mount: a refresh is the agent's call.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const ownHistory = useLeadHistory({
+    leadId,
+    loadLeadHistory,
+    autoLoad: autoLoad && !parentHistory,
+  });
+  const history = parentHistory ?? ownHistory;
+  const { status, records } = history;
   return (
     <DetailCard data-sign="leadCard-history">
       <div className="flex w-full flex-col gap-3">
-        <div
-          className={clsx(
-            'flex min-h-8 items-center gap-2',
-            showTitle ? 'justify-between' : 'justify-end',
-          )}
-        >
-          {showTitle ? (
+        {parentHistory ? null : (
+          <div className="flex min-h-8 items-center justify-between gap-2">
             <span className="typography-subtitleMini text-neutral-b1">
               {t('history')}
             </span>
-          ) : null}
-          {status === 'idle' ? (
-            <Button
-              variant="text"
-              size="small"
-              onClick={load}
-              data-sign="leadHistoryShow"
-            >
-              {t('showHistory')}
-            </Button>
-          ) : null}
-          {status === 'loading' ? (
-            <CircularProgressIndicator size="small" />
-          ) : null}
-          {status === 'loaded' || status === 'failed' ? (
-            <IconButton
-              symbol={RefreshMd}
-              variant="icon"
-              color="neutral"
-              size="small"
-              onClick={load}
-              data-sign="leadHistoryRefresh"
-              aria-label={t('refresh')}
-              TooltipProps={{ title: t('refresh') }}
-            />
-          ) : null}
-        </div>
+            {status === 'idle' ? (
+              <Button
+                variant="text"
+                size="small"
+                onClick={history.load}
+                data-sign="leadHistoryShow"
+              >
+                {t('showHistory')}
+              </Button>
+            ) : (
+              <LeadHistoryRefresh history={history} />
+            )}
+          </div>
+        )}
         {status === 'loaded' && records.length === 0 ? (
           <div
             className="typography-descriptor text-neutral-b2"

@@ -63,6 +63,8 @@ const {
   RINGCX_AGENT_ASSISTANT_WIDGET_ID,
   RINGCX_AGENT_SCRIPT_WIDGET_ID,
   RINGCX_LEAD_INFO_WIDGET_ID,
+  RINGCX_LEAD_UPDATE_WIDGET_ID,
+  RINGCX_MANUAL_PASS_WIDGET_ID,
   RINGCX_SIDE_WIDGET_WIDTH,
   RingCXSideWidgets,
 } = require('../../src/ringcx/services/RingCXSideWidgets/RingCXSideWidgets');
@@ -76,6 +78,8 @@ const WATCHERS = {
   followCall: 2,
   openCallLead: 3,
   leadResolved: 4,
+  manualPassLead: 5,
+  callUp: 6,
 };
 
 /**
@@ -108,6 +112,7 @@ function createWidgets({
   cxCallIds = [],
   isDialing = false,
   leadInfo = createLeadInfo(),
+  manualPassRequestIds = [],
   portManager = { shared: false, isServer: false },
 } = {}) {
   const handles = new Map();
@@ -123,9 +128,17 @@ function createWidgets({
     closeContent: jest.fn(),
   };
   const cxLeadInfoView = { component: () => null };
+  // Resolves the lead of a fetched request in `manualPassRequestIds`.
   const cxManualPassView = {
-    lead: null,
-    setRequestId: jest.fn(),
+    requestId: null,
+    setRequestId: jest.fn(function setRequestId(requestId) {
+      this.requestId = requestId;
+    }),
+    get lead() {
+      return manualPassRequestIds.includes(this.requestId)
+        ? { requestId: this.requestId }
+        : null;
+    },
     component: () => null,
   };
   const cxLeadUpdateView = { setTarget: jest.fn(), component: () => null };
@@ -141,7 +154,15 @@ function createWidgets({
     cxLeadUpdateView,
     portManager,
   );
-  return { cxLeadInfoView, handles, leadInfo, sideWidgetView, widgets };
+  return {
+    cxLeadInfoView,
+    cxLeadUpdateView,
+    cxManualPassView,
+    handles,
+    leadInfo,
+    sideWidgetView,
+    widgets,
+  };
 }
 
 /** Binds the widgets and returns the callback of one of `onInit`'s watchers. */
@@ -461,5 +482,191 @@ describe('RingCXSideWidgets', () => {
         sideWidgetView.closeContent.mock.calls.map(([handle]) => handle),
       ).toEqual(ALL_IDS.map((id) => handles.get(id)));
     });
+  });
+
+  describe('Manual pass tab', () => {
+    test('registers Manual pass as a global tab at the RingCX width', () => {
+      const { cxManualPassView, handles } = createWidgets();
+      const { options } = handles.get(RINGCX_MANUAL_PASS_WIDGET_ID);
+
+      expect(options).toEqual(
+        expect.objectContaining({
+          id: RINGCX_MANUAL_PASS_WIDGET_ID,
+          name: 'Manual pass',
+          scope: 'global',
+          keepActiveOnCallApps: expect.any(Function),
+          minExpandedWidth: RINGCX_SIDE_WIDGET_WIDTH,
+        }),
+      );
+      expect(options.getName()).toBe('Manual pass');
+
+      options.onClose();
+      expect(cxManualPassView.setRequestId).toHaveBeenCalledWith(null);
+    });
+
+    test("does not wait for the tab views' dependencies to bind the auto-open", () => {
+      const { cxLeadUpdateView, cxManualPassView, widgets } = createWidgets();
+
+      expect(widgets.ignoredModules).toEqual(
+        expect.arrayContaining([cxManualPassView, cxLeadUpdateView]),
+      );
+    });
+
+    test('opens on a fetched lead as the active tab', async () => {
+      const { cxManualPassView, sideWidgetView, widgets } = createWidgets({
+        manualPassRequestIds: ['request-1'],
+      });
+
+      await widgets.openManualPass('request-1');
+
+      expect(cxManualPassView.requestId).toBe('request-1');
+      expect(openedIds(sideWidgetView)).toEqual([
+        [RINGCX_MANUAL_PASS_WIDGET_ID, true],
+      ]);
+    });
+
+    test('opens nothing for a lead no longer fetched', async () => {
+      const { cxManualPassView, sideWidgetView, widgets } = createWidgets();
+
+      await widgets.openManualPass('request-9');
+
+      expect(cxManualPassView.requestId).toBeNull();
+      expect(sideWidgetView.openContent).not.toHaveBeenCalled();
+    });
+
+    test('closes from its own back or after a pass', async () => {
+      const { handles, sideWidgetView, widgets } = createWidgets();
+
+      await widgets.closeManualPass();
+
+      expect(sideWidgetView.closeContent).toHaveBeenCalledWith(
+        handles.get(RINGCX_MANUAL_PASS_WIDGET_ID),
+      );
+    });
+
+    test('folds away once its lead is passed or no longer fetched', () => {
+      const { handles, sideWidgetView, widgets } = createWidgets();
+      const getWatcher = initWidgets(widgets);
+      sideWidgetView.closeContent.mockClear();
+
+      getWatcher('manualPassLead')(true);
+      expect(sideWidgetView.closeContent).not.toHaveBeenCalled();
+
+      getWatcher('manualPassLead')(false);
+      expect(sideWidgetView.closeContent).toHaveBeenCalledWith(
+        handles.get(RINGCX_MANUAL_PASS_WIDGET_ID),
+        { collapseWhenLast: true },
+      );
+    });
+
+    test('folds away when a CX call comes up, as leads cannot be passed then', () => {
+      const { handles, sideWidgetView, widgets } = createWidgets({
+        cxCallIds: [CALL_ID],
+      });
+      const getWatcher = initWidgets(widgets);
+      const [, isCallUp] = watch.mock.calls[WATCHERS.callUp];
+      sideWidgetView.closeContent.mockClear();
+
+      expect(isCallUp()).toBe(true);
+      getWatcher('callUp')(false);
+      expect(sideWidgetView.closeContent).not.toHaveBeenCalled();
+
+      getWatcher('callUp')(true);
+      expect(sideWidgetView.closeContent).toHaveBeenCalledWith(
+        handles.get(RINGCX_MANUAL_PASS_WIDGET_ID),
+        { collapseWhenLast: true },
+      );
+    });
+
+    test('counts a dialing call as a call coming up', () => {
+      const { widgets } = createWidgets({ isDialing: true });
+      initWidgets(widgets);
+      const [, isCallUp] = watch.mock.calls[WATCHERS.callUp];
+
+      expect(isCallUp()).toBe(true);
+    });
+  });
+
+  describe('Update lead tab', () => {
+    const LEAD_INFO = {
+      target: { type: 'lead', requestId: 'request-1' },
+      lead: { leadId: '5725', campaignId: '1' },
+      phoneNumbers: ['+16508446685'],
+      auxLabels: ['Tier'],
+    };
+
+    test('registers Update lead as a kept-mounted global tab at the RingCX width', () => {
+      const { cxLeadUpdateView, handles } = createWidgets();
+      const { options } = handles.get(RINGCX_LEAD_UPDATE_WIDGET_ID);
+
+      expect(options).toEqual(
+        expect.objectContaining({
+          id: RINGCX_LEAD_UPDATE_WIDGET_ID,
+          name: 'updateLead',
+          scope: 'global',
+          keepActiveOnCallApps: expect.any(Function),
+          // Keeps the draft while the agent looks at another tab.
+          keepMounted: true,
+          minExpandedWidth: RINGCX_SIDE_WIDGET_WIDTH,
+        }),
+      );
+
+      options.onClose();
+      expect(cxLeadUpdateView.setTarget).toHaveBeenCalledWith(null);
+    });
+
+    test('opens, active, on the lead the Lead tab shows', async () => {
+      const leadInfo = { ...createLeadInfo(), info: LEAD_INFO };
+      const { cxLeadUpdateView, sideWidgetView, widgets } = createWidgets({
+        leadInfo,
+      });
+
+      await widgets.openLeadUpdate();
+
+      expect(cxLeadUpdateView.setTarget).toHaveBeenCalledWith({
+        lead: LEAD_INFO.lead,
+        phoneNumbers: LEAD_INFO.phoneNumbers,
+        auxLabels: LEAD_INFO.auxLabels,
+      });
+      expect(openedIds(sideWidgetView)).toEqual([
+        [RINGCX_LEAD_UPDATE_WIDGET_ID, true],
+      ]);
+    });
+
+    test('opens nothing once the Lead tab has no lead', async () => {
+      const { cxLeadUpdateView, sideWidgetView, widgets } = createWidgets();
+
+      await widgets.openLeadUpdate();
+
+      expect(cxLeadUpdateView.setTarget).not.toHaveBeenCalled();
+      expect(sideWidgetView.openContent).not.toHaveBeenCalled();
+    });
+
+    test('closes from its own back or after a save', async () => {
+      const { handles, sideWidgetView, widgets } = createWidgets();
+
+      await widgets.closeLeadUpdate();
+
+      expect(sideWidgetView.closeContent).toHaveBeenCalledWith(
+        handles.get(RINGCX_LEAD_UPDATE_WIDGET_ID),
+      );
+    });
+  });
+
+  test('puts the Manual pass and Update lead tabs away on reset', () => {
+    const { handles, sideWidgetView, widgets } = createWidgets();
+
+    widgets.onReset();
+
+    const closed = sideWidgetView.closeContent.mock.calls.map(
+      ([handle]) => handle.options.id,
+    );
+    expect(closed).toEqual(
+      expect.arrayContaining([
+        RINGCX_MANUAL_PASS_WIDGET_ID,
+        RINGCX_LEAD_UPDATE_WIDGET_ID,
+      ]),
+    );
+    expect(handles.get(RINGCX_MANUAL_PASS_WIDGET_ID)).toBeDefined();
   });
 });

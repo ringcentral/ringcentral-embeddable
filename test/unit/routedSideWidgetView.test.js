@@ -1120,6 +1120,92 @@ describe('RoutedSideWidgetView', () => {
       expect(router.push).toHaveBeenLastCalledWith('/agent/home/dialer');
     });
 
+    describe('a log page a disposition hands over to', () => {
+      const CALL_PATH = '/agent/calls/call-1';
+      const DISPOSITION_PATH = `${CALL_PATH}/disposition`;
+      const LOG_PATH = '/log/call/call-1';
+
+      function openFromDisposition() {
+        const call = { live: true };
+        const routed = createRoutedSideWidget('/agent/home/history');
+        const { router, view } = routed;
+        const logConfig = {
+          id: 'log-call',
+          name: 'Log call',
+          scope: 'contact',
+          backgroundPath: '/dialer',
+          preserveBackground: true,
+        };
+        view.registerRoutes([
+          {
+            config: {
+              id: 'cx-disposition',
+              name: 'Disposition',
+              scope: 'global',
+              backgroundPath: '/agent/home/dialer',
+              // The call's page while the call is up, as `CxAgentTabView`
+              // resolves it.
+              resolveBackgroundPath: () =>
+                call.live ? CALL_PATH : '/agent/home/dialer',
+            },
+            detailComponent: () => null,
+            routeExact: true,
+            routePath: '/agent/calls/:id/disposition',
+          },
+          {
+            config: logConfig,
+            detailComponent: () => null,
+            routePath: '/log/call/:callSessionId',
+          },
+        ]);
+        view.setRouterOwners([
+          {
+            path: '/agent',
+            resolveParkedPath: (path) =>
+              path.startsWith('/agent/home') ? path : null,
+          },
+        ]);
+        view.syncPath('/agent/home/history');
+        router.currentPath = CALL_PATH;
+        view.syncPath(CALL_PATH);
+        router.currentPath = DISPOSITION_PATH;
+        view.syncPath(DISPOSITION_PATH, true);
+        // The disposition was submitted, and the host opened the log page.
+        router.currentPath = LOG_PATH;
+        view.open({
+          config: logConfig,
+          detailComponent: () => null,
+          detailProps: {},
+          path: LOG_PATH,
+          routePath: '/log/call/:callSessionId',
+        });
+        view.syncPath(LOG_PATH, true);
+        return { ...routed, call };
+      }
+
+      test('keeps the live call page in the main column', () => {
+        const { view } = openFromDisposition();
+
+        expect(view.getMainColumnPath()).toBe(CALL_PATH);
+      });
+
+      test('returns to the page from before the call once it ends', () => {
+        const { call, view } = openFromDisposition();
+
+        call.live = false;
+
+        expect(view.getMainColumnPath()).toBe('/agent/home/history');
+      });
+
+      test('closes back to the live call page', async () => {
+        const { handles, router } = openFromDisposition();
+
+        await handles.get('log-call').options.onClose(null);
+
+        expect(router.push).toHaveBeenLastCalledWith(CALL_PATH);
+      });
+    });
+
     test('falls back to its background once the page to return to cannot be shown', () => {
       const agent = { parkable: true };
       const { router, view } = createRoutedSideWidget('/agent/home/dialer');
@@ -1156,6 +1242,79 @@ describe('RoutedSideWidgetView', () => {
       view.registerRoutes([{ ...callDetailsRoute, rendersOwnBackground: true }]);
 
       expect(view.getMainColumnPath()).toBe('/history/call');
+    });
+  });
+
+  describe('showPage', () => {
+    const DISPOSITION_PATH = '/agent/calls/call-1/disposition';
+    const dispositionConfig = {
+      id: 'cx-disposition',
+      name: 'Disposition',
+      scope: 'global',
+      backgroundPath: '/agent/home/dialer',
+    };
+
+    function openDisposition({ expanded = true } = {}) {
+      const routed = createRoutedSideWidget(DISPOSITION_PATH);
+      routed.view._root.expanded = expanded;
+      routed.view.open({
+        config: dispositionConfig,
+        detailComponent: () => null,
+        detailProps: {},
+        path: DISPOSITION_PATH,
+        routePath: '/agent/calls/:id/disposition',
+      });
+      // The agent switched to another side widget tab; the router stays on
+      // the disposition.
+      routed.sideWidgetView.currentTabId = 'ringcx-lead-info';
+      routed.sideWidgetView.openContent.mockClear();
+      return routed;
+    }
+
+    test('brings the tab of the page the router is on forward', async () => {
+      const { handles, router, sideWidgetView, view } = openDisposition();
+
+      await view.showPage(DISPOSITION_PATH);
+
+      expect(sideWidgetView.openContent).toHaveBeenCalledWith(
+        handles.get('cx-disposition'),
+        {},
+      );
+      expect(router.push).not.toHaveBeenCalled();
+    });
+
+    test('opens the tab as an overlay while the layout is folded', async () => {
+      const { handles, sideWidgetView, view } = openDisposition({
+        expanded: false,
+      });
+
+      await view.showPage(DISPOSITION_PATH);
+
+      expect(sideWidgetView.openContent).toHaveBeenCalledWith(
+        handles.get('cx-disposition'),
+        { expand: false },
+      );
+    });
+
+    test('routes to a page that is not open', async () => {
+      const { router, sideWidgetView, view } = createRoutedSideWidget(
+        '/agent/calls/call-1',
+      );
+
+      await view.showPage(DISPOSITION_PATH);
+
+      expect(router.push).toHaveBeenCalledWith(DISPOSITION_PATH);
+      expect(sideWidgetView.openContent).not.toHaveBeenCalled();
+    });
+
+    test('routes to an open page once the router left it', async () => {
+      const { router, sideWidgetView, view } = openDisposition();
+      router.currentPath = '/agent/calls/call-1';
+
+      await view.showPage(DISPOSITION_PATH);
+
+      expect(router.push).toHaveBeenCalledWith(DISPOSITION_PATH);
+      expect(sideWidgetView.openContent).not.toHaveBeenCalled();
     });
   });
 

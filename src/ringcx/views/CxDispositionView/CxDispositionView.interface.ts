@@ -62,6 +62,8 @@ export interface CxDispositionViewUIProps {
   isSummaryFinal: boolean;
   isSummaryLoading: boolean;
   isSummaryEdited: boolean;
+  /** Whether the call has a lead the Lead tab can show. */
+  hasLeadInfo: boolean;
 }
 
 /**
@@ -78,4 +80,6 @@ export interface CxDispositionViewUIFunctions {
   onUpdateCallLog: (field: string, value: string) => void;
   onUpdateSummary: (value: string) => void;
   disposeCall: () => Promise<void>;
+  /** Opens the call's lead in the Lead side widget tab. */
+  onViewLead: () => Promise<void>;
 }

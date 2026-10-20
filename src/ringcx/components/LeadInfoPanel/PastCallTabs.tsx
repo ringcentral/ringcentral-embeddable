@@ -4,18 +4,25 @@ import clsx from 'clsx';
 import type { FunctionComponent } from 'react';
 import React, { useState } from 'react';
 
+import type { CxLeadHistoryRecord } from '../../services/CxClient/interfaces';
 import { LeadHistoryCard } from './LeadHistoryCard';
+import { LeadHistoryRefresh } from './LeadHistoryRefresh';
 import { LeadInfoCards } from './LeadInfoCards';
 import type { PastCallTabsProps } from './LeadInfoPanel.interface';
 import i18n from './i18n';
+import { useLeadHistory } from './useLeadHistory';
 
 type PastCallTab = 'call' | 'lead' | 'history';
+
+/** Stands in while the agent may not see lead history, which has no tab then. */
+const loadNoHistory = async (): Promise<CxLeadHistoryRecord[] | null> => null;
 
 /**
  * Pill tabs that keep a past lead call's detail page short, under the call's
  * who-and-when cards: the call's disposition and term details, the lead's
  * details, and the lead's history, which loads the first
- * time its tab is opened and is kept while the agent switches tabs.
+ * time its tab is opened and is kept while the agent switches tabs. Its
+ * Refresh sits at the end of the tab row, which already names the card.
  */
 export const PastCallTabs: FunctionComponent<PastCallTabsProps> = ({
   callContent,
@@ -30,10 +37,15 @@ export const PastCallTabs: FunctionComponent<PastCallTabsProps> = ({
     hasCallTab ? 'call' : 'lead',
   );
   const [isHistoryOpened, setHistoryOpened] = useState(false);
+  const history = useLeadHistory({
+    leadId,
+    loadLeadHistory: loadLeadHistory ?? loadNoHistory,
+  });
   const selectTab = (tab: PastCallTab) => {
     setActiveTab(tab);
-    if (tab === 'history') {
+    if (tab === 'history' && !isHistoryOpened) {
       setHistoryOpened(true);
+      void history.load();
     }
   };
   const panelClassName = (tab: PastCallTab) =>
@@ -45,8 +57,14 @@ export const PastCallTabs: FunctionComponent<PastCallTabsProps> = ({
         onChange={(_, value) => selectTab(value as PastCallTab)}
       >
         {/* Sticky, so a long Lead tab can still switch tabs. */}
-        <div className="sticky top-0 z-10 -mx-4 mb-1 bg-neutral-base px-4 pb-2">
-          <Tabs variant="moreMenu" pill size="small" data-sign="pastCallTabs">
+        <div className="sticky top-0 z-10 -mx-4 mb-1 flex items-center gap-2 bg-neutral-base px-4 pb-2">
+          <Tabs
+            variant="moreMenu"
+            pill
+            size="small"
+            className="min-w-0 flex-auto"
+            data-sign="pastCallTabs"
+          >
             {hasCallTab ? (
               <Tab
                 value="call"
@@ -70,6 +88,13 @@ export const PastCallTabs: FunctionComponent<PastCallTabsProps> = ({
               />
             ) : null}
           </Tabs>
+          {activeTab === 'history' ? (
+            // Lined up with the pills: the tab list pads 2px above them and
+            // more below, so centering on the whole row would sit lower.
+            <div className="mt-0.5 flex h-8 flex-none items-center self-start">
+              <LeadHistoryRefresh history={history} />
+            </div>
+          ) : null}
         </div>
       </TabContext>
       {hasCallTab ? (
@@ -86,11 +111,9 @@ export const PastCallTabs: FunctionComponent<PastCallTabsProps> = ({
           data-sign="pastCallPanel-history"
         >
           <LeadHistoryCard
-            key={leadId}
             leadId={leadId}
             loadLeadHistory={loadLeadHistory}
-            autoLoad
-            showTitle={false}
+            history={history}
           />
         </div>
       ) : null}

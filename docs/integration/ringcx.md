@@ -61,7 +61,7 @@ RingCX-only events:
 | `rc-ringcx-call-disposed-notify` | `{ type, call }` after the agent submits a disposition. `call.ringcx.disposition` and `call.ringcx.notes` are set, plus `call.aiNote` when the disposition form has a call summary. Calls without a disposition step do not send it. |
 | `rc-ringcx-agent-session-notify` | `{ type, status, agent?, session?, permissions? }`. `status` is `idle`, `loading`, `authenticating`, `chooseAccount`, `sessionConfig`, `ready`, or `error`. Sent when the status, agent, or session configuration changes. |
 | `rc-ringcx-agent-state-notify` | `{ type, state, auxState, pendingDisposition }` while the session is `ready`. `state` is the RingCX agent state, such as `AVAILABLE`, `ENGAGED`, or `ON-BREAK`. |
-| `rc-ringcx-lead-notify` | `{ type, action, leads?, lead?, destination? }`. `action` is `loaded`, `passed`, or `dialed`; `dialed` is sent once the dial request is sent. Each lead is `{ leadId, externId, campaignId, firstName, lastName, destination, raw }`, where `raw` is the original RingCX lead. A lead dialed by the progressive dialer has no `destination`: the server picks the number. |
+| `rc-ringcx-lead-notify` | `{ type, action, leads?, lead?, destination? }`. `action` is `loaded`, `passed`, `dialed`, or `updated`; `dialed` is sent once the dial request is sent, and `updated` once the agent saved an edit to the lead, with the saved fields on `lead`. Each lead is `{ leadId, externId, campaignId, firstName, lastName, destination, raw }`, where `raw` is the original RingCX lead. A lead dialed by the progressive dialer has no `destination`: the server picks the number. |
 | `rc-ringcx-progressive-dial-notify` | `{ type, running, phase, nextDialAt, lead?, reason }`. Sent when the progressive dialer starts, stops, or moves to another step, and when a start is refused; not every countdown second. `phase` is `idle`, `connecting`, `fetching`, `countdown`, `dialing`, `waiting`, or `noLeads`. `nextDialAt` is the epoch milliseconds of the next dial (`countdown`) or lead fetch (`noLeads`). `lead` is the lead the countdown dials, in the `rc-ringcx-lead-notify` shape. `reason` is set when the dialer stopped or did not start: `stopped`, `notProgressive`, `busy`, `notAvailable`, `offhookFailed`, `offhookEnded`, `manualOutdial`, `inboundCall`, `agentState`, `dialGroupChanged`, `dialFailed`, or `logout`. |
 
 The integrated softphone runs on the RingEX WebPhone, so its status is `rc-webphone-connection-status-notify`.
@@ -147,16 +147,36 @@ RingCX history stays in the Agent tab. `/unlogged-calls` does not include RingCX
 
 After a call dialed from a lead, preview or progressive, the widget goes back to the Leads tab once the call and its disposition are done.
 
+A number of a fetched lead that was already dialed cannot be dialed again, on the Leads tab or in the Lead tab, as in the standalone RingCX app.
+
 ### Lead tab
 
 The side panel has a **Lead** tab that shows a lead's name, numbers, and details: source, lead state, passes, contact fields, IDs, aux data with the campaign's labels, and extra data. A field that holds a RingCX recording URL plays as audio.
 
 - It opens with each answered call that has a lead ID, together with the agent script and agent assistant. The script stays the active tab; the Lead tab is active only when the call has no script. Calls without a lead ID have no Lead tab.
-- **View lead** on the Leads tab opens the Lead tab for that lead. There, clicking a number dials it, and **Manual pass** passes the lead, under the same rules as the Leads tab. Numbers are not clickable in progressive dial mode.
-- The call screen's side panel button lists the Lead tab with the other side panel tabs, and brings back any that are closed.
+- **View lead** on the Leads tab opens the Lead tab for that lead. There, clicking a number dials it, under the same rules as the Leads tab. Numbers are not clickable in progressive dial mode.
+- The call screen's side panel button lists the Lead tab with the other side panel tabs, and brings back any that are closed. On the disposition page, **View lead** brings back the call's Lead tab.
 - A call's Lead tab closes once the call and its disposition are done. A lead opened from the Leads tab switches to its call once that call is answered, and closes when the lead is passed or no longer fetched.
 
+The Lead tab header has these actions, in this order:
+
+- **Edit**, when the lead's campaign lets agents update leads. It opens an **Update lead** tab with the lead's contact fields, aux data, and numbers, one per line. Up to 6 numbers are kept, and each must be a valid number; national numbers are read as US numbers. When the campaign lets agents update everything but the numbers, the numbers cannot be changed. Saving updates the lead in RingCX, on the Leads tab, and in the Lead tab, and sends `rc-ringcx-lead-notify` with `action: 'updated'`.
+- **Manual pass**, for a lead from the Leads tab, when the agent may pass leads. It opens a **Manual pass** tab, which passes the lead under the same rules as the Leads tab. The tab closes when the lead is passed or no longer fetched, or when a RingCX call starts.
+- **View lead**, when `leadViewerPath` is registered, as described below.
+
+When the agent's RingCX permissions include lead history, the Lead tab also shows the lead's history: the lead's past dial attempts, loaded when the agent selects **Show history**, then refreshed with **Refresh**. Each attempt shows its disposition and date, in the agent's time zone, then its pass number, agent, agent disposition, and notes. For an attempt that left a voicemail, the notes list the audio that was played, grouped by audio library.
+
 Register `leadViewerPath` to show **View lead** in the Lead tab header. The request body is `{ lead, agentId }`. For a lead from the Leads tab, `lead` is the original RingCX lead (the same object as `raw` in `rc-ringcx-lead-notify`). For a call's lead, it is the lead data from the call, merged with the matching Leads tab lead when there is one. The button is hidden when the path is not registered.
+
+### Lead calls in history
+
+The details of a past lead call in the Agent tab's history show who and when at the top, then these tabs:
+
+- **Call**: the disposition, call state, DNIS, and termination party and reason. Without any of them, there is no Call tab and **Lead** opens first.
+- **Lead**: the lead as the call recorded it, in the same cards as the Lead tab.
+- **History**: the lead's history, loaded the first time the tab is opened, with **Refresh** at the end of the tab row. It is shown only when the agent's permissions include lead history.
+
+Calls that are not lead calls show the call details only.
 
 ### Progressive dialing
 

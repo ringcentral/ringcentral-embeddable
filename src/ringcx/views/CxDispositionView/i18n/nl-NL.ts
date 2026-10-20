@@ -18,4 +18,6 @@ export default {
   callDispositionSuccess: 'Oproepafhandeling succesvol opgeslagen.',
   callDispositionFailed: 'Kan oproepafhandeling niet opslaan.',
   callLogNotFound: 'Oproeplog niet gevonden',
+  // Lead
+  viewLead: 'Lead bekijken',
 } as const;

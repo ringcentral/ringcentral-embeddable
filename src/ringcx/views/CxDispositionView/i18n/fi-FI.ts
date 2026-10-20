@@ -18,4 +18,6 @@ export default {
   callDispositionSuccess: 'Puhelun järjestely tallennettu onnistuneesti.',
   callDispositionFailed: 'Puhelun järjestelyn tallentaminen epäonnistui.',
   callLogNotFound: 'Puhelulokia ei löydy',
+  // Lead
+  viewLead: 'Näytä liidi',
 } as const;

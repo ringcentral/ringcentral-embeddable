@@ -49,6 +49,7 @@ import { CxTransferCall } from '../../services/CxTransferCall';
 import { CxRequeueCall } from '../../services/CxRequeueCall';
 import { CxAuth } from '../../services/CxAuth';
 import { RingCXSideWidgets } from '../../services/RingCXSideWidgets';
+import { RoutedSideWidgetView } from '../../../app/views/RoutedSideWidgetView';
 import { dialoutStatuses } from '../../enums';
 import { cxPath } from '../../routes';
 import { isOnLiveCallPage } from '../../utils/isOnLiveCallPage';
@@ -115,6 +116,8 @@ class CxActiveCallView extends RcViewModule {
     private activeCallViewOptions?: CxActiveCallViewOptions,
     @optional()
     private ringCXSideWidgets?: RingCXSideWidgets,
+    @optional()
+    private routedSideWidgetView?: RoutedSideWidgetView,
   ) {
     super();
     this.storagePlugin.enable(this);
@@ -544,8 +547,17 @@ class CxActiveCallView extends RcViewModule {
     this.router.replace(cxPath.participants(this.callId));
   };
 
+  /**
+   * Opens the call's disposition. Already open behind another side widget
+   * tab, the router is on it, so its tab is brought forward instead.
+   */
   goToDispositionPage = () => {
-    this.router.push(cxPath.disposition(this.callId));
+    const path = cxPath.disposition(this.callId);
+    if (this.routedSideWidgetView) {
+      void this.routedSideWidgetView.showPage(path);
+      return;
+    }
+    this.router.push(path);
   };
 
   @delegate('server')
@@ -624,7 +636,22 @@ class CxActiveCallView extends RcViewModule {
   }
 
   get isOnActiveCallPage(): boolean {
-    return isOnLiveCallPage(this.router.currentPath, this.liveActivityCallId);
+    return this._isShowingCallPage(this.liveActivityCallId);
+  }
+
+  /**
+   * Whether the call's page is on screen: the router is on it, or the main
+   * column still shows it behind a routed side widget page, such as the log
+   * page a disposition submitted during the call hands over to.
+   */
+  private _isShowingCallPage(callId: string): boolean {
+    return (
+      isOnLiveCallPage(this.router.currentPath, callId) ||
+      isOnLiveCallPage(
+        this.routedSideWidgetView?.getMainColumnPath() ?? '',
+        callId,
+      )
+    );
   }
 
   /**
@@ -813,7 +840,7 @@ class CxActiveCallView extends RcViewModule {
         const phone = getCallAni(call);
         return {
           hasActiveCall: hasCall,
-          isOnCallPage: isOnLiveCallPage(this.router.currentPath, liveCallId),
+          isOnCallPage: this._isShowingCallPage(liveCallId),
           contactName: name,
           phoneNumber: formatPhoneNumber({ phoneNumber: phone }),
         };

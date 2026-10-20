@@ -31,6 +31,7 @@ import { LeadItem } from '../../components/LeadItem';
 import { ProgressiveDialFooter } from '../../components/ProgressiveDialFooter';
 import type { PhoneNumberData } from '../../components/LeadItem';
 import { formatPhoneNumber } from '../../lib/FormatPhoneNumber';
+import { isLeadNumberDialed } from '../../lib/isLeadNumberDialed';
 import i18n from './i18n';
 
 /**
@@ -222,6 +223,7 @@ class CxLeadsView extends RcViewModule {
                 const phoneNumbers: PhoneNumberData[] = destinations.map((dest) => ({
                   formatted: formatPhoneNumber({ phoneNumber: dest }),
                   destination: dest,
+                  dialed: isLeadNumberDialed(lead, dest),
                 }));
                 const allowDial = ALLOW_DIAL_STATES.includes(lead.leadState);
                 const disableManualPass = DISABLE_MANUAL_PASS_STATES.includes(lead.leadState);

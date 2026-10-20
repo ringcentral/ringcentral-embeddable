@@ -136,6 +136,13 @@ export class RoutedSideWidgetView extends RcViewModule {
    */
   private _lastReturnPath: string | null = null;
 
+  /**
+   * The routed page the router was last on without a parked page, such as a
+   * disposition, while the router stays on routed pages. Its own background
+   * is what the main column showed there.
+   */
+  private _lastRoutedPath: string | null = null;
+
   /** A route change is closing the page the router left. */
   private _closingLeftPage = false;
 
@@ -187,9 +194,10 @@ export class RoutedSideWidgetView extends RcViewModule {
    * before it stays the one to return to.
    *
    * A `preserveBackground` page also skips a router-owning page that cannot
-   * be parked, such as a RingCX call page: it reads the real route, so behind
-   * a routed page, like the log page a disposition hands over to, it would
-   * render nothing, and its call has usually ended by then.
+   * be parked, such as a RingCX call page: once its call ended it shows
+   * nothing, which would leave the main column blank behind the log page a
+   * disposition hands over to. While the call is up, the disposition's own
+   * background still shows it, see {@link _getReturnPath}.
    */
   private _rememberMainPath(path: string): void {
     if (this.isOutsideShellPath(path)) {
@@ -201,10 +209,48 @@ export class RoutedSideWidgetView extends RcViewModule {
     }
   }
 
-  /** The page a `preserveBackground` page returns to, if it still can be. */
+  /**
+   * The page a `preserveBackground` page returns to, if it still can be.
+   *
+   * Opened from a routed page whose background is a page that closes with
+   * what it shows, such as a disposition behind its live call, it keeps that
+   * page while the routed page's own resolver still shows it. Otherwise it
+   * returns to the last main page that can be shown behind a routed page.
+   */
   private _getReturnPath(): string | null {
+    const livePath = this._getRoutedBackgroundPath(this._lastRoutedPath);
+    if (livePath && this._ownsRouter(livePath)) {
+      return livePath;
+    }
     const path = this._lastReturnPath;
     return path && !this._ownsRouter(path) ? path : null;
+  }
+
+  /** A routed page's background, resolved for its params now. */
+  private _getRoutedBackgroundPath(path: string | null): string | null {
+    const found = path ? this._findRoute(path) : undefined;
+    if (!found) {
+      return null;
+    }
+    const { config } = found.route;
+    return (
+      config.resolveBackgroundPath?.(found.params) ?? config.backgroundPath
+    );
+  }
+
+  /**
+   * Tracks the routed page a `preserveBackground` page may be opened from,
+   * see {@link _getReturnPath}. A main page, or a routed page over a parked
+   * one, ends it.
+   */
+  private _trackRoutedPath(path: string, isRoutedPath: boolean): void {
+    if (!isRoutedPath || this.mainPath) {
+      this._lastRoutedPath = null;
+      return;
+    }
+    if (!this._findRoute(path)?.route.config.preserveBackground) {
+      this._lastRoutedPath = path;
+    }
   }
 
   override onInit(): void {
@@ -488,6 +534,7 @@ export class RoutedSideWidgetView extends RcViewModule {
     }
     const previousPath = this._syncedPath;
     this._syncedPath = path;
+    this._trackRoutedPath(path, isRoutedPath);
     this._pruneClosedEntries();
     const isTabActivation = this._requestedPath === path;
     // A confirmed router update supersedes any tab navigation that was queued
@@ -787,6 +834,27 @@ export class RoutedSideWidgetView extends RcViewModule {
       return undefined;
     }
     return this.mainPath ?? this._getReturnPath() ?? config.backgroundPath;
+  }
+
+  /**
+   * Shows a routed page: routes to it, or, when the router is already on it
+   * behind another side widget tab, brings its tab forward. Pushing the path
+   * the router is on changes nothing the route or `syncPath` sees, so the
+   * tab would stay behind.
+   */
+  @delegate('server')
+  async showPage(path: string): Promise<void> {
+    const entry = Array.from(this._entries.values()).find(
+      (item) => item.path === path,
+    );
+    if (entry && this._router.currentPath === path) {
+      this._sideWidgetView.openContent(
+        entry.handle,
+        this._root.expanded ? {} : { expand: false },
+      );
+      return;
+    }
+    await this._router.push(path);
   }
 
   /**

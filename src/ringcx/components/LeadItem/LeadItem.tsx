@@ -64,7 +64,7 @@ export const LeadItem: FunctionComponent<LeadItemProps> = ({
           shape="squircle"
           variant="outlined"
           color="neutral"
-          disabled={isButtonDisabled}
+          disabled={isButtonDisabled || !!phoneNumbers[0].dialed}
           onClick={() => onDial(phoneNumbers[0].destination)}
           data-sign="dialButton"
           TooltipProps={{
@@ -147,7 +147,7 @@ export const LeadItem: FunctionComponent<LeadItemProps> = ({
                   variant="text"
                   size="small"
                   onClick={() => onDial?.(phone.destination)}
-                  disabled={isButtonDisabled}
+                  disabled={isButtonDisabled || !!phone.dialed}
                   className="justify-start p-0 text-left"
                   data-sign="phoneNumberButton"
                 >

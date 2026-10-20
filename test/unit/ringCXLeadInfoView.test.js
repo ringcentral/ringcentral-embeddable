@@ -1,8 +1,12 @@
 jest.mock('../../src/app/services/ThirdParty', () => ({
   ThirdParty: class ThirdParty {},
 }));
+const mockPanelProps = [];
 jest.mock('../../src/ringcx/components/LeadInfoPanel', () => ({
-  LeadInfoPanel: () => null,
+  LeadInfoPanel: (props) => {
+    mockPanelProps.push(props);
+    return null;
+  },
 }));
 jest.mock('../../src/ringcx/services/CxAgentSession', () => ({
   CxAgentSession: class CxAgentSession {},
@@ -30,6 +34,9 @@ jest.mock('../../src/ringcx/services/CxLeads', () => {
   };
 });
 
+const { render } = require('@testing-library/react');
+const React = require('react');
+
 const { CxLeadInfoView } = require('../../src/ringcx/views/CxLeadInfoView/CxLeadInfoView.view');
 
 const PREVIEW_LEAD = {
@@ -47,10 +54,20 @@ function createView({
   isPendingDisposition = false,
   isProgressiveDialMode = false,
   allowManualPass = true,
+  editPermission = 'none',
+  showLeadHistory = true,
 } = {}) {
   const cxLeadInfo = {
     previewLead,
-    info: { phoneNumbers },
+    info: {
+      phoneNumbers,
+      lead: PREVIEW_LEAD,
+      target: previewLead
+        ? { type: 'lead', requestId: previewLead.requestId }
+        : { type: 'call', callId: 'call-1' },
+    },
+    loadLeadHistory: jest.fn(async () => []),
+    loadRecording: jest.fn(async () => ''),
   };
   const cxLeads = {
     dialLead: jest.fn(async () => true),
@@ -64,6 +81,7 @@ function createView({
   const cxAuth = {
     agentId: 'agent-1',
     agentConfig: { agentPermissions: { allowManualPass } },
+    agentPermissions: { showLeadHistory },
     authenticateResponse: {
       regionalSettings: { timezoneName: 'Asia/Shanghai' },
     },
@@ -72,6 +90,7 @@ function createView({
     leadViewerRegistered: true,
     viewLead: jest.fn(async () => undefined),
   };
+  const cxLeadEdit = { getPermission: jest.fn(() => editPermission) };
   const view = new CxLeadInfoView(
     cxLeadInfo,
     cxLeads,
@@ -80,8 +99,24 @@ function createView({
     { isProgressiveDialMode },
     cxAuth,
     thirdParty,
+    cxLeadEdit,
   );
-  return { cxLeads, thirdParty, view };
+  return { cxLeadEdit, cxLeads, thirdParty, view };
+}
+
+/** Renders the view and returns the props its panel received. */
+function renderView(view, props = {}) {
+  mockPanelProps.length = 0;
+  const viewProps = {
+    showCloseButton: false,
+    onClose: jest.fn(),
+    onOpenManualPass: jest.fn(),
+    onOpenLeadUpdate: jest.fn(),
+    ...props,
+  };
+  const Harness = () => view.component(viewProps);
+  render(React.createElement(Harness));
+  return { panel: mockPanelProps[mockPanelProps.length - 1], viewProps };
 }
 
 describe('CxLeadInfoView', () => {
@@ -90,12 +125,12 @@ describe('CxLeadInfoView', () => {
       const { view } = createView();
 
       expect(view._getPreviewActionState()).toEqual({
-        hasPreviewActions: true,
+        previewRequestId: 'request-1',
         dialNumbers: ['+16508446685', '+16505550100'],
+        dialedList: [],
         isDialDisabled: false,
         showManualPass: true,
         isManualPassDisabled: false,
-        defaultTimezone: 'Asia/Shanghai',
       });
     });
 
@@ -104,7 +139,7 @@ describe('CxLeadInfoView', () => {
 
       expect(view._getPreviewActionState()).toEqual(
         expect.objectContaining({
-          hasPreviewActions: false,
+          previewRequestId: '',
           dialNumbers: [],
           showManualPass: false,
         }),
@@ -161,33 +196,71 @@ describe('CxLeadInfoView', () => {
     });
   });
 
-  test('dials and passes the fetched lead', async () => {
+  test('dials the fetched lead', () => {
     const { cxLeads, view } = createView();
-    const params = {
-      dispositionId: 'disposition-1',
-      notes: 'Wrong number',
-      callback: false,
-      callbackDTS: '',
-    };
 
     view._onDial('+16505550100');
-    await view._onManualPass(params);
 
     expect(cxLeads.dialLead).toHaveBeenCalledWith(PREVIEW_LEAD, '+16505550100');
-    expect(cxLeads.manualPassLead).toHaveBeenCalledWith({
-      lead: PREVIEW_LEAD,
-      ...params,
-    });
   });
 
-  test('does nothing once the fetched lead is gone', async () => {
+  test('does not dial once the fetched lead is gone', () => {
     const { cxLeads, view } = createView({ previewLead: null });
 
     view._onDial('+16505550100');
-    await view._onManualPass({});
 
     expect(cxLeads.dialLead).not.toHaveBeenCalled();
+  });
+
+  test('tells the panel which numbers of the fetched lead were dialed', () => {
+    const { view } = createView({
+      previewLead: { ...PREVIEW_LEAD, dialedList: ['6505550100'] },
+    });
+
+    expect(renderView(view).panel.previewActions.dialedNumbers).toEqual([
+      '+16505550100',
+    ]);
+  });
+
+  test('opens the Manual pass tab on the fetched lead, which passes it there', () => {
+    const { cxLeads, view } = createView();
+    const { panel, viewProps } = renderView(view);
+
+    panel.previewActions.onOpenManualPass();
+
+    expect(viewProps.onOpenManualPass).toHaveBeenCalledWith('request-1');
     expect(cxLeads.manualPassLead).not.toHaveBeenCalled();
+  });
+
+  test('offers no preview actions for a call lead', () => {
+    const { view } = createView({ previewLead: null });
+
+    expect(renderView(view).panel.previewActions).toBeNull();
+  });
+
+  test('opens the Update lead tab when the campaign allows editing', () => {
+    const { view } = createView({ editPermission: 'noPhone' });
+    const { panel, viewProps } = renderView(view);
+
+    panel.editActions.onOpenEdit();
+
+    expect(viewProps.onOpenLeadUpdate).toHaveBeenCalledTimes(1);
+  });
+
+  test('offers no Edit when the campaign does not allow it', () => {
+    const { view } = createView({ editPermission: 'none' });
+
+    expect(renderView(view).panel.editActions).toBeNull();
+  });
+
+  test('passes lead history only with the permission to see it', () => {
+    const allowed = createView().view;
+    const denied = createView({ showLeadHistory: false }).view;
+
+    expect(renderView(allowed).panel.loadLeadHistory).toEqual(
+      expect.any(Function),
+    );
+    expect(renderView(denied).panel.loadLeadHistory).toBeUndefined();
   });
 
   test('sends the lead to the host lead viewer with the agent id', () => {
