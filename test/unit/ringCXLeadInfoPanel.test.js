@@ -50,25 +50,6 @@ jest.mock('@ringcentral-integration/next-widgets/components', () => ({
   ),
 }));
 
-jest.mock('../../src/ringcx/components/ManualPassForm', () => ({
-  // Shown in place of the panel's content while the agent passes the lead.
-  ManualPassForm: ({ campaignId, onSubmit }) => (
-    <button
-      type="button"
-      data-sign="manualPassSubmit"
-      data-campaign={campaignId}
-      onClick={() =>
-        onSubmit({
-          dispositionId: 'disposition-1',
-          notes: '',
-          callback: false,
-          callbackDTS: '',
-        })
-      }
-    />
-  ),
-}));
-
 // The shared mock's `Block` passes `borderRadius` on to the DOM, and its
 // `Button` drops the tooltip.
 jest.mock('@ringcentral/spring-ui', () => ({
@@ -142,9 +123,7 @@ function createPreviewActions(overrides = {}) {
     onDial: jest.fn(),
     showManualPass: true,
     isManualPassDisabled: false,
-    onManualPass: jest.fn(async () => undefined),
-    fetchDispositionList: jest.fn(async () => []),
-    defaultTimezone: 'America/New_York',
+    onOpenManualPass: jest.fn(),
     ...overrides,
   };
 }
@@ -155,6 +134,7 @@ function renderPanel(props = {}) {
     showViewLeadButton: true,
     onViewLead: jest.fn(),
     previewActions: createPreviewActions(),
+    editActions: null,
     loadRecording: jest.fn(async () => 'blob:recording'),
     showCloseButton: false,
     onClose: jest.fn(),
@@ -225,24 +205,38 @@ describe('LeadInfoPanel', () => {
     );
   });
 
-  test('passes and views a fetched lead from the header actions', async () => {
+  test('opens Manual pass in its own tab and views a fetched lead from the header', () => {
     const { onViewLead, previewActions } = renderPanel();
 
     // The numbers dial, so the actions are manual pass and view lead.
     expect(bySign('leadActions').querySelectorAll('button')).toHaveLength(2);
     expect(bySign('manualPass')).toHaveAttribute('data-color', 'danger');
     fireEvent.click(bySign('manualPass'));
-    expect(bySign('manualPassSubmit')).toHaveAttribute('data-campaign', '1');
-    await act(async () => {
-      fireEvent.click(bySign('manualPassSubmit'));
-    });
-    expect(previewActions.onManualPass).toHaveBeenCalledWith(
-      expect.objectContaining({ dispositionId: 'disposition-1' }),
-    );
-    expect(bySign('manualPassSubmit')).toBeNull();
+    expect(previewActions.onOpenManualPass).toHaveBeenCalledTimes(1);
+    // The form is a side widget tab of its own, not part of this panel.
+    expect(bySign('leadInfoPanel')).toBeTruthy();
 
     fireEvent.click(bySign('viewLead'));
     expect(onViewLead).toHaveBeenCalledWith({ leadId: '5725', campaignId: '1' });
+  });
+
+  test('puts Edit first when the campaign lets the agent edit the lead', () => {
+    const editActions = { onOpenEdit: jest.fn() };
+    renderPanel({ editActions });
+
+    expect(
+      [...bySign('leadActions').querySelectorAll('button')].map((button) =>
+        button.getAttribute('data-sign'),
+      ),
+    ).toEqual(['edit', 'manualPass', 'viewLead']);
+    fireEvent.click(bySign('edit'));
+    expect(editActions.onOpenEdit).toHaveBeenCalledTimes(1);
+  });
+
+  test('offers no Edit when the campaign does not allow it', () => {
+    renderPanel();
+
+    expect(bySign('edit')).toBeNull();
   });
 
   test('lists each number of a multi-number lead, each dialing itself', () => {

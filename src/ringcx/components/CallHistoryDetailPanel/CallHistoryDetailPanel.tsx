@@ -273,7 +273,13 @@ export const CallHistoryDetailPanel: FunctionComponent<
     <>
       {(toFromValue || showSource) && (
         <DetailCard data-sign="sourceBlock">
-          <div className="grid grid-cols-2 gap-3 w-full">
+          {/* Two columns only when both fields show, so a lone value, such
+              as a long campaign name, gets the whole width. */}
+          <div
+            className={`grid gap-3 w-full ${
+              toFromValue && showSource ? 'grid-cols-2' : 'grid-cols-1'
+            }`}
+          >
             <DetailField
               label={toFromLabel}
               value={toFromValue}

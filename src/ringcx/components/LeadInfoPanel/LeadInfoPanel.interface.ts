@@ -78,13 +78,34 @@ export interface LeadInfoCardsProps {
   loadRecording: (value: string) => Promise<string>;
 }
 
-export interface LeadHistoryCardProps {
+export type LeadHistoryStatus = 'idle' | 'loading' | 'loaded' | 'failed';
+
+/** A lead's history as it loads, see `useLeadHistory`. */
+export interface LeadHistoryState {
+  status: LeadHistoryStatus;
+  records: CxLeadHistoryRecord[];
+  /** Loads the history, or loads it again. */
+  load: () => Promise<void>;
+}
+
+export interface UseLeadHistoryOptions {
   leadId: string;
   loadLeadHistory: (leadId: string) => Promise<CxLeadHistoryRecord[] | null>;
-  /** Loads on mount instead of waiting for **Show history**. */
+  /** Loads on mount instead of waiting for the agent to ask. */
   autoLoad?: boolean;
-  /** Off under a History tab, which already names the card. */
-  showTitle?: boolean;
+}
+
+export interface LeadHistoryCardProps extends UseLeadHistoryOptions {
+  /**
+   * The history a parent loads and refreshes itself, such as the History
+   * pill tab, which names the card and holds Refresh in its tab row. The
+   * card then has no header.
+   */
+  history?: LeadHistoryState;
+}
+
+export interface LeadHistoryRefreshProps {
+  history: LeadHistoryState;
 }
 
 export interface PastCallTabsProps {
