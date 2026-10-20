@@ -1527,7 +1527,7 @@ class Adapter {
     if (this._popupPageUri) {
       popupUri = `${this._popupPageUri}?${popupUri.split('?')[1]}`;
     }
-    this._popupedWindow = popWindow(popupUri, 'RCPopupWindow', 300, 535);
+    this._popupedWindow = popWindow(popupUri, 'RCPopupWindow', 300, 575);
     this.setMinimized(true);
   }
 

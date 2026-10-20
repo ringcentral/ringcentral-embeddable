@@ -232,7 +232,10 @@ export function createConversationPanel(
 
     return (
       <div
-        className="relative h-full"
+        // The upstream message list stylesheet fixes its height at 354px,
+        // which outranks its `h-full` class and leaves a taller window's list
+        // in the top part of the page.
+        className="relative h-full [&_[data-sign=conversationPanel]>:last-child]:h-full"
         ref={panelContainerRef}
         onClickCapture={(event) =>
           handleVCardDownloadClick(event, messages, services.thirdParty)
