@@ -22,6 +22,9 @@ export type SideWidgetTabScope = 'contact' | 'global';
 
 type SideWidgetLifecycleResult = void | Promise<void>;
 
+/** Why a content tab closed, when it was not closed directly. */
+export type SideWidgetCloseReason = 'contactChange';
+
 export interface SideWidgetContentOptions {
   id: string;
   /** Tab name copied into the tab state when it opens. */
@@ -56,7 +59,14 @@ export interface SideWidgetContentOptions {
   minExpandedWidth?: number;
   onActivate?: () => SideWidgetLifecycleResult;
   onDeactivate?: (nextTabId: string | null) => SideWidgetLifecycleResult;
-  onClose?: (nextTabId: string | null) => SideWidgetLifecycleResult;
+  /**
+   * `reason` is `'contactChange'` when the tab closes because a new contact,
+   * such as a new call's, took over the drawer; the user did not leave it.
+   */
+  onClose?: (
+    nextTabId: string | null,
+    reason?: SideWidgetCloseReason,
+  ) => SideWidgetLifecycleResult;
   /**
    * Replaces the page's own back button. A docked widget page has nothing to
    * go back to, so its back button closes it instead, like the legacy widgets.

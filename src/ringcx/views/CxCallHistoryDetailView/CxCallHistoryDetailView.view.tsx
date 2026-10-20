@@ -14,6 +14,7 @@ import React, { useEffect, useRef } from 'react';
 import { CxAuth } from '../../services/CxAuth';
 import { CxCall } from '../../services/CxCall';
 import { CxCallHistory } from '../../services/CxCallHistory';
+import { CxLeadInfo } from '../../services/CxLeadInfo';
 import {
   HostCallLogger,
   type CallLogger,
@@ -83,6 +84,7 @@ class CxCallHistoryDetailView extends RcViewModule {
     @inject(HostCallLogger) private _callLogger: CallLogger,
     private _thirdParty: ThirdParty,
     private _matchedContactSelection: MatchedContactSelection,
+    private _cxLeadInfo: CxLeadInfo,
     @optional('RingCXAdapterBridge')
     private _bridge?: RingCXAdapterBridge,
     @optional('CxCallHistoryDetailViewOptions')
@@ -190,6 +192,16 @@ class CxCallHistoryDetailView extends RcViewModule {
       canDial: !!this._cxAuth.agentPermissions?.allowHistoricalDialing,
       isDialDisabled: !this._cxCall.isIdle,
       hostLogActions: this._hostLogActions(callDetail),
+      pastLead: callDetail?.lead
+        ? {
+            leadId: callDetail.lead.leadId,
+            rows: this._cxLeadInfo.getPastLeadRows(
+              callDetail.lead,
+              !!callDetail.isActive,
+            ),
+          }
+        : null,
+      showLeadHistory: !!this._cxAuth.agentPermissions?.showLeadHistory,
     };
   }
 
@@ -244,6 +256,9 @@ class CxCallHistoryDetailView extends RcViewModule {
       onCopyCallId: (callId: string) => {
         this.copyCallId(callId);
       },
+      loadRecording: (value: string) => this._cxLeadInfo.loadRecording(value),
+      loadLeadHistory: (leadId: string) =>
+        this._cxLeadInfo.loadLeadHistory(leadId),
       onHostLogAction: (actionType: string) => {
         const callDetail = this._cxCallHistory.getCallById(this._params.id);
         if (!callDetail) {

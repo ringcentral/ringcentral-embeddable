@@ -252,6 +252,8 @@ export class AppView extends RcViewModule {
         name: () => t('callDetails'),
         scope: 'contact',
         backgroundPath: '/agent/home/history',
+        resolveBackgroundPath: () =>
+          this._cxAgentTabView.resolveHistoryBackgroundPath(),
       },
     },
     {

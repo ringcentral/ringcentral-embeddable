@@ -3,6 +3,10 @@
 // this tab to hold the CX state: rendering the CX app earlier lets its routes
 // redirect away from the call page the tab was opened on.
 
+jest.mock('@ringcentral-integration/micro-core/src/app/views/SyncTabView', () => ({
+  SyncTabView: class SyncTabView {},
+}));
+
 jest.mock('@ringcentral-integration/next-core', () => ({
   ...jest.requireActual('../mocks/nextCoreMock'),
   useParams: jest.fn(() => ({})),

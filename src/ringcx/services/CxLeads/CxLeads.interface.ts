@@ -1,7 +1,7 @@
 /**
  * CxLeads options for configuration
  */
-export type CxLeadEventAction = 'loaded' | 'passed' | 'dialed';
+export type CxLeadEventAction = 'loaded' | 'passed' | 'dialed' | 'updated';
 
 export interface CxLeadEvent {
   action: CxLeadEventAction;

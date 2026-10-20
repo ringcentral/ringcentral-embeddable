@@ -2,6 +2,8 @@ import { AppHeaderNav } from '@ringcentral-integration/micro-core/src/app/compon
 import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
 import { BlockPlugin } from '@ringcentral-integration/micro-core/src/app/plugins';
 import { Locale } from '@ringcentral-integration/micro-core/src/app/services';
+// The registered token; the app's subclass is provided under it.
+import { SyncTabView } from '@ringcentral-integration/micro-core/src/app/views/SyncTabView';
 import {
   autobind,
   dynamic,
@@ -11,7 +13,7 @@ import {
   useConnector,
   useParams,
 } from '@ringcentral-integration/next-core';
-import { useObservableState } from 'observable-hooks';
+import { useObservableEagerState } from 'observable-hooks';
 import React, { type ComponentType } from 'react';
 
 import { RingCX } from '../../services/RingCX';
@@ -24,6 +26,12 @@ const AGENT_PATH = '/agent';
 const AGENT_HISTORY_TAB = 'history';
 const AGENT_DIALER_TAB = 'dialer';
 const AGENT_DIALER_PATH = `${AGENT_PATH}/home/${AGENT_DIALER_TAB}`;
+/**
+ * `CxAgentView`'s tab group id (`AGENT_TAB_ID`), repeated here so this tab
+ * does not import the lazily loaded RingCX chunk.
+ */
+const AGENT_TABS_ID = 'agentTabs';
+const AGENT_HOME_TABS: readonly string[] = ['dialer', 'leads', 'history'];
 
 type CxAgentHomeView = {
   readonly component: ComponentType<{ initialTab?: string }>;
@@ -60,6 +68,7 @@ export class CxAgentTabView extends RcViewModule {
     private readonly _router: RouterPlugin,
     private readonly _locale: Locale,
     private readonly _block: BlockPlugin,
+    private readonly _syncTabView: SyncTabView,
   ) {
     super();
   }
@@ -79,6 +88,21 @@ export class CxAgentTabView extends RcViewModule {
   @autobind
   HistoryBackground(): React.ReactElement | null {
     return <this.AgentHomeBackground initialTab={AGENT_HISTORY_TAB} />;
+  }
+
+  /**
+   * Where a CX history detail opened in the side widget returns to: the agent
+   * home tab picked in the main column behind it, History until another is
+   * picked. The column only switches its tab there, as the detail page holds
+   * the router, so the route alone would send the agent back to History.
+   */
+  resolveHistoryBackgroundPath(): string {
+    const tab = this._syncTabView.getActive(AGENT_TABS_ID);
+    const homeTab =
+      typeof tab === 'string' && AGENT_HOME_TABS.includes(tab)
+        ? tab
+        : AGENT_HISTORY_TAB;
+    return `${AGENT_PATH}/home/${homeTab}`;
   }
 
   /**
@@ -125,10 +149,12 @@ export class CxAgentTabView extends RcViewModule {
 
   /**
    * Whether this tab holds the CX modules' current state, see
-   * `RingCX.hydratedOnThisPort$`.
+   * `RingCX.hydratedOnThisPort$`. Read eagerly: the subject already holds the
+   * answer, and starting from `false` would render the empty fallback for a
+   * frame each time a CX page mounts, such as when a history detail opens.
    */
   private _useHydrated(): boolean {
-    return useObservableState(this._ringCX.hydratedOnThisPort$, false);
+    return useObservableEagerState(this._ringCX.hydratedOnThisPort$);
   }
 
   private _isLiveCall(callId: string): boolean {

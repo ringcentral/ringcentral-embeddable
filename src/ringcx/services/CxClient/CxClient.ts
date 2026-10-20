@@ -50,6 +50,10 @@ import type {
   PauseRecordResponse,
   RawEvAuthenticateAgentWithRcAccessTokenRes,
   RecordResponse,
+  CxLeadHistoryRecord,
+  CxLeadUpdateFields,
+  CxLeadUpdateRequest,
+  CxLeadUpdateResult,
 } from './interfaces';
 import { Webphone as MicroPhoneWebphone } from '@ringcentral-integration/micro-phone/src/app/services';
 import type { Webphone } from '../../../app/services/WebphoneV2';
@@ -99,6 +103,41 @@ const MAX_RECONNECTION_ATTEMPTS = 72;
  */
 const PREVIEW_FETCH_TIMEOUT_MS = 30 * 1000;
 
+/**
+ * Wait for a LEAD-HISTORY or LEAD-UPDATE answer. The agent library has no
+ * error path for either, so a lost answer would otherwise wait forever.
+ */
+const LEAD_REQUEST_TIMEOUT = 10 * 1000;
+
+/**
+ * LEAD-UPDATE baggage: the agent library reads these snake-cased keys and
+ * drops any other.
+ */
+function toLeadUpdateBaggage(
+  fields: CxLeadUpdateFields,
+): Record<string, string> {
+  return {
+    first_name: fields.firstName,
+    mid_name: fields.midName,
+    last_name: fields.lastName,
+    suffix: fields.suffix,
+    title: fields.title,
+    address1: fields.address1,
+    address2: fields.address2,
+    city: fields.city,
+    state: fields.state,
+    zip: fields.zip,
+    email: fields.email,
+    gate_keeper: fields.gateKeeper,
+    extern_id: fields.externId,
+    aux_data1: fields.auxData1,
+    aux_data2: fields.auxData2,
+    aux_data3: fields.auxData3,
+    aux_data4: fields.auxData4,
+    aux_data5: fields.auxData5,
+  };
+}
+
 /** Local storage namespace the Agent SDK persists its session token under. */
 const SDK_STORAGE_PREFIX = 'agentSDK:';
 
@@ -133,6 +172,15 @@ type Listener<
 class CxClient extends RcModule {
   /** SDK instance */
   private _sdk: any;
+
+  /** The LEAD-HISTORY request the next one waits for. */
+  private _leadHistoryQueue: Promise<unknown> = Promise.resolve();
+
+  /** LEAD-HISTORY requests in flight, by lead id. */
+  private readonly _leadHistoryRequests = new Map<
+    string,
+    Promise<CxLeadHistoryRecord[] | null>
+  >();
 
   private _onOpen: (response: CxClientCallMapping['openResponse']) => void;
 
@@ -1895,6 +1943,100 @@ class CxClient extends RcModule {
       this.logger.error('checkVoicemail fail', error);
       return { status: 0, voiceMailEnabled: false };
     }
+  }
+
+  /**
+   * The past dial attempts of a lead, or `null` when the server did not
+   * answer in time.
+   *
+   * The agent library keeps one callback per response type, so requests run
+   * one after another, and a second request for the same lead joins the one
+   * in flight.
+   */
+  @delegate('server')
+  async getLeadHistory(leadId: string): Promise<CxLeadHistoryRecord[] | null> {
+    const pending = this._leadHistoryRequests.get(leadId);
+    if (pending) {
+      return pending;
+    }
+    const request = this._leadHistoryQueue.then(() =>
+      this._requestLeadHistory(leadId),
+    );
+    this._leadHistoryQueue = request;
+    this._leadHistoryRequests.set(leadId, request);
+    try {
+      return await request;
+    } finally {
+      this._leadHistoryRequests.delete(leadId);
+    }
+  }
+
+  private _requestLeadHistory(
+    leadId: string,
+  ): Promise<CxLeadHistoryRecord[] | null> {
+    return new Promise((resolve) => {
+      if (!this._sdk) {
+        resolve(null);
+        return;
+      }
+      const timeoutId = setTimeout(() => resolve(null), LEAD_REQUEST_TIMEOUT);
+      this._sdk.leadHistory(
+        leadId,
+        (response?: { leadId?: string; leadHistory?: CxLeadHistoryRecord[] }) => {
+          // A late answer to a timed-out request for another lead lands here.
+          if (response?.leadId && String(response.leadId) !== String(leadId)) {
+            return;
+          }
+          clearTimeout(timeoutId);
+          resolve(
+            Array.isArray(response?.leadHistory) ? response.leadHistory : [],
+          );
+        },
+      );
+    });
+  }
+
+  /**
+   * Saves a lead's fields and numbers. The server answers with a status
+   * only; it sends no notification of the change.
+   */
+  @delegate('server')
+  async updateLead({
+    leadId,
+    phoneNumbers,
+    fields,
+  }: CxLeadUpdateRequest): Promise<CxLeadUpdateResult> {
+    if (!this._sdk) {
+      return { ok: false };
+    }
+    const leadPhone = phoneNumbers.join('|');
+    return new Promise((resolve) => {
+      const timeoutId = setTimeout(
+        () => resolve({ ok: false }),
+        LEAD_REQUEST_TIMEOUT,
+      );
+      const onResponse = (response?: {
+        status?: string | boolean;
+        detail?: string;
+        message?: string;
+      }) => {
+        clearTimeout(timeoutId);
+        const ok = response?.status === true || response?.status === 'TRUE';
+        resolve(
+          ok
+            ? { ok }
+            : { ok, message: response?.detail || response?.message || '' },
+        );
+      };
+      this._sdk.leadUpdate(
+        leadId,
+        leadPhone,
+        leadPhone,
+        true,
+        toLeadUpdateBaggage(fields),
+        onResponse,
+      );
+    });
   }
 
   /**

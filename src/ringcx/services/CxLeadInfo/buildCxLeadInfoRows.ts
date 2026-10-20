@@ -15,6 +15,8 @@ interface BuildCxLeadInfoRowsInput {
   leadState?: string;
   /** A call's lead counts its passes before the call, a preview lead's now. */
   isCallLead: boolean;
+  /** Overrides the passes label, as a past call's lead does. */
+  passesLabelKey?: CxLeadInfoLabelKey;
   /** From `getCxLeadAuxLabels`; `undefined` keeps the default "Aux N". */
   auxLabels: ReadonlyArray<string | undefined>;
 }
@@ -83,6 +85,7 @@ function buildHeadRows({
   source,
   leadState,
   isCallLead,
+  passesLabelKey,
 }: BuildCxLeadInfoRowsInput): CxLeadInfoRow[] {
   const rows = [
     createRow(
@@ -100,7 +103,9 @@ function buildHeadRows({
     ),
   ];
   if (lead.showLeadPasses !== false) {
-    const labelKey = isCallLead ? 'preCallLeadPasses' : 'currentLeadPasses';
+    const labelKey =
+      passesLabelKey ??
+      (isCallLead ? 'preCallLeadPasses' : 'currentLeadPasses');
     rows.push(
       createRow(
         { id: 'leadPasses', group: 'status', label: { labelKey } },

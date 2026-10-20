@@ -14,6 +14,7 @@ import React, { useLayoutEffect } from 'react';
 
 import {
   SideWidgetView,
+  type SideWidgetCloseReason,
   type SideWidgetContentHandle,
   type SideWidgetContentOptions,
   type SideWidgetContentViewProps,
@@ -33,6 +34,7 @@ import {
   decideRouteClose,
   type RoutedPage,
   type RouteChangeDecision,
+  type RouteCloseDecision,
 } from './RoutedSideWidget.navigation';
 import type {
   RoutedSideWidgetConfig,
@@ -267,7 +269,8 @@ export class RoutedSideWidgetView extends RcViewModule {
       getName,
       scope,
       onActivate: () => this._activateRoute(id),
-      onClose: (nextTabId: string | null) => this._closeRoute(id, nextTabId),
+      onClose: (nextTabId: string | null, reason?: SideWidgetCloseReason) =>
+        this._closeRoute(id, nextTabId, reason),
       onCloseComplete: () => this._completeRouteClose(id),
       ...(config.keepBackNavigation
         ? {}
@@ -811,21 +814,29 @@ export class RoutedSideWidgetView extends RcViewModule {
   private async _closeRoute(
     id: string,
     nextTabId: string | null,
+    reason?: SideWidgetCloseReason,
   ): Promise<void> {
     const entry = this._entries.get(id);
     if (!entry) {
       return;
     }
     const backgroundPath = this.mainPath ?? this._getBackgroundPath(entry);
-    const decision = decideRouteClose({
-      currentPath: this._router.currentPath,
-      requestedPath: this._requestedPath,
-      pagePath: entry.path,
-      backgroundPath,
-      nextRoutedPath: nextTabId
-        ? (this._entries.get(nextTabId)?.path ?? null)
-        : null,
-    });
+    // A contact change, such as a new call opening its apps, is not the user
+    // leaving the page: the router stays where it is, or goes where the call
+    // sends it. Routing to the page's background from the port that closed
+    // the tab would land after, and undo, the call page navigation.
+    const decision: RouteCloseDecision =
+      reason === 'contactChange'
+        ? { type: 'stay' }
+        : decideRouteClose({
+            currentPath: this._router.currentPath,
+            requestedPath: this._requestedPath,
+            pagePath: entry.path,
+            backgroundPath,
+            nextRoutedPath: nextTabId
+              ? (this._entries.get(nextTabId)?.path ?? null)
+              : null,
+          });
     this._entries.delete(id);
     this._closedPaths.set(id, {
       backgroundPath,

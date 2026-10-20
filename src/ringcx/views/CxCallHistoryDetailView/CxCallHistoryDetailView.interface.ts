@@ -1,3 +1,6 @@
+import type { CxLeadHistoryRecord } from '../../services/CxClient/interfaces';
+import type { CxLeadInfoRow } from '../../services/CxLeadInfo/CxLeadInfo.interface';
+
 /**
  * Options for CxCallHistoryDetailView customization
  */
@@ -55,6 +58,10 @@ interface CxCallHistoryDetailViewUIProps {
   canDial: boolean;
   /** Historical dialing is unavailable while another call is in progress. */
   isDialDisabled: boolean;
+  /** The lead of a lead call, as Lead details rows; `null` otherwise. */
+  pastLead: { leadId: string; rows: CxLeadInfoRow[] } | null;
+  /** Whether the agent may see lead history. */
+  showLeadHistory: boolean;
 }
 
 /**
@@ -71,6 +78,9 @@ interface CxCallHistoryDetailViewUIFunctions {
     disabled?: boolean;
   }>;
   onHostLogAction?: (actionType: string) => void;
+  /** Resolves a lead field's recording to a playable URL. */
+  loadRecording: (value: string) => Promise<string>;
+  loadLeadHistory: (leadId: string) => Promise<CxLeadHistoryRecord[] | null>;
 }
 
 export type {

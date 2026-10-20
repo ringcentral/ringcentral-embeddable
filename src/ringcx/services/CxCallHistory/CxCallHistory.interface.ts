@@ -1,3 +1,5 @@
+import type { CxLeadDetails } from '../CxLeadInfo/CxLeadInfo.interface';
+
 /**
  * Call party info (agent or contact)
  */
@@ -61,6 +63,8 @@ export interface FormattedCall {
   recordingUrl?: string;
   /** The interaction was still active when the page was fetched. */
   isActive?: boolean;
+  /** The lead of a lead call, as the Lead tab shows it. */
+  lead?: CxLeadDetails;
   /**
    * The local `${uii}$${sessionId}` id, when this browser also handled the
    * call. Resolved from the segment id; absent for rows that only exist

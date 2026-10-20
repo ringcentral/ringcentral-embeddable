@@ -6,6 +6,10 @@ jest.mock('../../src/ringcx/services/CxClient', () => ({
   CxClient: class CxClient {},
 }));
 
+jest.mock('../../src/ringcx/services/CxLeadEdit', () => ({
+  CxLeadEdit: class CxLeadEdit {},
+}));
+
 jest.mock('../../src/ringcx/services/CxLeads', () => ({
   CxLeads: class CxLeads {},
   PHONE_DELIMETER: '|',
@@ -65,7 +69,9 @@ function createLeadInfo({
   const cxAuth = {
     agentConfig: { outboundSettings: { availableCampaigns: campaigns } },
   };
-  return new CxLeadInfo(cxLeads, cxPresence, cxAuth, cxClient);
+  // No saved edits: leads resolve as they are.
+  const cxLeadEdit = { applyEdits: (lead) => lead };
+  return new CxLeadInfo(cxLeads, cxPresence, cxAuth, cxClient, cxLeadEdit);
 }
 
 describe('CxLeadInfo', () => {

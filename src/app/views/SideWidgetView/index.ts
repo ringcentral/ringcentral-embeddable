@@ -7,6 +7,7 @@ export {
 export type {
   SideWidgetContentHandle,
   SideWidgetContentOptions,
+  SideWidgetCloseReason,
   SideWidgetCloseTabOptions,
   SideWidgetContentViewProps,
   SideWidgetOpenAppsOptions,

@@ -37,6 +37,7 @@ export type CxLeadInfoLabelKey =
   | 'leadState'
   | 'preCallLeadPasses'
   | 'currentLeadPasses'
+  | 'leadPasses'
   | 'title'
   | 'suffix'
   | 'email'
@@ -91,5 +92,7 @@ export interface CxLeadInfoData {
   phoneNumbers: string[];
   /** Campaign or queue name. */
   source: string;
+  /** Admin labels of the five aux fields; `undefined` keeps "Aux N". */
+  auxLabels: Array<string | undefined>;
   rows: CxLeadInfoRow[];
 }

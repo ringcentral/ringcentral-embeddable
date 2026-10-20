@@ -239,6 +239,13 @@ class CxLeads extends RcModule {
     };
   }
 
+  /**
+   * Tells the adapter bridge an agent saved a lead's fields.
+   */
+  notifyLeadUpdated(lead: Lead): void {
+    this._emitLeadEvent({ action: 'updated', lead });
+  }
+
   private _emitLeadEvent(event: CxLeadEvent): void {
     this._leadListeners.forEach((listener) => listener(event));
   }

@@ -130,6 +130,64 @@ export interface CxLead {
 }
 
 /**
+ * One past dial attempt of a lead, from LEAD-HISTORY's `previous_dial`. The
+ * agent library turns an empty field into `''`.
+ */
+export interface CxLeadHistoryRecord {
+  passNumber: string;
+  /** SQL date-time (`YYYY-MM-DD HH:mm:ss`) in server time. */
+  passDts: string;
+  agentName: string;
+  agentDisposition: string;
+  agentNotes: string;
+  /** System disposition, such as `ANSWER` or `VOICEMAIL-LEFT`. */
+  passDisposition: string;
+  passUii: string;
+  duration: string;
+}
+
+/**
+ * Lead fields LEAD-UPDATE can change. The agent library sends exactly these,
+ * snake-cased; `externId` is not editable but is sent back as it is.
+ */
+export interface CxLeadUpdateFields {
+  firstName: string;
+  midName: string;
+  lastName: string;
+  suffix: string;
+  title: string;
+  address1: string;
+  address2: string;
+  city: string;
+  state: string;
+  zip: string;
+  email: string;
+  gateKeeper: string;
+  externId: string;
+  auxData1: string;
+  auxData2: string;
+  auxData3: string;
+  auxData4: string;
+  auxData5: string;
+}
+
+export interface CxLeadUpdateRequest {
+  leadId: string;
+  /** E.164 numbers, at most 6. */
+  phoneNumbers: string[];
+  fields: CxLeadUpdateFields;
+}
+
+/**
+ * Outcome of a LEAD-UPDATE, returned as a value since delegated errors do
+ * not cross ports. `message` is the server's error detail.
+ */
+export interface CxLeadUpdateResult {
+  ok: boolean;
+  message?: string;
+}
+
+/**
  * Lead fields NEW-CALL's baggage carries when the call has a lead: preview,
  * progressive and predictive calls, and inbound calls whose baggage names one.
  * Booleans come from the `@show_lead_passes`/`@show_list_name` attributes.
@@ -529,7 +587,11 @@ export interface CxAgentPermissions {
   allowOffHook: boolean;
   allowOutbound: boolean;
   allowPreviewLeadFilters: boolean;
-  allowLeadUpdatesByCampaign: CxAllowLeadUpdatesByCampaign;
+  /**
+   * Campaign id to `"0"` (no updates), `"1"` (all fields) or `"2"` (all but
+   * the phone), from each campaign's `@allow_lead_updates`.
+   */
+  allowLeadUpdatesByCampaign: Record<string, string>;
   disableSupervisorMonitoring: boolean;
   progressiveEnabled: boolean;
   requireFetchedLeadsCalled: boolean;
