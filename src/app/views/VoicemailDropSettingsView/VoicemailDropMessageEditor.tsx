@@ -5,15 +5,11 @@ import {
 import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
 import { PageHeader } from '@ringcentral-integration/next-widgets/components';
 import { AttachMd } from '@ringcentral/spring-icon';
-import {
-  Alert,
-  Button,
-  Text,
-  TextField,
-} from '@ringcentral/spring-ui';
+import { Alert, Button, Icon, Text, TextField } from '@ringcentral/spring-ui';
 import React, { useRef, useState } from 'react';
 
 import type { VoicemailMessage } from '../../services/VoicemailDrop/VoicemailDrop.interface';
+import { useSideWidgetTabsShown } from '../SideWidgetView/useSideWidgetTabsShown';
 import i18n from '../VoicemailDropView/i18n';
 
 import { AudioPreview } from './AudioPreview';
@@ -51,6 +47,7 @@ export function VoicemailDropMessageEditor({
   onSave: (message: VoicemailMessage) => void;
 }) {
   const { t } = useLocale(i18n);
+  const tabsShown = useSideWidgetTabsShown();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [label, setLabel] = useState(message?.label ?? '');
   const [fileName, setFileName] = useState(message?.fileName ?? '');
@@ -104,11 +101,15 @@ export function VoicemailDropMessageEditor({
 
   return (
     <>
-      <AppHeaderNav override>
-        <PageHeader onBackClick={onBack}>
-          {t(message ? 'editMessage' : 'newMessage')}
-        </PageHeader>
-      </AppHeaderNav>
+      {/* The side widget tab already names the page and hides the back
+          button. */}
+      {tabsShown ? null : (
+        <AppHeaderNav override>
+          <PageHeader onBackClick={onBack}>
+            {t(message ? 'editMessage' : 'newMessage')}
+          </PageHeader>
+        </AppHeaderNav>
+      )}
       <div
         data-sign="voicemailDropMessageEditorContent"
         className="flex-auto overflow-y-auto overflow-x-hidden px-4 py-2"
@@ -128,9 +129,11 @@ export function VoicemailDropMessageEditor({
           }}
         />
         <div className="mt-5">
+          {/* Styled like the text field label above it. */}
           <Text
+            id="voicemail-audio-file-label"
             component="div"
-            className="typography-labelSemiBold text-neutral-b0"
+            className="typography-descriptorMiniSemiBold text-neutral-b0"
           >
             {t('audioFile')}
           </Text>
@@ -147,32 +150,57 @@ export function VoicemailDropMessageEditor({
             accept=".mp3,.wav,audio/mpeg,audio/wav,audio/x-wav"
             onChange={(event) => void onFileChange(event)}
           />
-          <Button
-            className="mt-3"
-            variant="outlined"
-            startIcon={AttachMd}
-            loading={readingFile}
-            onClick={() => fileInputRef.current?.click()}
-          >
-            {t(fileData ? 'replaceAudioFile' : 'chooseAudioFile')}
-          </Button>
-          {fileName ? (
-            <Text
-              component="div"
-              className="typography-descriptor mt-2 truncate text-neutral-b2"
-              title={fileName}
+          {fileData ? (
+            // The file, its replace action and its preview read as one unit.
+            <div
+              className="mt-2 rounded-lg border border-neutral-l02 px-3 py-2"
+              role="group"
+              aria-labelledby="voicemail-audio-file-label"
             >
-              {fileName}
-            </Text>
-          ) : null}
-          <div className="mt-3">
-            <AudioPreview
-              source={fileData}
-              name={label || t('audioFile')}
-              playLabel={t('play', { name: label || t('audioFile') })}
-              stopLabel={t('stop', { name: label || t('audioFile') })}
-            />
-          </div>
+              <div className="flex min-w-0 items-center gap-2">
+                <Icon
+                  symbol={AttachMd}
+                  size="small"
+                  className="text-neutral-b2"
+                  aria-hidden
+                />
+                <Text
+                  component="span"
+                  className="typography-descriptor min-w-0 flex-1 truncate text-neutral-b0"
+                  title={fileName}
+                >
+                  {fileName || t('audioFile')}
+                </Text>
+                <Button
+                  className="shrink-0"
+                  variant="text"
+                  size="small"
+                  loading={readingFile}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  {t('replaceAudioFile')}
+                </Button>
+              </div>
+              <div className="mt-1">
+                <AudioPreview
+                  source={fileData}
+                  name={label || t('audioFile')}
+                  playLabel={t('play', { name: label || t('audioFile') })}
+                  stopLabel={t('stop', { name: label || t('audioFile') })}
+                />
+              </div>
+            </div>
+          ) : (
+            <Button
+              className="mt-2"
+              variant="outlined"
+              startIcon={AttachMd}
+              loading={readingFile}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              {t('chooseAudioFile')}
+            </Button>
+          )}
         </div>
       </div>
       <div className="flex flex-none justify-end gap-2 border-t border-neutral-l02 p-4">

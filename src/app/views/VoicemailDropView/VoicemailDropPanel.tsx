@@ -1,15 +1,11 @@
 import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
-import {
-  PlayOutlinedMd,
-  SendFilledMd,
-  VoicemailMd,
-} from '@ringcentral/spring-icon';
+import { VoicemailMd } from '@ringcentral/spring-icon';
 import {
   Alert,
+  Button,
   CircularProgressIndicator,
   EmptyState,
   Icon,
-  IconButton,
   List,
   ListItem,
   ListItemText,
@@ -86,26 +82,37 @@ export function VoicemailDropPanel({
 
   return (
     <div className="flex h-full flex-col overflow-hidden bg-neutral-base">
-      <SideWidgetPageHeader
-        title={t('voicemailDrop')}
-        onClose={showCloseButton ? onClose : undefined}
-        closeLabel={t('close')}
-        data-sign="voicemailDropHeader"
-        closeDataSign="voicemailDropClose"
-      />
-      <div className="flex-auto overflow-y-auto p-4">
-        <Alert>{t('pickerInfo')}</Alert>
-        {error ? (
-          <Alert severity="error" className="mt-3">
-            {t(error)}
-          </Alert>
-        ) : null}
-        <Text
-          component="h2"
-          className="typography-labelSemiBold mb-2 mt-4 text-neutral-b0"
-        >
-          {t('prerecordedMessages')}
-        </Text>
+      {/* Side widget tabs already name the page and close it. */}
+      {showCloseButton ? (
+        <SideWidgetPageHeader
+          title={t('voicemailDrop')}
+          onClose={onClose}
+          closeLabel={t('close')}
+          data-sign="voicemailDropHeader"
+          closeDataSign="voicemailDropClose"
+        />
+      ) : null}
+      {/* The list runs edge to edge: its items carry their own inset. */}
+      <div className="flex-auto overflow-y-auto py-4">
+        <div className="mb-2 px-4">
+          <Text
+            component="h2"
+            className="typography-labelSemiBold text-neutral-b0"
+          >
+            {t('prerecordedMessages')}
+          </Text>
+          <Text
+            component="p"
+            className="typography-descriptor mt-1 text-neutral-b2"
+          >
+            {t('pickerInfo')}
+          </Text>
+          {error ? (
+            <Alert severity="error" className="mt-3">
+              {t(error)}
+            </Alert>
+          ) : null}
+        </div>
         {loading && messages.length === 0 ? (
           <div className="flex min-h-32 items-center justify-center">
             <CircularProgressIndicator size="medium" />
@@ -122,23 +129,28 @@ export function VoicemailDropPanel({
           <List aria-label={t('prerecordedMessages')}>
             {messages.map((message) => (
               <ListItem key={message.id} size="small">
-                <Icon symbol={PlayOutlinedMd} size="medium" />
+                <Icon
+                  symbol={VoicemailMd}
+                  size="medium"
+                  className="text-neutral-b2"
+                  aria-hidden
+                />
                 <ListItemText
                   primary={message.label}
                   classes={{ root: 'min-w-0', primary: 'truncate' }}
                 />
-                <IconButton
-                  variant="icon"
+                <Button
+                  variant="outlined"
                   color="primary"
-                  size="medium"
-                  symbol={SendFilledMd}
+                  size="small"
+                  className="shrink-0"
                   disabled={droppingMessageId !== null}
                   data-sign={`voicemailDrop-${message.id}`}
-                  TooltipProps={{
-                    title: t('dropMessage', { name: message.label }),
-                  }}
+                  aria-label={t('dropMessage', { name: message.label })}
                   onClick={() => void dropMessage(message.id)}
-                />
+                >
+                  {t('drop')}
+                </Button>
               </ListItem>
             ))}
           </List>

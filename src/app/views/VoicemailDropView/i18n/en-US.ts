@@ -2,18 +2,18 @@ export default {
   voicemailDrop: 'Voicemail drop',
   close: 'Close voicemail drop',
   back: 'Back',
-  pickerInfo:
-    'Pick a pre-recorded message to drop. The message is sent automatically after the voicemail greeting ends, and the call continues in the background until delivery finishes.',
+  pickerInfo: 'Plays automatically when the voicemail greeting ends.',
   prerecordedMessages: 'Pre-recorded messages',
   noMessages: 'No pre-recorded messages',
   noMessagesDescription:
     'Create a message in Settings before using voicemail drop.',
+  drop: 'Drop',
   dropMessage: 'Drop {name}',
   dropFailed: 'The voicemail message could not be dropped. Try again.',
   loadFailed: 'External voicemail messages could not be loaded.',
   settingsTitle: 'Voicemail drop',
   settingsInfo:
-    'Create the audio messages available during outbound calls and tune how long voicemail silence is detected before a message starts.',
+    'Messages you can drop when an outbound call reaches voicemail.',
   silenceDuration: 'Silence before sending',
   silenceDurationDescription:
     'The message starts after this many seconds of silence when no voicemail beep is detected.',
@@ -25,7 +25,7 @@ export default {
   messageName: 'Message name',
   audioFile: 'Audio file',
   chooseAudioFile: 'Choose audio file',
-  replaceAudioFile: 'Replace audio file',
+  replaceAudioFile: 'Replace',
   audioFileHelp: 'Use an MP3 or WAV file up to 8 MB.',
   invalidFileType: 'Choose an MP3 or WAV audio file.',
   fileTooLarge: 'The audio file must be 8 MB or smaller.',
