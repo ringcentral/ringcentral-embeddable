@@ -9,6 +9,7 @@ import {
   List,
   ListItem,
   ListItemText,
+  Tag,
   Text,
 } from '@ringcentral/spring-ui';
 import React, { useEffect, useRef, useState } from 'react';
@@ -18,18 +19,31 @@ import { SideWidgetPageHeader } from '../SideWidgetView/SideWidgetPageHeader';
 
 import i18n from './i18n';
 
-type PickerError = 'dropFailed' | 'loadFailed';
+type PickerError = 'dropFailed' | 'busyStateFailed' | 'loadFailed';
+
+/**
+ * `true` once the message is dropped. `false` for a failure with no specific
+ * reason, or `busyStateFailed` when a RingCX call could not be handed over
+ * because the RingEX busy state stayed on.
+ */
+export type VoicemailDropOutcome = boolean | 'busyStateFailed';
 
 export function VoicemailDropPanel({
+  forCxCall = false,
   messages,
   onClose,
   onDrop,
   onLoad,
   showCloseButton,
 }: {
+  /**
+   * A RingCX call leaves the agent's line once the drop starts, so the agent
+   * is told they can take the next call.
+   */
+  forCxCall?: boolean;
   messages: VoicemailMessage[];
   onClose: () => void;
-  onDrop: (messageId: string) => Promise<boolean>;
+  onDrop: (messageId: string) => Promise<VoicemailDropOutcome>;
   onLoad: () => Promise<void>;
   showCloseButton: boolean;
 }) {
@@ -65,9 +79,9 @@ export function VoicemailDropPanel({
     setError(null);
     setDroppingMessageId(messageId);
     try {
-      const dropped = await onDrop(messageId);
-      if (!dropped && mountedRef.current) {
-        setError('dropFailed');
+      const outcome = await onDrop(messageId);
+      if (outcome !== true && mountedRef.current) {
+        setError(outcome === 'busyStateFailed' ? outcome : 'dropFailed');
       }
     } catch {
       if (mountedRef.current) {
@@ -95,17 +109,30 @@ export function VoicemailDropPanel({
       {/* The list runs edge to edge: its items carry their own inset. */}
       <div className="flex-auto overflow-y-auto py-4">
         <div className="mb-2 px-4">
-          <Text
-            component="h2"
-            className="typography-labelSemiBold text-neutral-b0"
-          >
-            {t('prerecordedMessages')}
-          </Text>
+          <div className="flex items-center gap-2">
+            <Text
+              component="h2"
+              className="typography-labelSemiBold text-neutral-b0"
+            >
+              {t('prerecordedMessages')}
+            </Text>
+            {/* Dropping by transfer to the agent's own extension is new. */}
+            {forCxCall ? (
+              <Tag
+                color="warning"
+                variant="inverted"
+                className="shrink-0"
+                data-sign="voicemailDropExperimental"
+              >
+                {t('experimental')}
+              </Tag>
+            ) : null}
+          </div>
           <Text
             component="p"
             className="typography-descriptor mt-1 text-neutral-b2"
           >
-            {t('pickerInfo')}
+            {t(forCxCall ? 'cxPickerInfo' : 'pickerInfo')}
           </Text>
           {error ? (
             <Alert severity="error" className="mt-3">

@@ -22,7 +22,7 @@ import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
 import { AppFooterNav, AppHeaderNav, AppAnnouncement } from '@ringcentral-integration/micro-core/src/app/components';
 import { PageHeader } from '@ringcentral-integration/next-widgets/components';
 import { Toast } from '@ringcentral-integration/micro-core/src/app/services';
-import { Chip, Icon, Textarea, CallButton, Tooltip } from '@ringcentral/spring-ui';
+import { Chip, Icon, IconButton, Textarea, CallButton, Tooltip } from '@ringcentral/spring-ui';
 import {
   ActiveCallMd,
   CaretRightMd,
@@ -36,6 +36,7 @@ import {
   StopMd,
   DialpadMd,
   TeamFilledMd,
+  VoicemailMd,
 } from '@ringcentral/spring-icon';
 
 import { CxPresence } from '../../services/CxPresence';
@@ -47,9 +48,12 @@ import { CxActiveCallControl } from '../../services/CxActiveCallControl';
 import { CxAgentSession } from '../../services/CxAgentSession';
 import { CxTransferCall } from '../../services/CxTransferCall';
 import { CxRequeueCall } from '../../services/CxRequeueCall';
+import { CxVoicemailDrop } from '../../services/CxVoicemailDrop';
 import { CxAuth } from '../../services/CxAuth';
 import { RingCXSideWidgets } from '../../services/RingCXSideWidgets';
 import { RoutedSideWidgetView } from '../../../app/views/RoutedSideWidgetView';
+import { splitCallActions } from '../../../app/views/CallView/CallControlView/CallControl.helper';
+import { CallControlMoreButton } from '../../../app/views/CallView/CallControlView/CallControlMoreButton';
 import { dialoutStatuses } from '../../enums';
 import { cxPath } from '../../routes';
 import { isOnLiveCallPage } from '../../utils/isOnLiveCallPage';
@@ -62,6 +66,14 @@ import type { CxCallDispositionData } from '../../services/CxCallDisposition/CxC
 
 import { CallControlGrid } from '../../components/CallControlGrid';
 import type { CallControlAction } from '../../components/CallControlGrid';
+
+/**
+ * Two rows of three keep the grid above the end call button without scrolling.
+ * The rest move beside that button, from the end of the list, so Voicemail
+ * drop, which must happen while the greeting plays, stays in the grid. A
+ * single extra action shows as its own button, more than one as a "more" menu.
+ */
+const MAX_VISIBLE_CALL_ACTIONS = 6;
 import { IvrAlertPanel } from '../../components/IvrAlertPanel';
 import { DialpadPanel } from '../../components/DialpadPanel';
 import { EndCallDialog } from '../../components/EndCallDialog';
@@ -118,6 +130,8 @@ class CxActiveCallView extends RcViewModule {
     private ringCXSideWidgets?: RingCXSideWidgets,
     @optional()
     private routedSideWidgetView?: RoutedSideWidgetView,
+    @optional()
+    private cxVoicemailDrop?: CxVoicemailDrop,
   ) {
     super();
     this.storagePlugin.enable(this);
@@ -675,6 +689,7 @@ class CxActiveCallView extends RcViewModule {
     callControlPermissions,
     isIntegratedSoftphone,
     allowTransfer,
+    canDropVoicemail,
     showRecordButton,
     uiFunctions,
     handleHoldToggle,
@@ -692,6 +707,7 @@ class CxActiveCallView extends RcViewModule {
     callControlPermissions: CxActiveCallViewUIProps['callControlPermissions'];
     isIntegratedSoftphone: boolean;
     allowTransfer: boolean;
+    canDropVoicemail: boolean;
     showRecordButton: boolean;
     uiFunctions: CxActiveCallViewUIFunctions;
     handleHoldToggle: () => void;
@@ -744,6 +760,17 @@ class CxActiveCallView extends RcViewModule {
         tooltip: isAutoIndicator ? 'Recording' : undefined,
       },
     ];
+    if (canDropVoicemail) {
+      actions.push({
+        actionType: 'voicemailDrop',
+        symbol: VoicemailMd,
+        label: t('voicemailDrop'),
+        tooltip: t('voicemailDropExperimental'),
+        onClick: uiFunctions.onVoicemailDrop,
+        // On hold, the callee's mailbox would record hold music.
+        disabled: isInComingCall || isOnHold,
+      });
+    }
     // A call without dispositions has nothing to pick; its notes still go
     // to the call log when it ends.
     if (showDisposition) {
@@ -784,6 +811,10 @@ class CxActiveCallView extends RcViewModule {
       isCallDisposed,
       showDisposition: shouldShowDispositionSubmitStep(call),
       allowTransfer: this.allowTransfer,
+      // The drop plays on the webphone, so it needs the integrated softphone.
+      canDropVoicemail:
+        this.cxAgentSession.isIntegratedSoftphone &&
+        Boolean(this.cxVoicemailDrop?.canDropVoicemail(callId)),
       isDefaultRecord: this.isDefaultRecord,
       isInbound: this.isInbound,
       notes: dispositionData?.notes || '',
@@ -812,6 +843,7 @@ class CxActiveCallView extends RcViewModule {
       onRestartTimer: () => this.onRestartTimer(),
       onActiveCall: () => this.goToActiveCallList(),
       onTransfer: () => this.goToTransferPage(),
+      onVoicemailDrop: () => this.cxVoicemailDrop?.openPicker(this.callId),
       onDisposition: () => this.goToDispositionPage(),
       setKeypadOpen: (isOpen) => this.setKeypadOpen(isOpen),
       handleKeypadChange: (value) => this.handleKeypadChange(value),
@@ -912,6 +944,7 @@ class CxActiveCallView extends RcViewModule {
       isCallDisposed,
       showDisposition,
       allowTransfer,
+      canDropVoicemail,
       isDefaultRecord,
       isInbound,
       notes,
@@ -1145,6 +1178,7 @@ class CxActiveCallView extends RcViewModule {
       callControlPermissions,
       isIntegratedSoftphone,
       allowTransfer,
+      canDropVoicemail,
       showRecordButton,
       uiFunctions,
       handleHoldToggle,
@@ -1173,6 +1207,9 @@ class CxActiveCallView extends RcViewModule {
         };
       }
     }
+
+    const { visible: visibleCallActions, overflow: overflowCallActions } =
+      splitCallActions(callActions, MAX_VISIBLE_CALL_ACTIONS);
 
     return (
       <div className="flex flex-col h-full bg-neutral-base overflow-hidden">
@@ -1262,7 +1299,7 @@ class CxActiveCallView extends RcViewModule {
             )}
             <div className="flex-1" />
             <div className="px-6 py-4">
-              <CallControlGrid actions={callActions} />
+              <CallControlGrid actions={visibleCallActions} />
             </div>
           </div>
 
@@ -1276,7 +1313,7 @@ class CxActiveCallView extends RcViewModule {
         </div>
 
         <div className="flex-shrink-0">
-          <div className="flex justify-center py-4">
+          <div className="relative flex justify-center py-4">
             <CallButton
               variant="end"
               onClick={handleHangupClick}
@@ -1285,6 +1322,43 @@ class CxActiveCallView extends RcViewModule {
               data-sign="hangupButton"
               TooltipProps={{ title: t('hangUp') }}
             />
+            {overflowCallActions.length > 0 ? (
+              // Absolutely positioned so the end call button stays centered
+              <div className="absolute right-10 top-1/2 -translate-y-1/2">
+                {overflowCallActions.length === 1 ? (
+                  // A menu of one item is a needless extra click
+                  <IconButton
+                    size="medium"
+                    color="secondary"
+                    variant="outlined"
+                    symbol={overflowCallActions[0].symbol}
+                    disabled={overflowCallActions[0].disabled}
+                    onClick={overflowCallActions[0].onClick}
+                    data-sign={overflowCallActions[0].actionType}
+                    aria-label={overflowCallActions[0].label}
+                    TooltipProps={{
+                      title:
+                        overflowCallActions[0].tooltip ??
+                        overflowCallActions[0].label,
+                    }}
+                  />
+                ) : (
+                  <CallControlMoreButton
+                    actions={overflowCallActions.map(
+                      ({ actionType, symbol, label, disabled, onClick }) => ({
+                        actionType,
+                        symbol,
+                        label,
+                        disabled,
+                        onClick,
+                      }),
+                    )}
+                    flipNumbers={[]}
+                    onAction={() => undefined}
+                  />
+                )}
+              </div>
+            ) : null}
           </div>
         </div>
 

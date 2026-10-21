@@ -93,6 +93,12 @@ const COMMAND_METHODS = [
   // a tab has to be forwarded or it silently finds nothing to update.
   'updateRecordStatus',
   'setForwardFlag',
+  // App-specific: RingCX voicemail drop. Hints and session records both live
+  // on the server. The silent answer is deliberately not media-starting: it
+  // must not move media ownership to whichever tab asked.
+  'registerCxVoicemailDropHint',
+  'clearCxVoicemailDropHint',
+  'answerCxVoicemailDrop',
 ] as const;
 
 /** Commands that begin call media, so the acting tab should own it. */

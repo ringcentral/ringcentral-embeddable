@@ -11,6 +11,8 @@ export default {
   keypad: 'Keypad',
   hangUp: 'Hang Up',
   transfer: 'Transfer',
+  voicemailDrop: 'Voicemail drop',
+  voicemailDropExperimental: 'Voicemail drop (experimental)',
   disposition: 'Disposition',
   record: 'Record',
   stopRecord: 'Stop Rec',

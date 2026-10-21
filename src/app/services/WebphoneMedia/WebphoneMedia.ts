@@ -87,6 +87,8 @@ export interface WebphoneNoiseReductionLike {
 interface MediaProviderContext extends WebphoneMediaContext {
   readonly providerId: string;
   ownerRevision: number;
+  /** Set by {@link WebphoneMedia.markCallSilent}; crosses to the owner tab. */
+  silent?: boolean;
 }
 
 type MediaProviderRecord = {
@@ -160,6 +162,10 @@ export class BrowserWebRtcSession implements WebphoneWebRtcSession {
 
   private _disposeHandlers = new Set<() => void>();
 
+  private _silent = false;
+
+  private _silentAudioContext?: AudioContext;
+
   constructor(
     private readonly _context: WebphoneMediaContext,
     private readonly _audioSettings?: AudioSettings,
@@ -175,6 +181,23 @@ export class BrowserWebRtcSession implements WebphoneWebRtcSession {
 
   get disposed() {
     return this._disposed;
+  }
+
+  /**
+   * Runs the call with no microphone and no speaker.
+   *
+   * Used for the RingCX voicemail-drop leg, which only plays a recording: the
+   * outbound track is a generated silent one, and the remote audio is never
+   * attached to an `<audio>` element. Must be set before `createAnswer` for the
+   * microphone never to be opened.
+   */
+  setSilent() {
+    if (this._silent) return;
+    this._silent = true;
+    if (this._audio) {
+      this._audio.pause?.();
+      this._audio.srcObject = null;
+    }
   }
 
   /**
@@ -282,6 +305,8 @@ export class BrowserWebRtcSession implements WebphoneWebRtcSession {
   }
 
   async changeInputDevice(deviceId: string) {
+    // A silent call never takes the microphone, not even on a device change.
+    if (this._silent) return;
     const peerConnection = await this._ensureReady();
     const nextStream = await this._getInputStream(deviceId);
     const rawTrack = getAudioTrack(nextStream);
@@ -360,6 +385,8 @@ export class BrowserWebRtcSession implements WebphoneWebRtcSession {
     this._inputTrack = undefined;
     this._peerConnection?.close();
     this._peerConnection = undefined;
+    void this._silentAudioContext?.close().catch(() => undefined);
+    this._silentAudioContext = undefined;
     if (this._audio) {
       this._audio.pause?.();
       this._audio.srcObject = null;
@@ -396,7 +423,7 @@ export class BrowserWebRtcSession implements WebphoneWebRtcSession {
     });
     peerConnection.ontrack = ({ streams, track }) => {
       const stream = streams[0];
-      if (!stream) return;
+      if (!stream || this._silent) return;
       this._ensureAudioElement().srcObject = stream;
       track.onended = () => undefined;
     };
@@ -406,11 +433,41 @@ export class BrowserWebRtcSession implements WebphoneWebRtcSession {
 
   private async _ensureLocalStream(peerConnection: RTCPeerConnection) {
     if (this._localStream) return;
+    if (this._silent) {
+      this._addSilentStream(peerConnection);
+      return;
+    }
     const stream = await this._getInputStream();
     await this._applyNoiseReduction(stream);
     const track = getAudioTrack(stream);
     track.enabled = !this._muted;
     peerConnection.addTrack(track, stream);
+    this._localStream = stream;
+    this._inputTrack = track;
+  }
+
+  /**
+   * Gives the peer connection a generated silent track instead of the
+   * microphone. Voicemail drop needs an audio sender to swap its recording
+   * into, and a track that is live but silent for the greeting.
+   */
+  private _addSilentStream(peerConnection: RTCPeerConnection) {
+    const AudioContextClass =
+      globalThis.AudioContext ||
+      (globalThis as { webkitAudioContext?: typeof AudioContext })
+        .webkitAudioContext;
+    if (!AudioContextClass) {
+      throw new Error('AudioContext is unavailable in this runtime');
+    }
+    const audioContext = new AudioContextClass();
+    // A context the autoplay policy left suspended may send no frames at all.
+    // Silence is all this track carries, so a refused resume is harmless.
+    void audioContext.resume().catch(() => undefined);
+    const stream = audioContext.createMediaStreamDestination().stream;
+    const track = getAudioTrack(stream);
+    track.enabled = !this._muted;
+    peerConnection.addTrack(track, stream);
+    this._silentAudioContext = audioContext;
     this._localStream = stream;
     this._inputTrack = track;
   }
@@ -520,6 +577,12 @@ export class WebphoneMedia extends RcModule {
   private _sessions = new Map<string, BrowserWebRtcSession>();
 
   private _providerContexts = new Map<string, MediaProviderContext>();
+
+  /**
+   * Calls marked silent before the SDK built their media session; the SDK only
+   * does that inside `answer()`. Consumed by `createWebRtcSession`.
+   */
+  private _pendingSilentCallIds = new Set<string>();
 
   private _ownerLossSubject = new Subject<WebphoneMediaOwnerLoss>();
 
@@ -895,6 +958,7 @@ export class WebphoneMedia extends RcModule {
   }
 
   createWebRtcSession(context: WebphoneMediaContext): WebphoneWebRtcSession {
+    const silent = this._pendingSilentCallIds.delete(context.callId);
     if (!this._usesDelegatedMedia) {
       const providerId = createId();
       const session = new BrowserWebRtcSession(
@@ -903,6 +967,7 @@ export class WebphoneMedia extends RcModule {
         this._noiseReduction,
         () => this._handleLocalSessionDisposed(providerId),
       );
+      if (silent) session.setSilent();
       this._sessions.set(providerId, session);
       this._clearMediaOwnerSessionTimeout();
       return session;
@@ -917,6 +982,7 @@ export class WebphoneMedia extends RcModule {
       context,
       UNBOUND_OWNER_REVISION,
     );
+    if (silent) providerContext.silent = true;
     this._providerContexts.set(providerId, providerContext);
     this._addProviderRecord(providerId, context.callId, UNBOUND_OWNER_REVISION);
     this.logger.debug('Webphone media provider registered', {
@@ -1043,7 +1109,32 @@ export class WebphoneMedia extends RcModule {
     this._getSession(context).sendDtmf(tones, duration, interToneGap);
   }
 
+  /**
+   * Runs a call with no microphone and no speaker (RingCX voicemail drop).
+   *
+   * Call it before answering. The SDK builds the call's media session inside
+   * `answer()`, so the mark waits for `createWebRtcSession`. With delegated
+   * media, the flag then rides on the provider context, so whichever tab owns
+   * the media now or later builds the session silent.
+   */
+  async markCallSilent(callId: string) {
+    const localSession = this._usesDelegatedMedia
+      ? undefined
+      : this.getLocalSessionByCallId(callId);
+    const contexts = [...this._providerContexts.values()].filter(
+      (context) => context.callId === callId,
+    );
+    localSession?.setSilent();
+    contexts.forEach((context) => {
+      context.silent = true;
+    });
+    if (!localSession && contexts.length === 0) {
+      this._pendingSilentCallIds.add(callId);
+    }
+  }
+
   async disposeByCallId(callId: string) {
+    this._pendingSilentCallIds.delete(callId);
     if (this._usesDelegatedMedia) {
       this._removeProviderRecordsByCallId(callId);
       return;
@@ -1099,6 +1190,7 @@ export class WebphoneMedia extends RcModule {
       }
       this._clearMediaOwnerSessionTimeout();
     }
+    if (context.silent) session.setSilent();
     return session;
   }
 

@@ -18,6 +18,7 @@ import { CxCallHistory } from './services/CxCallHistory';
 import { CxCallMonitor } from './services/CxCallMonitor';
 import { CxRequeueCall } from './services/CxRequeueCall';
 import { CxTransferCall } from './services/CxTransferCall';
+import { CxVoicemailDrop } from './services/CxVoicemailDrop';
 import { CxClient } from './services/CxClient';
 import { CxDirectorySearch } from './services/CxDirectorySearch';
 import { CxIntegratedSoftphone } from './services/CxIntegratedSoftphone';
@@ -118,6 +119,7 @@ export function getRingCXModules(
     CxCallDisposition,
     CxActiveCallControl,
     CxTransferCall,
+    CxVoicemailDrop,
     CxRequeueCall,
     CxWorkingState,
     CxIntegratedSoftphone,

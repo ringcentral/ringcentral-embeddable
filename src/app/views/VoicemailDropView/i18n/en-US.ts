@@ -3,13 +3,19 @@ export default {
   close: 'Close voicemail drop',
   back: 'Back',
   pickerInfo: 'Plays automatically when the voicemail greeting ends.',
+  cxPickerInfo:
+    'Plays automatically when the voicemail greeting ends. The call leaves your line, so you can take your next call right away.',
+  cxDropStarted: 'Voicemail drop started. You can take your next call now.',
   prerecordedMessages: 'Pre-recorded messages',
   noMessages: 'No pre-recorded messages',
   noMessagesDescription:
     'Create a message in Settings before using voicemail drop.',
   drop: 'Drop',
+  experimental: 'Experimental',
   dropMessage: 'Drop {name}',
   dropFailed: 'The voicemail message could not be dropped. Try again.',
+  busyStateFailed:
+    'The voicemail message could not be dropped because your RingEX busy state could not be turned off. The call is still connected.',
   loadFailed: 'External voicemail messages could not be loaded.',
   settingsTitle: 'Voicemail drop',
   settingsInfo:

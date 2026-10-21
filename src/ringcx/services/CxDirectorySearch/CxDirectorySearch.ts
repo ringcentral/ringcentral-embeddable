@@ -8,14 +8,16 @@ import {
   state,
 } from '@ringcentral-integration/next-core';
 
+import type { CxHostIntegration } from '../../../app/services/RingCX/RingCX.interface';
 import { CxAuth } from '../CxAuth';
 import { CxClient } from '../CxClient';
-import type {
-  DirectoryRecord,
-  DirectorySearchScope,
-  DirectorySearchScopeState,
-  CxDirectorySearchOptions,
-  SearchDirectoryResponse,
+import {
+  directorySearchScopes,
+  type DirectoryRecord,
+  type DirectorySearchScope,
+  type DirectorySearchScopeState,
+  type CxDirectorySearchOptions,
+  type SearchDirectoryResponse,
 } from './CxDirectorySearch.interface';
 
 const SEARCH_DEBOUNCE_MS = 400;
@@ -53,6 +55,8 @@ class CxDirectorySearch extends RcModule {
     private portManager: PortManager,
     @optional('CxDirectorySearchOptions')
     private evDirectorySearchOptions?: CxDirectorySearchOptions,
+    @optional('CxHostIntegration')
+    private readonly _host?: CxHostIntegration,
   ) {
     super();
     if (this.portManager?.shared) {
@@ -259,7 +263,11 @@ class CxDirectorySearch extends RcModule {
         return;
       }
       this._setScope(scope, {
-        records: response?.records ?? [],
+        records: this._withCurrentUserRecord(
+          scope,
+          searchString,
+          response?.records ?? [],
+        ),
         mainNumber: response?.mainNumber ?? '',
       });
     } catch (error) {
@@ -272,6 +280,49 @@ class CxDirectorySearch extends RcModule {
         this._setScope(scope, { isSearching: false });
       }
     }
+  }
+
+  /**
+   * TEMPORARY: the directory API leaves the signed-in user out of its results,
+   * so the transfer panel cannot target the agent's own RingEX extension. That
+   * transfer is what the CX voicemail drop spike needs
+   * (`plans/cx-voicemail-drop`). Remove this once the API returns the user, or
+   * once the drop flow builds its own destination.
+   */
+  private _withCurrentUserRecord(
+    scope: DirectorySearchScope,
+    searchString: string,
+    records: DirectoryRecord[],
+  ): DirectoryRecord[] {
+    const currentExtension = this._host?.currentExtension;
+    if (
+      scope !== directorySearchScopes.transferManualEntry ||
+      !currentExtension ||
+      records.some(
+        (record) =>
+          record.extensionNumber === currentExtension.extensionNumber,
+      )
+    ) {
+      return records;
+    }
+    const query = searchString.toLowerCase();
+    const matches =
+      currentExtension.extensionNumber.startsWith(searchString) ||
+      currentExtension.name.toLowerCase().includes(query);
+    if (!matches) {
+      return records;
+    }
+    return [
+      {
+        id: currentExtension.extensionId,
+        name: currentExtension.name,
+        extensionNumber: currentExtension.extensionNumber,
+        account: {
+          mainNumber: { phoneNumber: currentExtension.mainNumber },
+        },
+      },
+      ...records,
+    ];
   }
 
   initialize(): void {

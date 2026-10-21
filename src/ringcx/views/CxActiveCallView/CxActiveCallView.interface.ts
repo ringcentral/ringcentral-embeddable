@@ -79,6 +79,8 @@ export interface CxActiveCallViewUIProps {
   /** Whether the call has dispositions for the agent to pick from. */
   showDisposition: boolean;
   allowTransfer: boolean;
+  /** Whether a pre-recorded voicemail can be dropped on this call. */
+  canDropVoicemail: boolean;
   isDefaultRecord: boolean;
   isInbound: boolean;
   notes: string;
@@ -107,6 +109,7 @@ export interface CxActiveCallViewUIFunctions {
   onRestartTimer: () => Promise<void>;
   onActiveCall: () => void;
   onTransfer: () => void;
+  onVoicemailDrop: () => void;
   onDisposition: () => void;
   setKeypadOpen: (isOpen: boolean) => void;
   handleKeypadChange: (value: string) => void;

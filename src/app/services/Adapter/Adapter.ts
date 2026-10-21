@@ -97,6 +97,7 @@ import { resolveLegacyAdapterPath } from './resolveLegacyAdapterPath';
 
 import { SmartNotes } from '../SmartNotes';
 import { isCxRcExtExBridgeCall } from '../ActiveCallControl/is-cx-rc-ext-ex-bridge-call';
+import { isCxVoicemailDropHintCall } from '../WebphoneV2/cxVoicemailDropSip';
 import {
   PhoneNumberFormat,
   type PhoneNumberFormatInput,
@@ -1989,6 +1990,11 @@ export class Adapter extends RcModule {
     }
     const nextMap = new Map<string, string>();
     (this._presence.activeCalls || []).forEach((call: any) => {
+      // Not recorded in `nextMap`, so a call that stops matching, once an
+      // unused hint expires, is still announced as new.
+      if (this._isHiddenCxVoicemailDropCall(call)) {
+        return;
+      }
       const key = `${call.sessionId}${call.direction}`;
       const signature = `${call.telephonyStatus ?? ''}|${call.terminationType ?? ''}`;
       nextMap.set(key, signature);
@@ -2060,6 +2066,33 @@ export class Adapter extends RcModule {
       return;
     }
     this._dismissExPostCallView();
+  }
+
+  /**
+   * A presence call that is a RingCX voicemail drop: matched, or still waiting
+   * for its INVITE. It is not the agent's call, so hosts are not told about it
+   * and do not log it.
+   */
+  private _isHiddenCxVoicemailDropCall(call: {
+    telephonySessionId?: string;
+    direction?: string;
+    from?: string | { phoneNumber?: string };
+  }): boolean {
+    const isMatched = Boolean(
+      call.telephonySessionId &&
+        this._webphoneV2.cxVoicemailDropCalls.some(
+          (dropCall) => dropCall.telephonySessionId === call.telephonySessionId,
+        ),
+    );
+    return (
+      isMatched ||
+      isCxVoicemailDropHintCall({
+        hints: this._webphoneV2.cxVoicemailDropHints,
+        direction: call.direction,
+        fromNumber:
+          typeof call.from === 'string' ? call.from : call.from?.phoneNumber,
+      })
+    );
   }
 
   private _isCxOffhookWebphoneSession(session: NormalizedSession): boolean {

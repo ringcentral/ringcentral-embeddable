@@ -1,4 +1,5 @@
 import { track } from '@ringcentral-integration/micro-auth/src/app/services';
+import { Toast } from '@ringcentral-integration/micro-core/src/app/services';
 import { Webphone as MicroPhoneWebphone } from '@ringcentral-integration/micro-phone/src/app/services';
 import {
   action,
@@ -15,6 +16,7 @@ import {
 import React, { useRef } from 'react';
 
 import { embeddableTrackEvents } from '../../services/Analytics/embeddableTrackEvents';
+import type { CxVoicemailDropResult } from '../../services/RingCX/RingCX.interface';
 import { VoicemailDrop } from '../../services/VoicemailDrop';
 import type { Webphone } from '../../services/WebphoneV2';
 import {
@@ -23,8 +25,20 @@ import {
   type SideWidgetContentViewProps,
 } from '../SideWidgetView';
 
-import { VoicemailDropPanel } from './VoicemailDropPanel';
+import {
+  VoicemailDropPanel,
+  type VoicemailDropOutcome,
+} from './VoicemailDropPanel';
 import { t } from './i18n';
+
+/**
+ * Drops a message on a RingCX call. The RingCX chunk supplies it, because only
+ * the chunk can transfer a CX call.
+ */
+export type CxVoicemailDropHandler = (
+  cxCallId: string,
+  messageId: string,
+) => Promise<CxVoicemailDropResult>;
 
 @injectable({
   name: 'VoicemailDropView',
@@ -36,6 +50,7 @@ export class VoicemailDropView extends RcViewModule {
     @inject(MicroPhoneWebphone) private _webphone: Webphone,
     private _router: RouterPlugin,
     private _portManager: PortManager,
+    private _toast: Toast,
   ) {
     super();
   }
@@ -43,7 +58,14 @@ export class VoicemailDropView extends RcViewModule {
   @state
   currentSessionId: string | null = null;
 
+  /** The RingCX call the picker is open for, instead of a RingEX session. */
+  @state
+  currentCxCallId: string | null = null;
+
   private _stopWatchingSession: (() => void) | null = null;
+
+  /** Per port: the picker runs its drop on the port that shows it. */
+  private _cxDropHandler: CxVoicemailDropHandler | null = null;
 
   override onInit(): void {
     // The tab and its call are server state, so only the server closes it.
@@ -72,15 +94,27 @@ export class VoicemailDropView extends RcViewModule {
   override onReset(): void {
     this._stopWatchingSession?.();
     this._stopWatchingSession = null;
-    if (this.currentSessionId) {
+    if (this.currentSessionId || this.currentCxCallId) {
       void this.close({ collapseWhenLast: true });
     }
-    this._setCurrentSessionId(null);
+    this._setTarget({ sessionId: null, cxCallId: null });
   }
 
   @action
-  private _setCurrentSessionId(sessionId: string | null): void {
+  private _setTarget({
+    sessionId,
+    cxCallId,
+  }: {
+    sessionId: string | null;
+    cxCallId: string | null;
+  }): void {
     this.currentSessionId = sessionId;
+    this.currentCxCallId = cxCallId;
+  }
+
+  /** Lets the RingCX chunk run drops for the CX calls it opens the picker for. */
+  setCxDropHandler(handler: CxVoicemailDropHandler | null): void {
+    this._cxDropHandler = handler;
   }
 
   /**
@@ -95,7 +129,27 @@ export class VoicemailDropView extends RcViewModule {
       return;
     }
     this._sideWidgetView.openContent(this._sideWidgetHandle);
-    this._setCurrentSessionId(sessionId);
+    this._setTarget({ sessionId, cxCallId: null });
+  }
+
+  /** Opens the picker for a RingCX call. See {@link open} for the port. */
+  @delegate('server')
+  @track(embeddableTrackEvents.openVoicemailDrop)
+  async openForCxCall(cxCallId: string): Promise<void> {
+    if (!this._voicemailDrop.hasVoicemailDropPermission) {
+      return;
+    }
+    this._sideWidgetView.openContent(this._sideWidgetHandle);
+    this._setTarget({ sessionId: null, cxCallId });
+  }
+
+  /** Closes the picker if it is open for this RingCX call, e.g. when it ends. */
+  @delegate('server')
+  async closeForCxCall(cxCallId: string): Promise<void> {
+    if (this.currentCxCallId !== cxCallId) return;
+    this._sideWidgetView.closeContent(this._sideWidgetHandle, {
+      collapseWhenLast: true,
+    });
   }
 
   @delegate('server')
@@ -104,7 +158,10 @@ export class VoicemailDropView extends RcViewModule {
   }
 
   @track(embeddableTrackEvents.dropVoicemailMessage)
-  private async _dropMessage(messageId: string): Promise<boolean> {
+  private async _dropMessage(messageId: string): Promise<VoicemailDropOutcome> {
+    if (this.currentCxCallId) {
+      return this._dropCxMessage(this.currentCxCallId, messageId);
+    }
     const sessionId = this.currentSessionId;
     if (!sessionId) {
       return false;
@@ -120,6 +177,28 @@ export class VoicemailDropView extends RcViewModule {
     return dropped;
   }
 
+  /**
+   * The CX call page follows the call itself: the transfer ends the call for
+   * the agent, and the route coordinator moves on to disposition.
+   */
+  private async _dropCxMessage(
+    cxCallId: string,
+    messageId: string,
+  ): Promise<VoicemailDropOutcome> {
+    if (!this._cxDropHandler) {
+      return false;
+    }
+    const result = await this._cxDropHandler(cxCallId, messageId);
+    if (result === 'transferred') {
+      void this.close();
+      // The agent lands on disposition with no call on the line; say that the
+      // message plays on without them.
+      this._toast.success({ message: t('cxDropStarted') });
+      return true;
+    }
+    return result === 'busyStateFailed' ? result : false;
+  }
+
   private async _loadMessages(): Promise<void> {
     await this._voicemailDrop.fetchExternalVoicemailDropFiles();
   }
@@ -128,10 +207,11 @@ export class VoicemailDropView extends RcViewModule {
     id: 'voicemail-drop',
     name: t('voicemailDrop'),
     getName: () => t('voicemailDrop'),
-    onClose: () => this._setCurrentSessionId(null),
+    onClose: () => this._setTarget({ sessionId: null, cxCallId: null }),
     view: ({ showCloseButton }: SideWidgetContentViewProps) => {
       const uiProps = useConnector(() => ({
         messages: this._voicemailDrop.allMessages.slice(),
+        forCxCall: Boolean(this.currentCxCallId),
       }));
       const { current: uiFunctions } = useRef({
         onClose: () => this.close(),
@@ -142,6 +222,7 @@ export class VoicemailDropView extends RcViewModule {
       return (
         <VoicemailDropPanel
           messages={uiProps.messages}
+          forCxCall={uiProps.forCxCall}
           showCloseButton={showCloseButton}
           {...uiFunctions}
         />

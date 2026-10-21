@@ -12,6 +12,7 @@ import {
   Client,
   ConnectivityMonitor,
   Environment,
+  ExtensionFeatures,
   ExtensionInfo,
   ExtensionNumberAreaCode,
   NumberFormatter,
@@ -223,6 +224,7 @@ import {
   AudioInit,
   NoiseReduction,
   VoicemailDrop,
+  CxVoicemailDropRunner,
   ActiveCallControl as ActiveCallControlV2,
   Call as CallV2,
   CallMonitor as CallMonitorV2,
@@ -256,6 +258,10 @@ import {
   getDisabledFeatureConfiguration,
 } from './services/AppFeatures/getDisabledFeatureConfiguration';
 import { createQueueConversationsOptions } from './services/AppFeatures/createQueueConversationsOptions';
+import {
+  canDisableCxBusyState,
+  disableCxBusyState,
+} from './services/RingCX/disableCxBusyState';
 import type { CxHostIntegration } from './services/RingCX/RingCX.interface';
 import { ThirdPartyBannerView } from './views/ThirdPartyBannerView';
 import { createThirdPartyIntegrationConfig } from './services/ThirdParty/ThirdParty.integrationConfig';
@@ -478,6 +484,8 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       AudioInit,
       NoiseReduction,
       VoicemailDrop,
+      // Answers and plays RingCX voicemail drops handed over to the webphone.
+      CxVoicemailDropRunner,
       {
         provide: CallingSettings,
         useClass: CallingSettingsV2,
@@ -1098,9 +1106,33 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       // have to import the host classes into its own bundle.
       {
         provide: 'CxHostIntegration',
-        useFactory: (adapter: Adapter, call: Call, ringCX: RingCX): CxHostIntegration => ({
+        useFactory: (
+          adapter: Adapter,
+          call: Call,
+          ringCX: RingCX,
+          extensionInfo: ExtensionInfo,
+          accountInfo: AccountInfo,
+          voicemailDrop: VoicemailDrop,
+          voicemailDropView: VoicemailDropView,
+          webphone: WebphoneV2,
+          client: Client,
+          extensionFeatures: ExtensionFeatures,
+        ): CxHostIntegration => ({
           get isCallIdle() {
             return call.isIdle;
+          },
+          get currentExtension() {
+            const extensionNumber = extensionInfo.extensionNumber;
+            const mainNumber = accountInfo.mainCompanyNumber;
+            if (!extensionInfo.ready || !accountInfo.ready || !extensionNumber || !mainNumber) {
+              return null;
+            }
+            return {
+              extensionId: String(extensionInfo.id),
+              extensionNumber,
+              name: extensionInfo.name ?? '',
+              mainNumber,
+            };
           },
           showClientWindow: () => adapter.showClientWindow(),
           registerExBridgeDestination: (destination, directory) => {
@@ -1112,8 +1144,43 @@ export const getAppConfig = <T extends typeof createSharedApp>({
           dismissExCallUiForCxCall: () => {
             adapter.dismissExCallUiForCxCall();
           },
+          get hasVoicemailDropPermission() {
+            return voicemailDrop.hasVoicemailDropPermission;
+          },
+          openVoicemailDropForCxCall: (cxCallId: string) =>
+            voicemailDropView.openForCxCall(cxCallId),
+          closeVoicemailDropForCxCall: (cxCallId: string) =>
+            voicemailDropView.closeForCxCall(cxCallId),
+          setVoicemailDropHandler: (handler) => {
+            voicemailDropView.setCxDropHandler(handler);
+          },
+          registerVoicemailDropHint: (hint) =>
+            webphone.registerCxVoicemailDropHint(hint),
+          clearVoicemailDropHint: (hintId: string) =>
+            webphone.clearCxVoicemailDropHint(hintId),
+          get canDisableBusyState() {
+            return canDisableCxBusyState(extensionFeatures.features);
+          },
+          disableBusyState: () =>
+            disableCxBusyState({
+              client,
+              features: extensionFeatures.features,
+              accountId: String(accountInfo.id),
+              extensionId: String(extensionInfo.id),
+            }),
         }),
-        deps: [Adapter, Call, RingCX],
+        deps: [
+          Adapter,
+          Call,
+          RingCX,
+          ExtensionInfo,
+          AccountInfo,
+          VoicemailDrop,
+          VoicemailDropView,
+          Webphone,
+          Client,
+          ExtensionFeatures,
+        ],
       },
       {
         provide: 'SmsConversationsOptions',

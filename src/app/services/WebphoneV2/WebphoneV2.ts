@@ -58,6 +58,12 @@ import {
   listSipHeaderNames,
 } from './cxOffhookSip';
 import {
+  CX_VOICEMAIL_DROP_HINT_TTL,
+  findCxVoicemailDropHint,
+  type CxVoicemailDropCall,
+  type CxVoicemailDropHint,
+} from './cxVoicemailDropSip';
+import {
   getHeader,
   getTransferIdentity,
   normalizeSession,
@@ -421,6 +427,21 @@ export class WebphoneV2 extends RcModule {
   @state
   cxOffhookTelephonySessionIds: string[] = [];
 
+  /**
+   * Live RingCX voicemail-drop calls, hidden ones (matched, not dropping yet)
+   * and dropping ones alike. None of them is the agent's call to act on.
+   */
+  @state
+  cxVoicemailDropCalls: CxVoicemailDropCall[] = [];
+
+  /**
+   * Pending RingCX voicemail drops. Only the server matches INVITEs against
+   * them, but they are state so call lists can hide a telephony or presence
+   * event of the transferred call that arrives before its INVITE.
+   */
+  @state
+  cxVoicemailDropHints: CxVoicemailDropHint[] = [];
+
   private _webPhone: WebPhone | null = null;
 
   /**
@@ -548,10 +569,13 @@ export class WebphoneV2 extends RcModule {
   }
 
   private _handleBeforeUnload = (event: BeforeUnloadEvent) => {
-    // `sessions` leaves out the hidden RingCX offhook leg, but closing the tab
-    // that carries its media drops the agent's audio all the same.
+    // `sessions` leaves out the hidden RingCX offhook leg and voicemail-drop
+    // calls, but closing the tab that carries their media ends them all the
+    // same.
     const sessionCount =
-      this.sessions.length + (this.cxOffhookSessionId ? 1 : 0);
+      this.sessions.length +
+      (this.cxOffhookSessionId ? 1 : 0) +
+      this.cxVoicemailDropCalls.filter((call) => call.hidden).length;
     const isLocalMediaOwner = this._webphoneMedia.isLocalMediaOwner;
     const isAuthoritativeBrowser =
       !this._portManager.shared ||
@@ -851,8 +875,110 @@ export class WebphoneV2 extends RcModule {
     });
   }
 
-  private _isCxOffhookSession(sessionId: string) {
-    return Boolean(this._getSession(sessionId)?.isCxOffhook);
+  @action
+  private _setCxVoicemailDropCalls(calls: CxVoicemailDropCall[]) {
+    this.cxVoicemailDropCalls = calls;
+  }
+
+  @action
+  private _setCxVoicemailDropHints(hints: CxVoicemailDropHint[]) {
+    this.cxVoicemailDropHints = hints;
+  }
+
+  /**
+   * Hidden until the drop starts. From then on the call shows in `sessions`
+   * with its drop status, like a RingEX voicemail drop.
+   */
+  private _isHiddenCxVoicemailDrop(record: WebphoneV2SessionRecord) {
+    return (
+      Boolean(record.isCxVoicemailDrop) &&
+      !record.finalized &&
+      !record.normalized.voicemailDropStatus
+    );
+  }
+
+  private _syncCxVoicemailDropState() {
+    const calls = [...this._sessionRecords.values()]
+      .filter((record) => record.isCxVoicemailDrop && !record.finalized)
+      .map((record) => ({
+        sessionId: record.normalized.id,
+        telephonySessionId: record.normalized.partyData?.sessionId ?? null,
+        messageId: record.cxVoicemailDropMessageId ?? '',
+        ringing: record.normalized.callStatus === sessionStatus.connecting,
+        hidden: this._isHiddenCxVoicemailDrop(record),
+      }));
+    if (calls.length === 0 && this.cxVoicemailDropCalls.length === 0) {
+      return;
+    }
+    this._setCxVoicemailDropCalls(calls);
+  }
+
+  /**
+   * Hidden calls raise no call events at all. A voicemail-drop call is not the
+   * agent's call either: it reports through `callVoicemailDropped` instead, so
+   * hosts do not see it ring, start or end, or log it.
+   */
+  private _isSilentToCallEvents(record?: WebphoneV2SessionRecord) {
+    return Boolean(record?.isCxOffhook || record?.isCxVoicemailDrop);
+  }
+
+  /**
+   * Registers a pending RingCX voicemail drop. The next inbound INVITE from
+   * `customerNumber` to `extensionNumber` within the TTL is hidden and kept for
+   * a silent answer instead of ringing.
+   *
+   * Runs on the server, where `WebPhone` sees the INVITEs. The hint removes
+   * itself when the TTL runs out.
+   * @returns the hint id, for {@link clearCxVoicemailDropHint}.
+   */
+  async registerCxVoicemailDropHint({
+    customerNumber,
+    extensionNumber,
+    messageId,
+    ttl = CX_VOICEMAIL_DROP_HINT_TTL,
+  }: {
+    customerNumber: string;
+    extensionNumber: string;
+    messageId: string;
+    ttl?: number;
+  }): Promise<string> {
+    const now = Date.now();
+    const id = `${now}-${Math.random().toString(36).slice(2)}`;
+    this._setCxVoicemailDropHints([
+      ...this.cxVoicemailDropHints.filter((hint) => hint.expiresAt >= now),
+      { id, customerNumber, extensionNumber, messageId, expiresAt: now + ttl },
+    ]);
+    setTimeout(() => {
+      void this.clearCxVoicemailDropHint(id);
+    }, ttl);
+    this.logger.info('Webphone V2 CX voicemail drop hint registered', { ttl });
+    return id;
+  }
+
+  /** Drops a hint that will not be answered, e.g. after a failed transfer. */
+  async clearCxVoicemailDropHint(hintId: string) {
+    this._removeCxVoicemailDropHint(hintId);
+  }
+
+  private _removeCxVoicemailDropHint(hintId: string) {
+    if (!this.cxVoicemailDropHints.some((hint) => hint.id === hintId)) {
+      return;
+    }
+    this._setCxVoicemailDropHints(
+      this.cxVoicemailDropHints.filter((hint) => hint.id !== hintId),
+    );
+  }
+
+  /** Takes the hint the INVITE answers out of the list, so it matches once. */
+  private _consumeCxVoicemailDropHint(inviteMessage: unknown) {
+    const hint = findCxVoicemailDropHint({
+      hints: this.cxVoicemailDropHints,
+      inviteMessage,
+    });
+    if (hint) {
+      this._removeCxVoicemailDropHint(hint.id);
+    }
+    return hint;
   }
 
   /**
@@ -953,7 +1079,12 @@ export class WebphoneV2 extends RcModule {
 
   protected _publishLiveState() {
     const sessions = [...this._sessionRecords.values()]
-      .filter((record) => !record.finalized && !record.isCxOffhook)
+      .filter(
+        (record) =>
+          !record.finalized &&
+          !record.isCxOffhook &&
+          !this._isHiddenCxVoicemailDrop(record),
+      )
       .map((record) => record.normalized)
       .sort((left, right) => right.lastActiveTime - left.lastActiveTime);
     const selected = selectSessionIds(sessions);
@@ -963,13 +1094,14 @@ export class WebphoneV2 extends RcModule {
       selected.ringSessionId,
     );
     this._syncCxOffhookState();
+    this._syncCxVoicemailDropState();
   }
 
   private _publishCallEvent(
     type: WebphoneCallEvent['type'],
     session: WebphoneNormalizedSession,
   ) {
-    if (this._isCxOffhookSession(session.id)) {
+    if (this._isSilentToCallEvents(this._getSession(session.id))) {
       return;
     }
     const event: WebphoneCallEvent = {
@@ -1013,9 +1145,16 @@ export class WebphoneV2 extends RcModule {
     ).sipMessage;
     const isCxOffhook =
       session.direction === 'inbound' && isCxOffhookInvite(inviteMessage);
+    // The offhook check runs first: an offhook INVITE is never a drop call.
+    const cxVoicemailDropHint =
+      session.direction === 'inbound' && !isCxOffhook
+        ? this._consumeCxVoicemailDropHint(inviteMessage)
+        : undefined;
+    const isCxVoicemailDrop = Boolean(cxVoicemailDropHint);
     if (session.direction === 'inbound') {
       this.logger.info('Webphone V2 inbound INVITE classified', {
         isCxOffhook,
+        isCxVoicemailDrop,
         headerNames: listSipHeaderNames(inviteMessage),
         hasCallControlApiIds: Boolean(
           getHeader(inviteMessage, CX_OFFHOOK_INVITE_HEADERS.callControlApiIds),
@@ -1028,6 +1167,8 @@ export class WebphoneV2 extends RcModule {
       revision: 0,
       finalized: false,
       isCxOffhook,
+      isCxVoicemailDrop,
+      cxVoicemailDropMessageId: cxVoicemailDropHint?.messageId,
       ...metadata,
     };
     record.normalized = normalizeSession({
@@ -1051,6 +1192,11 @@ export class WebphoneV2 extends RcModule {
     if (isCxOffhook) {
       // RingCX decides whether to answer or present the invitation when this
       // ringing state reaches CxIntegratedSoftphone.
+      return record;
+    }
+    if (isCxVoicemailDrop) {
+      // Waits in `cxVoicemailDropCalls` for `CxVoicemailDropRunner` to answer
+      // it silently.
       return record;
     }
     this._publishCallEvent(initialEvent, record.normalized);
@@ -1112,7 +1258,7 @@ export class WebphoneV2 extends RcModule {
     record: WebphoneV2SessionRecord,
     eventName: string,
   ) {
-    if (record.isCxOffhook) {
+    if (this._isSilentToCallEvents(record)) {
       this._publishLiveState();
       return;
     }
@@ -1311,7 +1457,7 @@ export class WebphoneV2 extends RcModule {
       this._releaseSession(record);
     }
     this._publishLiveState();
-    if (!record.isCxOffhook) {
+    if (!this._isSilentToCallEvents(record)) {
       this._publishCallEvent('callEnd', terminalSession);
     }
   }
@@ -1720,6 +1866,9 @@ export class WebphoneV2 extends RcModule {
         // reporting `isOnHold: false` to the UI.
         isDroppingVoicemail(record.normalized.voicemailDropStatus) ||
         record.isCxOffhook ||
+        // Held before its drop status lands, the callee's mailbox would record
+        // hold music instead of the message.
+        record.isCxVoicemailDrop ||
         record.normalized.callStatus === sessionStatus.connecting ||
         record.normalized.callStatus === sessionStatus.setup
       ) {
@@ -1900,6 +2049,30 @@ export class WebphoneV2 extends RcModule {
 
   async answer(sessionId: string) {
     const record = this._requireSession(sessionId);
+    await this._answerInbound(record, { holdOthers: true });
+  }
+
+  /**
+   * Answers a hidden RingCX voicemail-drop call with no microphone and no
+   * speaker, leaving every other call as it is.
+   *
+   * The media is marked silent before the SDK asks for the SDP answer, so the
+   * agent's microphone never reaches the callee, not even briefly.
+   */
+  async answerCxVoicemailDrop(sessionId: string) {
+    const record = this._requireSession(sessionId);
+    if (!this._isHiddenCxVoicemailDrop(record)) {
+      return;
+    }
+    await this._webphoneMedia.markCallSilent(record.normalized.callId);
+    await this._answerInbound(record, { holdOthers: false });
+  }
+
+  private async _answerInbound(
+    record: WebphoneV2SessionRecord,
+    { holdOthers }: { holdOthers: boolean },
+  ) {
+    const sessionId = record.normalized.id;
     if (
       record.normalized.direction !== 'Inbound' ||
       record.normalized.callStatus !== sessionStatus.connecting
@@ -1907,7 +2080,9 @@ export class WebphoneV2 extends RcModule {
       return;
     }
     await this._runDestructiveCommand(record, 'answer', async () => {
-      await this._holdOtherSessions(sessionId);
+      if (holdOthers) {
+        await this._holdOtherSessions(sessionId);
+      }
       await this.ensureMediaOwner();
       const session = record.session as InboundWebPhoneSession;
       let resolveAnswered!: () => void;
@@ -2002,7 +2177,10 @@ export class WebphoneV2 extends RcModule {
       // outbound call appears) and user-initiated holds. Legacy achieved this
       // by pre-setting `__rc_localHold` so that check saw the call as already
       // held.
-      if (isDroppingVoicemail(record.normalized.voicemailDropStatus)) {
+      if (
+        isDroppingVoicemail(record.normalized.voicemailDropStatus) ||
+        record.isCxVoicemailDrop
+      ) {
         this.logger.info('Webphone hold skipped while dropping voicemail', {
           sessionId,
         });
