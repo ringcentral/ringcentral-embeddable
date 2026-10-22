@@ -1,5 +1,4 @@
 import { track } from '@ringcentral-integration/micro-auth/src/app/services';
-import { Toast } from '@ringcentral-integration/micro-core/src/app/services';
 import { Webphone as MicroPhoneWebphone } from '@ringcentral-integration/micro-phone/src/app/services';
 import {
   action,
@@ -16,7 +15,6 @@ import {
 import React, { useRef } from 'react';
 
 import { embeddableTrackEvents } from '../../services/Analytics/embeddableTrackEvents';
-import type { CxVoicemailDropResult } from '../../services/RingCX/RingCX.interface';
 import { VoicemailDrop } from '../../services/VoicemailDrop';
 import type { Webphone } from '../../services/WebphoneV2';
 import {
@@ -25,20 +23,17 @@ import {
   type SideWidgetContentViewProps,
 } from '../SideWidgetView';
 
-import {
-  VoicemailDropPanel,
-  type VoicemailDropOutcome,
-} from './VoicemailDropPanel';
+import { VoicemailDropPanel } from './VoicemailDropPanel';
 import { t } from './i18n';
 
 /**
- * Drops a message on a RingCX call. The RingCX chunk supplies it, because only
- * the chunk can transfer a CX call.
+ * Drops a message on a RingCX call and resolves to whether it started. The
+ * RingCX chunk supplies it, because only the chunk knows the CX call.
  */
 export type CxVoicemailDropHandler = (
   cxCallId: string,
   messageId: string,
-) => Promise<CxVoicemailDropResult>;
+) => Promise<boolean>;
 
 @injectable({
   name: 'VoicemailDropView',
@@ -50,7 +45,6 @@ export class VoicemailDropView extends RcViewModule {
     @inject(MicroPhoneWebphone) private _webphone: Webphone,
     private _router: RouterPlugin,
     private _portManager: PortManager,
-    private _toast: Toast,
   ) {
     super();
   }
@@ -158,7 +152,7 @@ export class VoicemailDropView extends RcViewModule {
   }
 
   @track(embeddableTrackEvents.dropVoicemailMessage)
-  private async _dropMessage(messageId: string): Promise<VoicemailDropOutcome> {
+  private async _dropMessage(messageId: string): Promise<boolean> {
     if (this.currentCxCallId) {
       return this._dropCxMessage(this.currentCxCallId, messageId);
     }
@@ -178,25 +172,21 @@ export class VoicemailDropView extends RcViewModule {
   }
 
   /**
-   * The CX call page follows the call itself: the transfer ends the call for
-   * the agent, and the route coordinator moves on to disposition.
+   * The agent stays on the CX call page, which shows the drop status, so the
+   * picker only closes.
    */
   private async _dropCxMessage(
     cxCallId: string,
     messageId: string,
-  ): Promise<VoicemailDropOutcome> {
+  ): Promise<boolean> {
     if (!this._cxDropHandler) {
       return false;
     }
-    const result = await this._cxDropHandler(cxCallId, messageId);
-    if (result === 'transferred') {
+    const dropped = await this._cxDropHandler(cxCallId, messageId);
+    if (dropped) {
       void this.close();
-      // The agent lands on disposition with no call on the line; say that the
-      // message plays on without them.
-      this._toast.success({ message: t('cxDropStarted') });
-      return true;
     }
-    return result === 'busyStateFailed' ? result : false;
+    return dropped;
   }
 
   private async _loadMessages(): Promise<void> {

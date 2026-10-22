@@ -251,25 +251,42 @@ export class VoicemailDrop extends RcModule {
     };
   }
 
+  /**
+   * Waits for the greeting to end, then plays the message.
+   *
+   * `signal` stops the drop at any point without ending the call: the
+   * microphone comes back and the status becomes `cancelled`.
+   */
   async dropVoicemailMessage({
     webphoneSession,
     audioBuffer,
     audioContext,
     endCall,
     updateStatus,
+    signal,
   }: {
     webphoneSession: VoicemailDropMediaHandle;
     audioBuffer: AudioBuffer;
     audioContext: AudioContext;
     endCall: () => Promise<unknown>;
     updateStatus: (status: string) => void;
+    signal?: AbortSignal;
   }) {
     const result = await this._waitVoicemailGreetingEnd({
       webphoneSession,
       audioContext,
       endCall,
+      signal,
     });
+    if (signal?.aborted) {
+      webphoneSession.restoreSessionAudio?.();
+      updateStatus(voicemailDropStatus.cancelled);
+      return;
+    }
     if (!result) {
+      // A call that ends here needs nothing back; one that outlives the drop
+      // would otherwise keep a silenced microphone.
+      webphoneSession.restoreSessionAudio?.();
       updateStatus(voicemailDropStatus.greetingDetectionFailed);
       this._trackVoicemailDropFailed('greetingDetectionFailed');
       return;
@@ -282,6 +299,7 @@ export class VoicemailDrop extends RcModule {
         audioBuffer,
         endCall,
         updateStatus,
+        signal,
       });
     } catch (error) {
       this._trackVoicemailDropFailed('voicemailDropTerminated');
@@ -302,11 +320,16 @@ export class VoicemailDrop extends RcModule {
     webphoneSession,
     audioContext,
     endCall,
+    signal,
   }: {
     webphoneSession: VoicemailDropMediaHandle;
     audioContext: AudioContext;
     endCall: () => Promise<unknown>;
+    signal?: AbortSignal;
   }) {
+    if (signal?.aborted) {
+      return false;
+    }
     const peerConnection = webphoneSession.rtcPeerConnection;
     const receiver = peerConnection
       .getReceivers()
@@ -375,6 +398,15 @@ export class VoicemailDrop extends RcModule {
         disconnect();
         resolve(false);
       });
+      signal?.addEventListener(
+        'abort',
+        () => {
+          clearTimeout(maxWaitTimer);
+          disconnect();
+          resolve(false);
+        },
+        { once: true },
+      );
       mediaStreamSource.connect(processorNode);
       processorNode.connect(audioContext.destination);
     });
@@ -386,12 +418,14 @@ export class VoicemailDrop extends RcModule {
     audioBuffer,
     endCall,
     updateStatus,
+    signal,
   }: {
     webphoneSession: VoicemailDropMediaHandle;
     audioContext: AudioContext;
     audioBuffer: AudioBuffer;
     endCall: () => Promise<unknown>;
     updateStatus: (status: string) => void;
+    signal?: AbortSignal;
   }) {
     const peerConnection = webphoneSession.rtcPeerConnection;
     const sender = peerConnection
@@ -420,6 +454,7 @@ export class VoicemailDrop extends RcModule {
     const cleanup = async (status: string) => {
       source.onended = null;
       webphoneSession.off('disposed', onDisposed);
+      signal?.removeEventListener('abort', onAbort);
       audioTrack.stop();
       try {
         await sender.replaceTrack(originalTrack);
@@ -436,7 +471,25 @@ export class VoicemailDrop extends RcModule {
       void cleanup(voicemailDropStatus.terminated);
     };
 
+    // Stopping the source would fire `onended`, which hangs up; cleanup
+    // clears that handler first.
+    const onAbort = () => {
+      void cleanup(voicemailDropStatus.cancelled).then(() => {
+        try {
+          source.stop();
+        } catch {
+          // Already stopped.
+        }
+      });
+    };
+
     webphoneSession.once('disposed', onDisposed);
+    signal?.addEventListener('abort', onAbort, { once: true });
+    // Cancelled while the track was being swapped in.
+    if (signal?.aborted) {
+      onAbort();
+      return;
+    }
     source.onended = async () => {
       await cleanup(voicemailDropStatus.finished);
       this._trackVoicemailDropCompleted();

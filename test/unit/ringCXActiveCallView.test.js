@@ -152,3 +152,80 @@ describe('CxActiveCallView Disposition button', () => {
     expect(view.router.push).toHaveBeenCalledWith(`${CALL_PATH}/disposition`);
   });
 });
+
+describe('CxActiveCallView voicemail drop progress', () => {
+  const GETTERS = {
+    callId: CALL_ID,
+    currentCall: null,
+    isOnHold: false,
+    isKeypadOpen: false,
+    keypadValue: '',
+    ivrAlertData: [],
+    callControlPermissions: {},
+    agentRecording: undefined,
+    basicInfo: null,
+    isMultipleCalls: false,
+    callList: [],
+    endCallOptions: [],
+    isInComingCall: false,
+    allowTransfer: true,
+    isDefaultRecord: false,
+    isInbound: false,
+  };
+
+  function createCallPage({ cxVoicemailDrop } = {}) {
+    const view = Object.create(CxActiveCallView.prototype);
+    Object.entries(GETTERS).forEach(([name, value]) => {
+      Object.defineProperty(view, name, { value });
+    });
+    Object.assign(view, {
+      cxCall: { activityCallId: CALL_ID },
+      cxIntegratedSoftphone: { muteActive: false },
+      cxActiveCallControl: { isRecording: false, timeStamp: 0 },
+      cxAgentSession: { isIntegratedSoftphone: true },
+      cxCallDisposition: {
+        getDisposition: () => undefined,
+        isDisposed: () => false,
+      },
+      cxVoicemailDrop,
+    });
+    return view;
+  }
+
+  test('exposes the running drop of the call', () => {
+    const drop = {
+      status: 'webphone-voicemail-drop-sending',
+      startedAt: 1000,
+      sendingStartedAt: 3000,
+      messageDuration: 21,
+    };
+    const cxVoicemailDrop = {
+      canDropVoicemail: () => false,
+      getDropStatus: () => drop.status,
+      getDrop: jest.fn(() => drop),
+    };
+
+    const uiProps = createCallPage({ cxVoicemailDrop }).getUIProps();
+
+    expect(cxVoicemailDrop.getDrop).toHaveBeenCalledWith(CALL_ID);
+    expect(uiProps.voicemailDrop).toBe(drop);
+  });
+
+  test('exposes no drop while none runs on the call', () => {
+    const cxVoicemailDrop = {
+      canDropVoicemail: () => true,
+      getDropStatus: () => null,
+      getDrop: () => null,
+    };
+
+    const uiProps = createCallPage({ cxVoicemailDrop }).getUIProps();
+
+    expect(uiProps.voicemailDrop).toBeNull();
+  });
+
+  test('exposes no drop without the voicemail drop module', () => {
+    const uiProps = createCallPage().getUIProps();
+
+    expect(uiProps.voicemailDrop).toBeNull();
+  });
+});

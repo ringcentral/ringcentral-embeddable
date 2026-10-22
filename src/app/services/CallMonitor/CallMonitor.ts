@@ -32,23 +32,11 @@ import type { CallMonitorOptions } from '@ringcentral-integration/micro-phone/sr
 import { callEvents } from '@ringcentral-integration/micro-phone/src/app/services/CallMonitor/callEvents';
 import { checkIsCallAnswered } from '@ringcentral-integration/micro-phone/src/app/services/CallMonitor/helpers';
 
-import type { CxVoicemailDropCall } from '../WebphoneV2/cxVoicemailDropSip';
-
-type WebphoneWithCxVoicemailDrop = {
-  readonly cxVoicemailDropCalls?: readonly CxVoicemailDropCall[];
-};
-
 @injectable({
   name: 'CallMonitor',
 })
 export class CallMonitor extends CallMonitorBase {
   private _answeredSessionIds = new Set<string>();
-
-  /**
-   * RingCX voicemail-drop calls seen so far. Remembered past the drop call's
-   * own record, so the call ending raises no `CallEnded` either.
-   */
-  private _cxVoicemailDropTelephonySessionIds = new Set<string>();
 
   constructor(
     _accountInfo: AccountInfo,
@@ -81,53 +69,11 @@ export class CallMonitor extends CallMonitorBase {
     );
   }
 
-  /**
-   * A RingCX voicemail-drop call shows in the call list with its drop status,
-   * but raises no call events. Its `NewCall` would open the call page over
-   * the agent's next CX call, and it is not the agent's call to log.
-   */
-  private _collectCxVoicemailDropIds(): Set<string> {
-    const webphone = this._webphone as unknown as WebphoneWithCxVoicemailDrop;
-    (webphone.cxVoicemailDropCalls ?? []).forEach((call) => {
-      if (call.telephonySessionId) {
-        this._cxVoicemailDropTelephonySessionIds.add(call.telephonySessionId);
-      }
-    });
-    return this._cxVoicemailDropTelephonySessionIds;
-  }
-
-  /** Forgets drop calls that are gone from the list, now that they ended. */
-  private _pruneCxVoicemailDropIds() {
-    const liveIds = new Set(
-      this.allCalls.map((call) => call.telephonySessionId),
-    );
-    const webphone = this._webphone as unknown as WebphoneWithCxVoicemailDrop;
-    const matchedIds = new Set(
-      (webphone.cxVoicemailDropCalls ?? []).map(
-        (call) => call.telephonySessionId,
-      ),
-    );
-    this._cxVoicemailDropTelephonySessionIds.forEach((id) => {
-      if (!liveIds.has(id) && !matchedIds.has(id)) {
-        this._cxVoicemailDropTelephonySessionIds.delete(id);
-      }
-    });
-  }
-
-  override handleCalls(previousCalls: ICall[]) {
-    const dropIds = this._collectCxVoicemailDropIds();
-    const isAgentCall = (call: ICall) =>
-      !dropIds.has(call.telephonySessionId ?? '');
-    const oldCalls = previousCalls.filter(isAgentCall);
-    this._handleAgentCalls(oldCalls, this.allCalls.filter(isAgentCall));
-    this._pruneCxVoicemailDropIds();
-  }
-
-  private _handleAgentCalls(oldCalls: ICall[], calls: ICall[]) {
+  override handleCalls(oldCalls: ICall[]) {
     if (
       this._call &&
       oldCalls.length &&
-      !calls.length &&
+      !this.allCalls.length &&
       this._call.toNumberEntities?.length
     ) {
       this._call.cleanToNumberEntities();
@@ -138,7 +84,7 @@ export class CallMonitor extends CallMonitorBase {
       ? sort(sortByStartTime, this._call.toNumberEntities)
       : [];
 
-    calls.forEach((call) => {
+    this.allCalls.forEach((call) => {
       const oldCallIndex = oldCalls.findIndex(
         (item) =>
           item.telephonySessionId === call.telephonySessionId ||

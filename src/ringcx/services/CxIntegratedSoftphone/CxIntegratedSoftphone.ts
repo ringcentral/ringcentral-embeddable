@@ -268,6 +268,9 @@ class CxIntegratedSoftphone extends RcModule {
     this._bindWebphoneState();
     this._bindAgentSessionReconcile();
     this._initOffhookFlagSync();
+    this.cxPresence.onCallEnded(() => {
+      void this._unmuteAfterCallEnded();
+    });
     this.cxAuth.beforeAgentLogout(async () => {
       this.logger.info('beforeAgentLogout~~');
       await this._resetAllState();
@@ -304,6 +307,22 @@ class CxIntegratedSoftphone extends RcModule {
       return;
     }
     await this._reconcileEngageAgentEpt();
+  }
+
+  /**
+   * A persistent offhook session carries every CX call, so a mute set on one
+   * call would carry over to the next. Agent One unmutes on every END_CALL;
+   * do the same so each call starts with a live microphone.
+   */
+  private async _unmuteAfterCallEnded(): Promise<void> {
+    if (!this.portManager.isServer || !this.webphone.cxOffhookMuted) {
+      return;
+    }
+    try {
+      await this.sipToggleMute(false);
+    } catch (error) {
+      this.logger.warn('unmute after CX call ended failed', error);
+    }
   }
 
   /**

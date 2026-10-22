@@ -69,54 +69,10 @@ import type { Webphone as WebphoneV2 } from '../WebphoneV2';
 import { RingCX } from '../RingCX';
 import { findConferenceParticipants } from './find-conference-participants';
 import { isCxRcExtExBridgeCall } from './is-cx-rc-ext-ex-bridge-call';
-import {
-  isCxVoicemailDropHintCall,
-  type CxVoicemailDropCall,
-  type CxVoicemailDropHint,
-} from '../WebphoneV2/cxVoicemailDropSip';
 
 type WebphoneWithCxOffhook = {
   readonly cxOffhookTelephonySessionIds: readonly string[];
-  readonly cxVoicemailDropCalls: readonly CxVoicemailDropCall[];
-  readonly cxVoicemailDropHints: readonly CxVoicemailDropHint[];
 };
-
-/** A telephony session or presence call, as far as hint matching needs it. */
-type CallWithFrom = {
-  readonly direction?: string;
-  readonly from?: string | { readonly phoneNumber?: string };
-};
-
-const listCxVoicemailDropTelephonySessionIds = (
-  webphone: unknown,
-  { hiddenOnly }: { hiddenOnly: boolean },
-): string[] =>
-  ((webphone as Partial<WebphoneWithCxOffhook>).cxVoicemailDropCalls ?? [])
-    .filter((call) => !hiddenOnly || call.hidden)
-    .map((call) => call.telephonySessionId)
-    .filter((telephonySessionId): telephonySessionId is string =>
-      Boolean(telephonySessionId),
-    );
-
-/** RingCX voicemail-drop calls stay out of the call list until they drop. */
-const listHiddenCxVoicemailDropTelephonySessionIds = (webphone: unknown) =>
-  listCxVoicemailDropTelephonySessionIds(webphone, { hiddenOnly: true });
-
-/**
- * Whether a call is a transferred RingCX voicemail-drop call whose INVITE has
- * not been matched yet. Its telephony and presence events can come first.
- */
-const isPendingCxVoicemailDropCall = (
-  webphone: unknown,
-  call: CallWithFrom,
-): boolean =>
-  isCxVoicemailDropHintCall({
-    hints:
-      (webphone as Partial<WebphoneWithCxOffhook>).cxVoicemailDropHints ?? [],
-    direction: call.direction,
-    fromNumber:
-      typeof call.from === 'string' ? call.from : call.from?.phoneNumber,
-  });
 
 const STOP_RECORD_DISABLED_MESSAGE =
   'Sorry, stopping recording is not supported for this call. Please contact your account administrator to enable "Allow mute in auto recording".';
@@ -384,16 +340,12 @@ export class ActiveCallControl extends ActiveCallControlBase {
       ...this._webphone.sessions.map(
         (session) => session.partyData?.sessionId,
       ),
-      ...listCxVoicemailDropTelephonySessionIds(this._webphone, {
-        hiddenOnly: false,
-      }),
     ]);
     const hasMissingCall = this._presence.calls.some(
       (call) =>
         call.telephonySessionId &&
         !representedTelephonyIds.has(call.telephonySessionId) &&
-        !this._isCxRcExtExBridgePresenceCall(call) &&
-        !isPendingCxVoicemailDropCall(this._webphone, call as CallWithFrom),
+        !this._isCxRcExtExBridgePresenceCall(call),
     );
     if (hasMissingCall) {
       try {
@@ -650,10 +602,6 @@ export class ActiveCallControl extends ActiveCallControlBase {
       that._webphone.sessions,
       (that._webphone as unknown as WebphoneWithCxOffhook)
         .cxOffhookTelephonySessionIds,
-      (that._webphone as unknown as WebphoneWithCxOffhook)
-        .cxVoicemailDropCalls,
-      (that._webphone as unknown as WebphoneWithCxOffhook)
-        .cxVoicemailDropHints,
       that._ringCX?.exBridgeHints,
       that._presence.calls,
       that.cxExBridgeHiddenTelephonySessionIds,
@@ -663,15 +611,11 @@ export class ActiveCallControl extends ActiveCallControlBase {
     const hiddenTelephonyIds = new Set([
       ...((this._webphone as unknown as WebphoneWithCxOffhook)
         .cxOffhookTelephonySessionIds ?? []),
-      ...listHiddenCxVoicemailDropTelephonySessionIds(this._webphone),
       ...this._listCxRcExtBridgeTelephonySessionIds(),
     ]);
     const telephonySessions = this.data.sessions.filter((session) => {
       const telephonySessionId = session.telephonySessionId ?? session.id;
-      return (
-        !hiddenTelephonyIds.has(telephonySessionId) &&
-        !isPendingCxVoicemailDropCall(this._webphone, session)
-      );
+      return !hiddenTelephonyIds.has(telephonySessionId);
     });
     const fallbackSessions = this._getFallbackSessions().filter((session) => {
       const telephonySessionId = session.telephonySessionId ?? session.id;

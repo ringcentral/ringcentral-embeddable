@@ -1,7 +1,10 @@
 import { EventEmitter } from 'events';
 
 import { VoicemailDrop } from '../../src/app/services/VoicemailDrop/VoicemailDrop';
-import { voicemailDropStatus } from '../../src/app/services/WebphoneV2/voicemailDropStatus';
+import {
+  isVoicemailDropRunning,
+  voicemailDropStatus,
+} from '../../src/app/services/WebphoneV2/voicemailDropStatus';
 
 function createVoicemailDrop(overrides = {}) {
   const dependencies = {
@@ -517,6 +520,203 @@ describe('VoicemailDrop service', () => {
 
     expect(consoleError).toHaveBeenCalledWith(expect.any(Error));
     expect(updateStatus).toHaveBeenCalledWith(voicemailDropStatus.finished);
+  });
+
+  describe('cancelling with an AbortSignal', () => {
+    const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+    function createSendArgs(signal) {
+      const webphoneSession = createSession();
+      webphoneSession.restoreSessionAudio = jest.fn();
+      const audioContext = createAudioContext();
+      audioContext.source.stop = jest.fn();
+      return {
+        webphoneSession,
+        audioContext,
+        audioBuffer: { duration: 5 },
+        endCall: jest.fn(async () => {}),
+        updateStatus: jest.fn(),
+        signal,
+      };
+    }
+
+    test('restores the microphone and reports cancelled when aborted during the greeting wait', async () => {
+      const { service } = createVoicemailDrop();
+      const processor = createProcessorNode();
+      global.MediaStream = jest.fn();
+      global.AudioWorkletNode = jest.fn(() => processor);
+      const sendAudioData = jest.spyOn(service, '_sendAudioData');
+      const trackFailed = jest.spyOn(service, '_trackVoicemailDropFailed');
+      const controller = new AbortController();
+      const args = createSendArgs(controller.signal);
+
+      const pending = service.dropVoicemailMessage(args);
+      controller.abort();
+      await pending;
+
+      // The detector is torn down instead of waiting for the 45s timeout.
+      expect(processor.disconnect).toHaveBeenCalled();
+      expect(args.webphoneSession.restoreSessionAudio).toHaveBeenCalledTimes(1);
+      expect(args.updateStatus.mock.calls).toEqual([
+        [voicemailDropStatus.cancelled],
+      ]);
+      expect(sendAudioData).not.toHaveBeenCalled();
+      expect(trackFailed).not.toHaveBeenCalled();
+      expect(args.endCall).not.toHaveBeenCalled();
+    });
+
+    test('reports cancelled when the signal is aborted before the drop starts', async () => {
+      const { service } = createVoicemailDrop();
+      global.AudioWorkletNode = jest.fn();
+      const controller = new AbortController();
+      controller.abort();
+      const args = createSendArgs(controller.signal);
+
+      await service.dropVoicemailMessage(args);
+
+      expect(global.AudioWorkletNode).not.toHaveBeenCalled();
+      expect(args.webphoneSession.restoreSessionAudio).toHaveBeenCalledTimes(1);
+      expect(args.updateStatus.mock.calls).toEqual([
+        [voicemailDropStatus.cancelled],
+      ]);
+    });
+
+    test('restores the microphone before reporting a greeting detection failure', async () => {
+      const { service } = createVoicemailDrop();
+      jest.spyOn(service, '_waitVoicemailGreetingEnd').mockResolvedValue(false);
+      const args = createSendArgs();
+
+      await service.dropVoicemailMessage(args);
+
+      // A session that outlives the drop would otherwise keep a silenced mic.
+      expect(args.webphoneSession.restoreSessionAudio).toHaveBeenCalledTimes(1);
+      expect(args.updateStatus).toHaveBeenCalledWith(
+        voicemailDropStatus.greetingDetectionFailed,
+      );
+      expect(
+        args.webphoneSession.restoreSessionAudio.mock.invocationCallOrder[0],
+      ).toBeLessThan(args.updateStatus.mock.invocationCallOrder[0]);
+    });
+
+    test('passes the signal to both pipeline steps', async () => {
+      const { service } = createVoicemailDrop();
+      const waitGreetingEnd = jest
+        .spyOn(service, '_waitVoicemailGreetingEnd')
+        .mockResolvedValue(true);
+      const sendAudioData = jest
+        .spyOn(service, '_sendAudioData')
+        .mockResolvedValue();
+      const { signal } = new AbortController();
+      const args = createSendArgs(signal);
+
+      await service.dropVoicemailMessage(args);
+
+      expect(waitGreetingEnd).toHaveBeenCalledWith(
+        expect.objectContaining({ signal }),
+      );
+      expect(sendAudioData).toHaveBeenCalledWith(
+        expect.objectContaining({ signal }),
+      );
+    });
+
+    test('puts the microphone back and keeps the call when aborted while sending', async () => {
+      const { service } = createVoicemailDrop();
+      const trackCompleted = jest.spyOn(
+        service,
+        '_trackVoicemailDropCompleted',
+      );
+      const controller = new AbortController();
+      const args = createSendArgs(controller.signal);
+      const { webphoneSession: session, audioContext: context } = args;
+      const originalTrack = session.rtcSender.track;
+
+      await service._sendAudioData(args);
+      expect(context.source.start).toHaveBeenCalled();
+      controller.abort();
+      await flush();
+
+      expect(context.audioTrack.stop).toHaveBeenCalled();
+      expect(session.rtcSender.replaceTrack).toHaveBeenLastCalledWith(
+        originalTrack,
+      );
+      expect(session.restoreSessionAudio).toHaveBeenCalledTimes(1);
+      expect(args.updateStatus.mock.calls).toEqual([
+        [voicemailDropStatus.cancelled],
+      ]);
+      // Stopping the source fires `onended`; its handler is cleared first so
+      // the call is not hung up and `finished` is not reported.
+      expect(context.source.onended).toBeNull();
+      expect(context.source.stop).toHaveBeenCalledTimes(1);
+      expect(context.source.stop.mock.invocationCallOrder[0]).toBeGreaterThan(
+        args.updateStatus.mock.invocationCallOrder[0],
+      );
+      expect(args.endCall).not.toHaveBeenCalled();
+      expect(trackCompleted).not.toHaveBeenCalled();
+
+      // The disposed listener is gone, so a later hang-up reports nothing more.
+      session.emit('disposed');
+      await flush();
+      expect(args.updateStatus).toHaveBeenCalledTimes(1);
+    });
+
+    test('cancels right away when the signal is already aborted at send start', async () => {
+      const { service } = createVoicemailDrop();
+      const controller = new AbortController();
+      controller.abort();
+      const args = createSendArgs(controller.signal);
+      const { webphoneSession: session, audioContext: context } = args;
+      const originalTrack = session.rtcSender.track;
+
+      await service._sendAudioData(args);
+      await flush();
+
+      expect(session.rtcSender.replaceTrack.mock.calls).toEqual([
+        [context.audioTrack],
+        [originalTrack],
+      ]);
+      expect(context.audioTrack.stop).toHaveBeenCalled();
+      expect(session.restoreSessionAudio).toHaveBeenCalledTimes(1);
+      expect(args.updateStatus.mock.calls).toEqual([
+        [voicemailDropStatus.cancelled],
+      ]);
+      expect(context.source.onended).toBeNull();
+      expect(context.source.stop).toHaveBeenCalledTimes(1);
+      expect(args.endCall).not.toHaveBeenCalled();
+    });
+
+    test('tolerates a source that is already stopped', async () => {
+      const { service } = createVoicemailDrop();
+      const controller = new AbortController();
+      const args = createSendArgs(controller.signal);
+      args.audioContext.source.stop.mockImplementation(() => {
+        throw new Error('InvalidStateError');
+      });
+
+      await service._sendAudioData(args);
+      controller.abort();
+      await flush();
+
+      expect(args.updateStatus).toHaveBeenCalledWith(
+        voicemailDropStatus.cancelled,
+      );
+      expect(args.endCall).not.toHaveBeenCalled();
+    });
+  });
+});
+
+describe('isVoicemailDropRunning', () => {
+  test.each([
+    [voicemailDropStatus.waitingForGreetingEnd, true],
+    [voicemailDropStatus.sending, true],
+    [voicemailDropStatus.finished, false],
+    [voicemailDropStatus.terminated, false],
+    [voicemailDropStatus.cancelled, false],
+    [voicemailDropStatus.greetingDetectionFailed, false],
+    ['', false],
+    [null, false],
+    [undefined, false],
+  ])('returns %p => %p', (status, expected) => {
+    expect(isVoicemailDropRunning(status)).toBe(expected);
   });
 });
 

@@ -360,6 +360,284 @@ describe("voicemail drop", () => {
   });
 });
 
+describe('voicemail drop on a kept session (RingCX offhook)', () => {
+  function seedRecord(webphone, overrides = {}) {
+    webphone._sessionRecords.set('wp-1', {
+      normalized: { id: 'wp-1', ...overrides },
+      finalized: false,
+    });
+  }
+
+  function armMediaOwner(webphone) {
+    const mediaSession = {
+      rtcPeerConnection: {},
+      stopSessionAudio: jest.fn(async () => {}),
+      restoreVoiceChannel: jest.fn(async () => {}),
+      once: jest.fn(),
+      off: jest.fn(),
+    };
+    webphone._webphoneMedia.getLocalSessionByCallId = jest.fn(
+      () => mediaSession,
+    );
+    webphone._voicemailDrop = {
+      prepareVoicemailDrop: jest.fn(async () => ({
+        audioBuffer: { duration: 7 },
+        audioContext: {},
+      })),
+      dropVoicemailMessage: jest.fn(async () => {}),
+    };
+    const setStatus = jest
+      .spyOn(webphone, 'setVoicemailDropStatus')
+      .mockResolvedValue(undefined);
+    const hangup = jest.spyOn(webphone, 'hangup').mockResolvedValue(undefined);
+    const pipelineArgs = () =>
+      webphone._voicemailDrop.dropVoicemailMessage.mock.calls.at(-1)[0];
+    return { mediaSession, setStatus, hangup, pipelineArgs };
+  }
+
+  it('forwards the keepSession option from a tab to the server', async () => {
+    const { webphone } = create({ shared: true, isServer: false });
+    const spy = jest
+      .spyOn(webphone, '_executeRuntimeCommand')
+      .mockResolvedValue(true);
+
+    await webphone.dropVoicemailMessage('wp-1', 'msg-1', { keepSession: true });
+
+    expect(spy).toHaveBeenCalledWith('dropVoicemailMessage', [
+      'wp-1',
+      'msg-1',
+      { keepSession: true },
+    ]);
+  });
+
+  it.each([
+    voicemailDropStatus.finished,
+    voicemailDropStatus.terminated,
+    voicemailDropStatus.cancelled,
+    voicemailDropStatus.greetingDetectionFailed,
+  ])(
+    'drops again on a session that kept the final status %s',
+    async (status) => {
+      const { webphone } = create({ shared: true, isServer: true });
+      seedRecord(webphone, { voicemailDropStatus: status });
+      invokeRole.mockResolvedValue([
+        { clientId: 'tab-1', status: 'fulfilled', value: true },
+      ]);
+
+      await expect(
+        webphone.dropVoicemailMessage('wp-1', 'msg-1', { keepSession: true }),
+      ).resolves.toBe(true);
+      expect(invokeRole).toHaveBeenCalledWith(
+        webphone,
+        '_dropVoicemailOnMediaOwner',
+        ['wp-1', 'msg-1', true],
+        { role: 'webphone.mediaOwner', collectResults: true },
+      );
+    },
+  );
+
+  it.each([
+    voicemailDropStatus.waitingForGreetingEnd,
+    voicemailDropStatus.sending,
+  ])('still refuses while a drop is running (%s)', async (status) => {
+    const { webphone } = create({ shared: true, isServer: true });
+    seedRecord(webphone, { voicemailDropStatus: status });
+
+    await expect(
+      webphone.dropVoicemailMessage('wp-1', 'msg-1', { keepSession: true }),
+    ).resolves.toBe(false);
+    expect(invokeRole).not.toHaveBeenCalled();
+  });
+
+  it('still refuses a kept session on hold', async () => {
+    const { webphone } = create({ shared: true, isServer: true });
+    seedRecord(webphone, { isOnHold: true });
+
+    await expect(
+      webphone.dropVoicemailMessage('wp-1', 'msg-1', { keepSession: true }),
+    ).resolves.toBe(false);
+    expect(invokeRole).not.toHaveBeenCalled();
+  });
+
+  it('keeps refusing any earlier drop status without keepSession', async () => {
+    const { webphone } = create({ shared: true, isServer: true });
+    seedRecord(webphone, { voicemailDropStatus: voicemailDropStatus.finished });
+
+    await expect(webphone.dropVoicemailMessage('wp-1', 'msg-1')).resolves.toBe(
+      false,
+    );
+    expect(invokeRole).not.toHaveBeenCalled();
+  });
+
+  it('keeps the two role args without keepSession', async () => {
+    const { webphone } = create({ shared: true, isServer: true });
+    seedRecord(webphone);
+    invokeRole.mockResolvedValue([
+      { clientId: 'tab-1', status: 'fulfilled', value: true },
+    ]);
+
+    await webphone.dropVoicemailMessage('wp-1', 'msg-1', {
+      keepSession: false,
+    });
+
+    expect(invokeRole).toHaveBeenCalledWith(
+      webphone,
+      '_dropVoicemailOnMediaOwner',
+      ['wp-1', 'msg-1'],
+      expect.any(Object),
+    );
+  });
+
+  it('keeps the speaker and the call on the media owner', async () => {
+    const { webphone } = create({ shared: true, isServer: true });
+    const { mediaSession, setStatus, hangup, pipelineArgs } =
+      armMediaOwner(webphone);
+
+    await expect(
+      webphone._dropVoicemailOnMediaOwner('wp-1', 'msg-1', true),
+    ).resolves.toBe(true);
+
+    expect(mediaSession.stopSessionAudio).toHaveBeenCalledWith({
+      keepVoiceChannel: true,
+    });
+    expect(setStatus).toHaveBeenCalledWith(
+      'wp-1',
+      voicemailDropStatus.waitingForGreetingEnd,
+    );
+    const { webphoneSession, endCall, signal } = pipelineArgs();
+    expect(webphoneSession).toBe(mediaSession);
+    expect(signal).toBeInstanceOf(AbortSignal);
+    expect(signal.aborted).toBe(false);
+    // The owner of the kept session hangs up the CX call itself.
+    await expect(endCall()).resolves.toBeUndefined();
+    expect(hangup).not.toHaveBeenCalled();
+  });
+
+  it('hangs up through endCall without keepSession', async () => {
+    const { webphone } = create({ shared: true, isServer: true });
+    const { mediaSession, hangup, pipelineArgs } = armMediaOwner(webphone);
+
+    await webphone._dropVoicemailOnMediaOwner('wp-1', 'msg-1');
+
+    expect(mediaSession.stopSessionAudio).toHaveBeenCalledWith({
+      keepVoiceChannel: false,
+    });
+    await pipelineArgs().endCall();
+    expect(hangup).toHaveBeenCalledWith('wp-1');
+  });
+
+  it('sends the message duration with the sending status only', async () => {
+    const { webphone } = create({ shared: true, isServer: true });
+    const { setStatus, pipelineArgs } = armMediaOwner(webphone);
+    await webphone._dropVoicemailOnMediaOwner('wp-1', 'msg-1', true);
+    setStatus.mockClear();
+    const { updateStatus } = pipelineArgs();
+
+    updateStatus(voicemailDropStatus.sending);
+    updateStatus(voicemailDropStatus.finished);
+
+    expect(setStatus.mock.calls).toEqual([
+      ['wp-1', voicemailDropStatus.sending, { messageDuration: 7 }],
+      ['wp-1', voicemailDropStatus.finished, undefined],
+    ]);
+  });
+
+  it('emits the server-local status event with the details', async () => {
+    const { webphone } = create({ shared: false, isServer: true });
+    seedRecord(webphone);
+    const handler = jest.fn();
+    const unsubscribe = webphone.onVoicemailDropStatusChanged(handler);
+
+    await webphone.setVoicemailDropStatus('wp-1', voicemailDropStatus.sending, {
+      messageDuration: 7,
+    });
+
+    expect(handler).toHaveBeenCalledWith('wp-1', voicemailDropStatus.sending, {
+      messageDuration: 7,
+    });
+    expect(
+      webphone._sessionRecords.get('wp-1').normalized.voicemailDropStatus,
+    ).toBe(voicemailDropStatus.sending);
+
+    unsubscribe();
+    await webphone.setVoicemailDropStatus('wp-1', voicemailDropStatus.finished);
+    expect(handler).toHaveBeenCalledTimes(1);
+  });
+
+  it('stops a running drop and restores the voice channel', async () => {
+    const { webphone } = create({ shared: true, isServer: true });
+    const { mediaSession, pipelineArgs } = armMediaOwner(webphone);
+    await webphone._dropVoicemailOnMediaOwner('wp-1', 'msg-1', true);
+    const { signal } = pipelineArgs();
+
+    await expect(
+      webphone._restoreCxVoiceChannelOnMediaOwner('wp-1'),
+    ).resolves.toBe(true);
+
+    expect(signal.aborted).toBe(true);
+    expect(mediaSession.restoreVoiceChannel).toHaveBeenCalledTimes(1);
+
+    // Safe to call again once nothing is running.
+    await expect(
+      webphone._restoreCxVoiceChannelOnMediaOwner('wp-1'),
+    ).resolves.toBe(true);
+    expect(mediaSession.restoreVoiceChannel).toHaveBeenCalledTimes(2);
+  });
+
+  it('forgets a drop that reached a final status', async () => {
+    const { webphone } = create({ shared: true, isServer: true });
+    const { mediaSession, pipelineArgs } = armMediaOwner(webphone);
+    await webphone._dropVoicemailOnMediaOwner('wp-1', 'msg-1', true);
+    const { signal, updateStatus } = pipelineArgs();
+
+    updateStatus(voicemailDropStatus.finished);
+    await webphone._restoreCxVoiceChannelOnMediaOwner('wp-1');
+
+    expect(signal.aborted).toBe(false);
+    expect(mediaSession.restoreVoiceChannel).toHaveBeenCalledTimes(1);
+  });
+
+  it('aborts the previous drop when a new one starts on the same call', async () => {
+    const { webphone } = create({ shared: true, isServer: true });
+    const { pipelineArgs } = armMediaOwner(webphone);
+    await webphone._dropVoicemailOnMediaOwner('wp-1', 'msg-1', true);
+    const { signal: first } = pipelineArgs();
+
+    await webphone._dropVoicemailOnMediaOwner('wp-1', 'msg-2', true);
+
+    expect(first.aborted).toBe(true);
+    expect(pipelineArgs().signal.aborted).toBe(false);
+  });
+
+  it('reports false on the owner when it holds no media for the call', async () => {
+    const { webphone } = create({ shared: true, isServer: true });
+    webphone._webphoneMedia.getLocalSessionByCallId = jest.fn(() => undefined);
+
+    await expect(
+      webphone._restoreCxVoiceChannelOnMediaOwner('wp-1'),
+    ).resolves.toBe(false);
+  });
+
+  it('routes restoreCxVoiceChannel to the media owner', async () => {
+    const { webphone } = create({ shared: true, isServer: true });
+    seedRecord(webphone);
+    invokeRole.mockResolvedValue([
+      { clientId: 'tab-1', status: 'fulfilled', value: true },
+    ]);
+
+    await expect(webphone.restoreCxVoiceChannel('wp-1')).resolves.toBe(true);
+    expect(invokeRole).toHaveBeenCalledWith(
+      webphone,
+      '_restoreCxVoiceChannelOnMediaOwner',
+      ['wp-1'],
+      { role: 'webphone.mediaOwner', collectResults: true },
+    );
+    await expect(webphone.restoreCxVoiceChannel('missing')).resolves.toBe(
+      false,
+    );
+  });
+});
+
 describe('auto-hold while a voicemail is dropping', () => {
   function recordFor(id, overrides = {}) {
     return {

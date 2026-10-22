@@ -57,6 +57,7 @@ import { CallControlMoreButton } from '../../../app/views/CallView/CallControlVi
 import { dialoutStatuses } from '../../enums';
 import { cxPath } from '../../routes';
 import { isOnLiveCallPage } from '../../utils/isOnLiveCallPage';
+import { VoicemailDropProgress } from './VoicemailDropProgress';
 import { resolveLiveActivityCallId } from '../../utils/resolveLiveActivityCallId';
 import { shouldShowDispositionSubmitStep } from '../../utils/shouldShowDispositionSubmitStep';
 import { formatPhoneNumber } from '../../lib/FormatPhoneNumber/formatPhoneNumber';
@@ -690,6 +691,7 @@ class CxActiveCallView extends RcViewModule {
     isIntegratedSoftphone,
     allowTransfer,
     canDropVoicemail,
+    voicemailDropStatus,
     showRecordButton,
     uiFunctions,
     handleHoldToggle,
@@ -708,6 +710,7 @@ class CxActiveCallView extends RcViewModule {
     isIntegratedSoftphone: boolean;
     allowTransfer: boolean;
     canDropVoicemail: boolean;
+    voicemailDropStatus: string | null;
     showRecordButton: boolean;
     uiFunctions: CxActiveCallViewUIFunctions;
     handleHoldToggle: () => void;
@@ -716,13 +719,16 @@ class CxActiveCallView extends RcViewModule {
   }): CallControlAction[] {
     const disableRecord = !callControlPermissions.allowRecordControl;
     const isAutoIndicator = disableRecord && isDefaultRecord;
+    // The message owns the outbound audio until it ends or the agent takes
+    // over, so the controls that change the call wait.
+    const isDroppingVoicemail = Boolean(voicemailDropStatus);
     const actions: CallControlAction[] = [
       {
         actionType: 'mute',
         symbol: isIntegratedSoftphone && isMuted ? MicrophoneOffFilledMd : MicrophoneMd,
         label: isMuted ? t('unmute') : t('mute'),
         onClick: handleMuteToggle,
-        disabled: isInComingCall || !isIntegratedSoftphone,
+        disabled: isInComingCall || !isIntegratedSoftphone || isDroppingVoicemail,
         color: isMuted ? 'danger' : 'neutral',
       },
       {
@@ -730,14 +736,17 @@ class CxActiveCallView extends RcViewModule {
         symbol: DialpadMd,
         label: t('keypad'),
         onClick: () => uiFunctions.setKeypadOpen(true),
-        disabled: isInComingCall,
+        disabled: isInComingCall || isDroppingVoicemail,
       },
       {
         actionType: 'hold',
         symbol: HoldMd,
         label: isOnHold ? t('unhold') : t('hold'),
         onClick: handleHoldToggle,
-        disabled: isInComingCall || !callControlPermissions.allowHoldCall,
+        disabled:
+          isInComingCall ||
+          !callControlPermissions.allowHoldCall ||
+          isDroppingVoicemail,
         color: isOnHold ? 'warning' : 'neutral',
       },
       {
@@ -745,7 +754,7 @@ class CxActiveCallView extends RcViewModule {
         symbol: TransferCallMd,
         label: t('transfer'),
         onClick: uiFunctions.onTransfer,
-        disabled: isInComingCall || !allowTransfer,
+        disabled: isInComingCall || !allowTransfer || isDroppingVoicemail,
       },
       {
         actionType: 'record' as const,
@@ -754,13 +763,26 @@ class CxActiveCallView extends RcViewModule {
           ? (callControlPermissions.allowPauseRecord ? t('pauseRecord') : t('stopRecord'))
           : t('record'),
         onClick: isAutoIndicator ? undefined : handleRecordClick,
-        disabled: isAutoIndicator ? false : (isInComingCall || disableRecord || !showRecordButton),
+        disabled: isAutoIndicator
+          ? false
+          : isInComingCall ||
+            disableRecord ||
+            !showRecordButton ||
+            isDroppingVoicemail,
         color: (isAutoIndicator || isRecording) ? 'danger' : 'neutral',
         indicator: isAutoIndicator,
         tooltip: isAutoIndicator ? 'Recording' : undefined,
       },
     ];
-    if (canDropVoicemail) {
+    if (isDroppingVoicemail) {
+      actions.push({
+        actionType: 'voicemailDrop',
+        symbol: MicrophoneMd,
+        label: t('takeOver'),
+        tooltip: t('takeOverTooltip'),
+        onClick: uiFunctions.onTakeOver,
+      });
+    } else if (canDropVoicemail) {
       actions.push({
         actionType: 'voicemailDrop',
         symbol: VoicemailMd,
@@ -815,6 +837,8 @@ class CxActiveCallView extends RcViewModule {
       canDropVoicemail:
         this.cxAgentSession.isIntegratedSoftphone &&
         Boolean(this.cxVoicemailDrop?.canDropVoicemail(callId)),
+      voicemailDropStatus: this.cxVoicemailDrop?.getDropStatus(callId) ?? null,
+      voicemailDrop: this.cxVoicemailDrop?.getDrop(callId) ?? null,
       isDefaultRecord: this.isDefaultRecord,
       isInbound: this.isInbound,
       notes: dispositionData?.notes || '',
@@ -844,6 +868,7 @@ class CxActiveCallView extends RcViewModule {
       onActiveCall: () => this.goToActiveCallList(),
       onTransfer: () => this.goToTransferPage(),
       onVoicemailDrop: () => this.cxVoicemailDrop?.openPicker(this.callId),
+      onTakeOver: () => void this.cxVoicemailDrop?.takeOver(this.callId),
       onDisposition: () => this.goToDispositionPage(),
       setKeypadOpen: (isOpen) => this.setKeypadOpen(isOpen),
       handleKeypadChange: (value) => this.handleKeypadChange(value),
@@ -945,6 +970,8 @@ class CxActiveCallView extends RcViewModule {
       showDisposition,
       allowTransfer,
       canDropVoicemail,
+      voicemailDropStatus,
+      voicemailDrop,
       isDefaultRecord,
       isInbound,
       notes,
@@ -1179,6 +1206,7 @@ class CxActiveCallView extends RcViewModule {
       isIntegratedSoftphone,
       allowTransfer,
       canDropVoicemail,
+      voicemailDropStatus,
       showRecordButton,
       uiFunctions,
       handleHoldToggle,
@@ -1266,6 +1294,13 @@ class CxActiveCallView extends RcViewModule {
                 </p>
               ))
             )}
+            {voicemailDrop ? (
+              <VoicemailDropProgress
+                drop={voicemailDrop}
+                waitingLabel={t('waitingForGreetingEnd')}
+                sendingLabel={t('droppingVoicemail')}
+              />
+            ) : null}
             {isMultipleCalls && (
               <Tooltip title={t('viewParticipants')}>
                 <Chip

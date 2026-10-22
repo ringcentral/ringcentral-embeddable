@@ -72,7 +72,13 @@ function createSoftphone({
     onReConfigFail: jest.fn(),
     onConfigSuccess: jest.fn(),
   };
-  const cxPresence = { isOffhook: false, showOffHookInitError: true };
+  const cxPresence = {
+    isOffhook: false,
+    showOffHookInitError: true,
+    onCallEnded: jest.fn(function onCallEnded() {
+      return this;
+    }),
+  };
   const webphoneAlerting = {
     setRingCxSoftphoneRinging: jest.fn(async () => undefined),
   };

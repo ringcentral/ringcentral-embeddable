@@ -19,6 +19,15 @@ export interface RoutedSideWidgetConfig {
    */
   resolveBackgroundPath?: (params: Record<string, string | undefined>) => string;
   /**
+   * More main paths that count as the page's background, for a page that can
+   * return to several, such as a disposition whose submit goes back to the
+   * agent home tab the call came from. Evaluated each time, like
+   * `resolveBackgroundPath`.
+   */
+  resolveExtraBackgroundPaths?: (
+    params: Record<string, string | undefined>,
+  ) => readonly string[];
+  /**
    * Fold the drawer when returning from this page to its background closes the
    * last tab. Only for pages
    * the app opens on its own, such as a CX disposition after a call ends: the

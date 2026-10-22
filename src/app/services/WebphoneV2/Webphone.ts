@@ -23,6 +23,10 @@ import { runOnAllPorts } from '../../../lib/runOnAllPorts';
 import { embeddableTrackEvents } from '../Analytics/embeddableTrackEvents';
 import { ClientInteraction } from '../ClientInteraction';
 import { VoicemailDrop } from '../VoicemailDrop';
+import type {
+  VoicemailDropOptions,
+  VoicemailDropStatusDetails,
+} from '../VoicemailDrop/VoicemailDrop.interface';
 import { invokeRoleForValue } from '../../../lib/roleCompat';
 import { WebphoneMedia, webphoneMediaOwnerRole } from '../WebphoneMedia';
 import type {
@@ -36,7 +40,10 @@ import type {
 import { getCallEndedTrackProps } from './getCallEndedTrackProps';
 import { t } from './i18n';
 import type { RecordStatus } from './recordStatus';
-import { voicemailDropStatus } from './voicemailDropStatus';
+import {
+  isVoicemailDropRunning,
+  voicemailDropStatus,
+} from './voicemailDropStatus';
 import { WebphoneV2, type WebphoneV2Options } from './WebphoneV2';
 
 const LAST_ENDED_SESSIONS_LIMIT = 5;
@@ -89,16 +96,12 @@ const COMMAND_METHODS = [
   // App-specific: validates against the server's session records before
   // delegating the media work to the owner tab.
   'dropVoicemailMessage',
+  'cancelVoicemailDrop',
+  'restoreCxVoiceChannel',
   // App-specific: both write into the server's session records, so a call from
   // a tab has to be forwarded or it silently finds nothing to update.
   'updateRecordStatus',
   'setForwardFlag',
-  // App-specific: RingCX voicemail drop. Hints and session records both live
-  // on the server. The silent answer is deliberately not media-starting: it
-  // must not move media ownership to whichever tab asked.
-  'registerCxVoicemailDropHint',
-  'clearCxVoicemailDropHint',
-  'answerCxVoicemailDrop',
 ] as const;
 
 /** Commands that begin call media, so the acting tab should own it. */
@@ -190,6 +193,12 @@ export class Webphone extends WebphoneV2 {
   private _mirrorSubscription?: Subscription;
 
   private _ownerSubscription?: Subscription;
+
+  /**
+   * Running drops on this tab, by call id. Only the media owner fills it,
+   * since the pipeline runs there.
+   */
+  private _voicemailDropAborts = new Map<string, AbortController>();
 
   constructor(
     protected override _auth: Auth,
@@ -509,6 +518,22 @@ export class Webphone extends WebphoneV2 {
     return () => this._eventEmitter.off('callVoicemailDropped', handler);
   }
 
+  /**
+   * Fires on the server port whenever a drop's status changes, with the call
+   * id. Unlike {@link onCallVoicemailDropped}, which is broadcast for tabs and
+   * skips a worker server, this one reaches server-side modules.
+   */
+  onVoicemailDropStatusChanged(
+    handler: (
+      callId: string,
+      status: string,
+      details?: VoicemailDropStatusDetails,
+    ) => void,
+  ) {
+    this._eventEmitter.on('voicemailDropStatusChanged', handler);
+    return () => this._eventEmitter.off('voicemailDropStatusChanged', handler);
+  }
+
   /** Fires when webphone/media ownership moves between tabs. */
   onActiveWebphoneChanged(handler: (...args: unknown[]) => void) {
     this._eventEmitter.on('activeWebphoneChanged', handler);
@@ -534,9 +559,19 @@ export class Webphone extends WebphoneV2 {
 
   /** Publishes drop progress from the media-owner tab back into shared state. */
   @delegate('server')
-  async setVoicemailDropStatus(callId: string, status: string) {
+  async setVoicemailDropStatus(
+    callId: string,
+    status: string,
+    details?: VoicemailDropStatusDetails,
+  ) {
     this._applyVoicemailDropStatus(callId, status);
     this._publishLiveState();
+    this._eventEmitter.emit(
+      'voicemailDropStatusChanged',
+      callId,
+      status,
+      details,
+    );
     const session = this._sessionRecords.get(callId)?.normalized ?? null;
     await runOnAllPorts(
       this._portManager,
@@ -556,12 +591,19 @@ export class Webphone extends WebphoneV2 {
   async dropVoicemailMessage(
     sessionId: string,
     messageId: string,
+    { keepSession = false }: VoicemailDropOptions = {},
   ): Promise<boolean> {
     const record = this._sessionRecords.get(sessionId);
     if (!record || record.finalized) {
       return false;
     }
-    if (record.normalized.voicemailDropStatus || record.normalized.isOnHold) {
+    const dropStatus = record.normalized.voicemailDropStatus;
+    // A session that outlives its calls keeps the last drop's final status;
+    // only a drop still running blocks the next one.
+    const blocked = keepSession
+      ? isVoicemailDropRunning(dropStatus)
+      : Boolean(dropStatus);
+    if (blocked || record.normalized.isOnHold) {
       return false;
     }
     try {
@@ -572,7 +614,7 @@ export class Webphone extends WebphoneV2 {
       const result = await invokeRoleForValue<boolean>(
         this,
         '_dropVoicemailOnMediaOwner',
-        [sessionId, messageId],
+        keepSession ? [sessionId, messageId, true] : [sessionId, messageId],
         webphoneMediaOwnerRole.role,
       );
       return result;
@@ -629,10 +671,55 @@ export class Webphone extends WebphoneV2 {
     }
   }
 
+  /**
+   * Stops a running drop without ending the call: the message stops and the
+   * microphone comes back. Resolves to whether a drop was running.
+   */
+  async cancelVoicemailDrop(sessionId: string): Promise<boolean> {
+    if (!this._sessionRecords.has(sessionId)) {
+      return false;
+    }
+    try {
+      return await invokeRoleForValue<boolean>(
+        this,
+        '_cancelVoicemailDropOnMediaOwner',
+        [sessionId],
+        webphoneMediaOwnerRole.role,
+      );
+    } catch (error) {
+      this.logger.error('cancelVoicemailDrop fail', error);
+      return false;
+    }
+  }
+
+  /**
+   * Puts the RingCX voice channel back into a normal state after a CX call
+   * that had a drop: any drop still running stops, the microphone track is
+   * back and enabled unless the agent muted, and the speaker plays. Safe to
+   * call more than once.
+   */
+  async restoreCxVoiceChannel(sessionId: string): Promise<boolean> {
+    if (!this._sessionRecords.has(sessionId)) {
+      return false;
+    }
+    try {
+      return await invokeRoleForValue<boolean>(
+        this,
+        '_restoreCxVoiceChannelOnMediaOwner',
+        [sessionId],
+        webphoneMediaOwnerRole.role,
+      );
+    } catch (error) {
+      this.logger.error('restoreCxVoiceChannel fail', error);
+      return false;
+    }
+  }
+
   @delegateRole(webphoneMediaOwnerRole)
   protected async _dropVoicemailOnMediaOwner(
     callId: string,
     messageId: string,
+    keepSession = false,
   ): Promise<boolean> {
     const mediaSession = this._webphoneMedia.getLocalSessionByCallId(callId);
     if (!mediaSession?.rtcPeerConnection || !this._voicemailDrop) {
@@ -641,20 +728,65 @@ export class Webphone extends WebphoneV2 {
     const { audioBuffer, audioContext } =
       await this._voicemailDrop.prepareVoicemailDrop(mediaSession, messageId);
     // Silence the live audio before the greeting replaces the outbound track.
-    await mediaSession.stopSessionAudio();
+    // A session that outlives the call keeps its speaker and noise reduction.
+    await mediaSession.stopSessionAudio({ keepVoiceChannel: keepSession });
     await this.setVoicemailDropStatus(
       callId,
       voicemailDropStatus.waitingForGreetingEnd,
     );
+    const abortController = new AbortController();
+    this._voicemailDropAborts.get(callId)?.abort();
+    this._voicemailDropAborts.set(callId, abortController);
     void this._voicemailDrop.dropVoicemailMessage({
       webphoneSession: mediaSession,
       audioBuffer,
       audioContext,
-      endCall: () => this.hangup(callId),
+      // The owner of a kept session decides when the call ends.
+      endCall: keepSession ? async () => undefined : () => this.hangup(callId),
       updateStatus: (status: string) => {
-        void this.setVoicemailDropStatus(callId, status);
+        if (
+          !isVoicemailDropRunning(status) &&
+          this._voicemailDropAborts.get(callId) === abortController
+        ) {
+          this._voicemailDropAborts.delete(callId);
+        }
+        // The message length lets the caller show how far the drop is.
+        void this.setVoicemailDropStatus(
+          callId,
+          status,
+          status === voicemailDropStatus.sending
+            ? { messageDuration: audioBuffer.duration }
+            : undefined,
+        );
       },
+      signal: abortController.signal,
     });
+    return true;
+  }
+
+  @delegateRole(webphoneMediaOwnerRole)
+  protected async _cancelVoicemailDropOnMediaOwner(
+    callId: string,
+  ): Promise<boolean> {
+    const abortController = this._voicemailDropAborts.get(callId);
+    if (!abortController) {
+      return false;
+    }
+    this._voicemailDropAborts.delete(callId);
+    abortController.abort();
+    return true;
+  }
+
+  @delegateRole(webphoneMediaOwnerRole)
+  protected async _restoreCxVoiceChannelOnMediaOwner(
+    callId: string,
+  ): Promise<boolean> {
+    await this._cancelVoicemailDropOnMediaOwner(callId);
+    const mediaSession = this._webphoneMedia.getLocalSessionByCallId(callId);
+    if (!mediaSession) {
+      return false;
+    }
+    await mediaSession.restoreVoiceChannel();
     return true;
   }
 }

@@ -19,14 +19,7 @@ import { SideWidgetPageHeader } from '../SideWidgetView/SideWidgetPageHeader';
 
 import i18n from './i18n';
 
-type PickerError = 'dropFailed' | 'busyStateFailed' | 'loadFailed';
-
-/**
- * `true` once the message is dropped. `false` for a failure with no specific
- * reason, or `busyStateFailed` when a RingCX call could not be handed over
- * because the RingEX busy state stayed on.
- */
-export type VoicemailDropOutcome = boolean | 'busyStateFailed';
+type PickerError = 'dropFailed' | 'loadFailed';
 
 export function VoicemailDropPanel({
   forCxCall = false,
@@ -36,14 +29,11 @@ export function VoicemailDropPanel({
   onLoad,
   showCloseButton,
 }: {
-  /**
-   * A RingCX call leaves the agent's line once the drop starts, so the agent
-   * is told they can take the next call.
-   */
+  /** The picker drops on a RingCX call, which has its own hint and tag. */
   forCxCall?: boolean;
   messages: VoicemailMessage[];
   onClose: () => void;
-  onDrop: (messageId: string) => Promise<VoicemailDropOutcome>;
+  onDrop: (messageId: string) => Promise<boolean>;
   onLoad: () => Promise<void>;
   showCloseButton: boolean;
 }) {
@@ -79,9 +69,9 @@ export function VoicemailDropPanel({
     setError(null);
     setDroppingMessageId(messageId);
     try {
-      const outcome = await onDrop(messageId);
-      if (outcome !== true && mountedRef.current) {
-        setError(outcome === 'busyStateFailed' ? outcome : 'dropFailed');
+      const dropped = await onDrop(messageId);
+      if (!dropped && mountedRef.current) {
+        setError('dropFailed');
       }
     } catch {
       if (mountedRef.current) {
@@ -116,7 +106,7 @@ export function VoicemailDropPanel({
             >
               {t('prerecordedMessages')}
             </Text>
-            {/* Dropping by transfer to the agent's own extension is new. */}
+            {/* Dropping on a RingCX call is new. */}
             {forCxCall ? (
               <Tag
                 color="warning"

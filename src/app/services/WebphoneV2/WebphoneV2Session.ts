@@ -30,12 +30,6 @@ export type WebphoneV2SessionRecord = {
   receivedTransferFromNumber?: string;
   receivedTransferFromName?: string;
   isCxOffhook?: boolean;
-  /**
-   * The RingCX call this app cold-transferred to the agent's own extension to
-   * drop a voicemail. Hidden from the UI until the drop starts.
-   */
-  isCxVoicemailDrop?: boolean;
-  cxVoicemailDropMessageId?: string;
 };
 
 const stringifyHeaderValue = (value: unknown): string | undefined => {

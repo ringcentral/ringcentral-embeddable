@@ -52,17 +52,6 @@ export interface CxExBridgeDirectory {
 }
 
 /**
- * The signed-in RingEX extension, as the RingCX chunk needs it to build an
- * `<mainNumber>*<extension>@RC_EXT` destination.
- */
-export interface CxHostExtension {
-  readonly extensionId: string;
-  readonly extensionNumber: string;
-  readonly name: string;
-  readonly mainNumber: string;
-}
-
-/**
  * The host modules the RingCX chunk needs, wrapped in a plain object.
  * A host module cannot be bound under a second DI token, because the store
  * registers one module state per token, so the chunk gets this instead.
@@ -70,11 +59,6 @@ export interface CxHostExtension {
 export interface CxHostIntegration {
   /** Whether the host RingEX call module has no call in progress. */
   readonly isCallIdle: boolean;
-  /**
-   * The signed-in RingEX extension, or `null` before extension and account
-   * info are ready.
-   */
-  readonly currentExtension: CxHostExtension | null;
   /** Open the host widget if it is closed or minimized. */
   showClientWindow(): void;
   /**
@@ -99,58 +83,13 @@ export interface CxHostIntegration {
   /** Close the picker if it is open for this CX call. */
   closeVoicemailDropForCxCall(cxCallId: string): Promise<void>;
   /**
-   * Run picks made for CX calls through `handler`. Per port: call it on every
-   * port the chunk loads on.
+   * Run picks made for CX calls through `handler`, which resolves to whether
+   * the drop started. Per port: call it on every port the chunk loads on.
    */
   setVoicemailDropHandler(
-    handler: (
-      cxCallId: string,
-      messageId: string,
-    ) => Promise<CxVoicemailDropResult>,
+    handler: (cxCallId: string, messageId: string) => Promise<boolean>,
   ): void;
-  /**
-   * Whether `disableBusyState` can succeed: the account has no busy state, or
-   * the user may edit their own call handling.
-   */
-  readonly canDisableBusyState: boolean;
-  /**
-   * Turn off the RingEX busy state RingCX sets during a CX call, so RingEX
-   * rings the transferred call instead of sending it to voicemail.
-   */
-  disableBusyState(): Promise<CxBusyStateResult>;
-  /**
-   * Make the RingEX webphone keep the next matching transferred call for a
-   * silent voicemail drop. Resolves to the hint id.
-   */
-  registerVoicemailDropHint(hint: {
-    customerNumber: string;
-    extensionNumber: string;
-    messageId: string;
-  }): Promise<string>;
-  /** Drop a hint whose transfer failed. */
-  clearVoicemailDropHint(hintId: string): Promise<void>;
 }
-
-/**
- * Outcome of turning off the RingEX busy state:
- * - `disabled`: the busy state is off.
- * - `notApplicable`: the account has no busy state to turn off, because it is
- *   not on new call handling.
- * - `failed`: the request failed, so RingEX may still send calls to voicemail.
- */
-export type CxBusyStateResult = 'disabled' | 'notApplicable' | 'failed';
-
-/**
- * Outcome of a RingCX voicemail drop request:
- * - `transferred`: the call went to the agent's RingEX extension.
- * - `busyStateFailed`: the busy state could not be turned off; the call was
- *   not transferred.
- * - `failed`: the drop could not start; the call was not transferred.
- */
-export type CxVoicemailDropResult =
-  | 'transferred'
-  | 'busyStateFailed'
-  | 'failed';
 
 export interface CxRuntimeOptions {
   /**

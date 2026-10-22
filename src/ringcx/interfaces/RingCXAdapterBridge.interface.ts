@@ -9,6 +9,11 @@ export interface RingCXAdapterBridge {
   onRingCall(call: unknown): void;
   onNewCall(call: unknown): void;
   onEndCall(call: unknown): void;
+  /**
+   * Reports voicemail drop progress on a RingCX call to the host, as
+   * `rc-call-drop-voicemail-notify` does for RingEX calls.
+   */
+  onVoicemailDropped?(call: unknown, voicemailDropStatus: string): void;
   onDisposed?(
     call: unknown,
     extra?: {

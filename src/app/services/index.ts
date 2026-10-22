@@ -7,7 +7,6 @@ export * from './AppFeatures';
 export * from './NoiseReduction';
 export * from './SmartNotes';
 export * from './VoicemailDrop';
-export * from './CxVoicemailDropRunner';
 export * from './ActiveCallControl';
 export * from './Call';
 export * from './CallAction';

@@ -23,6 +23,7 @@ export default {
   // Actions
   submit: 'Submit',
   submitAndHangUp: 'Submit and hang up',
+  submitAfterVoicemailDrop: 'You can submit once the voicemail is dropped.',
 
   // Toast messages
   callDispositionSuccess: 'Call disposition saved successfully.',
