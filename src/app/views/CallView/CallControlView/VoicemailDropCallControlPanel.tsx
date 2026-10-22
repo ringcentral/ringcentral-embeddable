@@ -64,8 +64,11 @@ export const VoicemailDropCallControlPanel: FC<CallControlViewPanelProps> = (
 
   const actionButtons = useMemo(
     () => (
+      // in the 300px main column a grid cell is narrower than long words such
+      // as "Voicemail", so `CallCtrlButton` breaks them mid-word; let each
+      // label (the button's last child) spread into half of the column gap
       <div
-        className="grid w-full grid-cols-3 gap-4 px-10"
+        className="grid w-full grid-cols-3 gap-4 px-10 [&>div>div:last-child]:-mx-2 [&>div>div:last-child]:w-auto"
         data-sign="actionButtons"
       >
         {renderActions.map(
