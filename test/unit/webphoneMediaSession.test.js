@@ -539,6 +539,132 @@ describe('stopSessionAudio / restoreSessionAudio', () => {
   });
 });
 
+describe('kept voice channel (RingCX offhook session)', () => {
+  async function setUp({ muted = false } = {}) {
+    const micTrack = createTrack('mic');
+    const remoteTrack = createTrack('remote');
+    const PeerConnection = createPeerConnectionClass({
+      receivers: [{ track: remoteTrack }],
+    });
+    const { audioElements } = installMedia({
+      peerConnection: PeerConnection,
+      stream: createStream(micTrack),
+    });
+    const noiseReduction = {
+      enabled: true,
+      denoiser: jest.fn(async () => undefined),
+      reset: jest.fn(async () => undefined),
+    };
+    const session = new BrowserWebRtcSession(
+      context(),
+      audioSettings(),
+      noiseReduction,
+    );
+    if (muted) session.setMuted(true);
+    await session.createOffer();
+    const peerConnection = PeerConnection.instances[0];
+    const remote = { getTracks: () => [remoteTrack] };
+    peerConnection.ontrack({ streams: [remote], track: remoteTrack });
+    const audio = audioElements[0];
+    audio.play = jest.fn(async () => undefined);
+    const [sender] = peerConnection.getSenders();
+    return { session, sender, micTrack, remote, audio, noiseReduction };
+  }
+
+  it('only silences the outbound track when keeping the voice channel', async () => {
+    const { session, micTrack, remote, audio, noiseReduction } = await setUp();
+
+    await session.stopSessionAudio({ keepVoiceChannel: true });
+
+    expect(micTrack.enabled).toBe(false);
+    expect(micTrack.stop).not.toHaveBeenCalled();
+    // Resetting noise reduction would leave the mic silent on the next call.
+    expect(noiseReduction.reset).not.toHaveBeenCalled();
+    // The agent keeps hearing the CX call.
+    expect(audio.srcObject).toBe(remote);
+  });
+
+  it('keeps the old behaviour without the option', async () => {
+    const { session, micTrack, audio, noiseReduction } = await setUp();
+
+    await session.stopSessionAudio();
+
+    expect(micTrack.enabled).toBe(false);
+    expect(noiseReduction.reset).toHaveBeenCalledWith('call-1');
+    expect(audio.srcObject).toBeNull();
+  });
+
+  it('puts the microphone track back, re-enables it and re-attaches the speaker', async () => {
+    const { session, sender, micTrack, remote, audio } = await setUp();
+    // A drop left its own track on the sender and the speaker detached.
+    const dropTrack = createTrack('drop');
+    await sender.replaceTrack(dropTrack);
+    await session.stopSessionAudio();
+    sender.replaceTrack.mockClear();
+
+    await session.restoreVoiceChannel();
+
+    expect(sender.replaceTrack).toHaveBeenCalledWith(micTrack);
+    expect(sender.track).toBe(micTrack);
+    expect(micTrack.enabled).toBe(true);
+    expect(audio.srcObject).toBe(remote);
+    expect(audio.play).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not unmute a channel the agent had muted', async () => {
+    const { session, micTrack } = await setUp({ muted: true });
+    await session.stopSessionAudio({ keepVoiceChannel: true });
+
+    await session.restoreVoiceChannel();
+
+    expect(micTrack.enabled).toBe(false);
+  });
+
+  it('leaves a sender that already carries the microphone and a live speaker alone', async () => {
+    const { session, sender, micTrack, remote, audio } = await setUp();
+    await session.stopSessionAudio({ keepVoiceChannel: true });
+
+    await session.restoreVoiceChannel();
+
+    expect(sender.replaceTrack).not.toHaveBeenCalled();
+    expect(micTrack.enabled).toBe(true);
+    expect(audio.srcObject).toBe(remote);
+    expect(audio.play).not.toHaveBeenCalled();
+  });
+
+  it('is idempotent', async () => {
+    const { session, sender, micTrack, remote, audio } = await setUp();
+    await sender.replaceTrack(createTrack('drop'));
+    await session.stopSessionAudio();
+    sender.replaceTrack.mockClear();
+
+    await session.restoreVoiceChannel();
+    await session.restoreVoiceChannel();
+
+    expect(sender.replaceTrack).toHaveBeenCalledTimes(1);
+    expect(sender.track).toBe(micTrack);
+    expect(micTrack.enabled).toBe(true);
+    expect(audio.srcObject).toBe(remote);
+    expect(audio.play).toHaveBeenCalledTimes(1);
+  });
+
+  it('swallows a rejected speaker play', async () => {
+    const { session, audio } = await setUp();
+    await session.stopSessionAudio();
+    audio.play.mockRejectedValueOnce(new Error('NotAllowedError'));
+
+    await expect(session.restoreVoiceChannel()).resolves.toBeUndefined();
+    await Promise.resolve();
+  });
+
+  it('is a no-op before media exists', async () => {
+    installMedia();
+    const session = new BrowserWebRtcSession(context(), audioSettings());
+
+    await expect(session.restoreVoiceChannel()).resolves.toBeUndefined();
+  });
+});
+
 describe('BrowserWebRtcSession teardown', () => {
   it('closes the peer connection, stops tracks and clears audio', async () => {
     const track = createTrack();

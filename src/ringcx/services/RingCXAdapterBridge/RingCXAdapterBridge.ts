@@ -280,6 +280,17 @@ export class RingCXAdapterBridge
     this._adapter.notifyRingCXCall('end', formatted.call);
   }
 
+  onVoicemailDropped(call: unknown, voicemailDropStatus: string): void {
+    const formatted = this._format(call);
+    if (!formatted) {
+      return;
+    }
+    this._adapter.notifyRingCXVoicemailDropped(
+      formatted.call,
+      voicemailDropStatus,
+    );
+  }
+
   onDisposed(call: unknown, extra?: DisposedExtra): void {
     const formatted = this._format(call, extra);
     if (!formatted) {

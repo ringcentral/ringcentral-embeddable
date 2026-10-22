@@ -615,7 +615,11 @@ export class RoutedSideWidgetView extends RcViewModule {
     return Array.from(this._entries.values()).map((entry) => ({
       id: entry.id,
       path: entry.path,
-      backgroundPaths: [entry.backgroundPath, this._getBackgroundPath(entry)],
+      backgroundPaths: [
+        entry.backgroundPath,
+        this._getBackgroundPath(entry),
+        ...this._getExtraBackgroundPaths(entry),
+      ],
       closeWhenLeft: !!entry.closeWhenLeft,
       collapseWhenLeft: !!entry.collapseWhenLeft,
     }));
@@ -945,6 +949,19 @@ export class RoutedSideWidgetView extends RcViewModule {
     return match
       ? entry.resolveBackgroundPath(match.params)
       : entry.backgroundPath;
+  }
+
+  private _getExtraBackgroundPaths(
+    entry: RoutedSideWidgetEntry,
+  ): readonly string[] {
+    if (!entry.resolveExtraBackgroundPaths) {
+      return [];
+    }
+    const match = matchPath<Record<string, string | undefined>>(entry.path, {
+      exact: entry.routeExact,
+      path: entry.routePath,
+    });
+    return entry.resolveExtraBackgroundPaths(match?.params ?? {});
   }
 
   private _isRoutedTab(tabId: string | null): boolean {

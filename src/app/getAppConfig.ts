@@ -1098,7 +1098,13 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       // have to import the host classes into its own bundle.
       {
         provide: 'CxHostIntegration',
-        useFactory: (adapter: Adapter, call: Call, ringCX: RingCX): CxHostIntegration => ({
+        useFactory: (
+          adapter: Adapter,
+          call: Call,
+          ringCX: RingCX,
+          voicemailDrop: VoicemailDrop,
+          voicemailDropView: VoicemailDropView,
+        ): CxHostIntegration => ({
           get isCallIdle() {
             return call.isIdle;
           },
@@ -1112,8 +1118,18 @@ export const getAppConfig = <T extends typeof createSharedApp>({
           dismissExCallUiForCxCall: () => {
             adapter.dismissExCallUiForCxCall();
           },
+          get hasVoicemailDropPermission() {
+            return voicemailDrop.hasVoicemailDropPermission;
+          },
+          openVoicemailDropForCxCall: (cxCallId: string) =>
+            voicemailDropView.openForCxCall(cxCallId),
+          closeVoicemailDropForCxCall: (cxCallId: string) =>
+            voicemailDropView.closeForCxCall(cxCallId),
+          setVoicemailDropHandler: (handler) => {
+            voicemailDropView.setCxDropHandler(handler);
+          },
         }),
-        deps: [Adapter, Call, RingCX],
+        deps: [Adapter, Call, RingCX, VoicemailDrop, VoicemailDropView],
       },
       {
         provide: 'SmsConversationsOptions',

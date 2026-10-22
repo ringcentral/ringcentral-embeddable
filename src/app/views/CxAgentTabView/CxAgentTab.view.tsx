@@ -118,6 +118,19 @@ export class CxAgentTabView extends RcViewModule {
   }
 
   /**
+   * Every agent home tab, once the disposition's call is over: its submit
+   * returns to the tab the call came from, Leads for a preview lead call, so
+   * reaching any of them finishes the page instead of keeping it docked over
+   * that tab.
+   */
+  resolveDispositionHomePaths(callId?: string): readonly string[] {
+    if (callId && this._isLiveCall(callId)) {
+      return [];
+    }
+    return AGENT_HOME_TABS.map((tab) => `${AGENT_PATH}/home/${tab}`);
+  }
+
+  /**
    * CX disposition rendered as a routed side-widget page.
    */
   @autobind

@@ -39,6 +39,7 @@ import { CxCallDisposition } from '../../services/CxCallDisposition';
 import { CxWorkingState } from '../../services/CxWorkingState';
 import { CxActiveCallControl } from '../../services/CxActiveCallControl';
 import { CxAgentScript } from '../../services/CxAgentScript';
+import { CxVoicemailDrop } from '../../services/CxVoicemailDrop';
 import { CxClient } from '../../services/CxClient';
 import type { ActivityLog } from '../../services/CxClient/interfaces';
 import { CxCallHistory } from '../../services/CxCallHistory';
@@ -154,6 +155,8 @@ class CxDispositionView extends RcViewModule {
     private ringCXAdapterBridge?: RingCXAdapterBridge,
     @optional()
     private ringCXSideWidgets?: RingCXSideWidgets,
+    @optional()
+    private cxVoicemailDrop?: CxVoicemailDrop,
   ) {
     super();
     this.storagePlugin.enable(this);
@@ -999,6 +1002,10 @@ class CxDispositionView extends RcViewModule {
     return {
       currentCall: this.currentCall,
       callStatus: this.callStatus,
+      submitBlockedByVoicemailDrop:
+        this.callStatus === 'active' &&
+        Boolean(this.currentCall?.hangupOnDisposition) &&
+        Boolean(this.cxVoicemailDrop?.getDropStatus(callId)),
       saveStatus: this.saveStatus,
       dispositionPickList: this.dispositionPickList,
       validated: this.validated,
@@ -1059,6 +1066,7 @@ class CxDispositionView extends RcViewModule {
     const {
       currentCall,
       callStatus,
+      submitBlockedByVoicemailDrop,
       saveStatus,
       dispositionPickList,
       validated,
@@ -1138,6 +1146,10 @@ class CxDispositionView extends RcViewModule {
     }
 
     const showCallEnded = callStatus === 'callEnd';
+    // A campaign with "Hangup on Disp" makes the server end a live call on
+    // submit, so the button says so, as in Agent One.
+    const submitEndsCall =
+      !showCallEnded && Boolean(currentCall?.hangupOnDisposition);
     const pageTitle = isHistoryMode
       ? (params.method === 'create' ? t('createCallLog') : t('updateCallLog'))
       : t('disposition');
@@ -1323,11 +1335,20 @@ class CxDispositionView extends RcViewModule {
 
         {showSubmitStep && (
           <div className="flex-shrink-0 p-4 border-t border-neutral-b4 shadow-[0_-2px_5px_0_rgba(0,0,0,0.15)]">
+            {submitBlockedByVoicemailDrop ? (
+              <p
+                className="typography-descriptor text-neutral-b2 mb-2"
+                data-sign="submitBlockedByVoicemailDrop"
+              >
+                {t('submitAfterVoicemailDrop')}
+              </p>
+            ) : null}
             <Button
               data-sign="submitButton"
               size="large"
               fullWidth
               disabled={
+                submitBlockedByVoicemailDrop ||
                 saveStatus === SaveStatus.SAVING ||
                 (saveStatus === SaveStatus.SUBMIT && (
                   (dispositionPickList.length > 0 && !dispositionData?.dispositionId) ||
@@ -1341,7 +1362,7 @@ class CxDispositionView extends RcViewModule {
               {saveStatus === SaveStatus.SAVED ? (
                 <Icon symbol={CheckMd} size="medium" />
               ) : saveStatus === SaveStatus.SAVING ? null : (
-                t('submit')
+                t(submitEndsCall ? 'submitAndHangUp' : 'submit')
               )}
             </Button>
           </div>

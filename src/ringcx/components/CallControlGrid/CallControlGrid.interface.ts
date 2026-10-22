@@ -11,7 +11,8 @@ export type CallControlActionType =
   | 'hold'
   | 'mute'
   | 'record'
-  | 'keypad';
+  | 'keypad'
+  | 'voicemailDrop';
 
 /**
  * Descriptor for a single call control action button.

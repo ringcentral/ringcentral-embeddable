@@ -259,6 +259,8 @@ export class AppView extends RcViewModule {
         backgroundPath: '/agent/home/dialer',
         resolveBackgroundPath: (params) =>
           this._cxAgentTabView.resolveDispositionBackgroundPath(params.id),
+        resolveExtraBackgroundPaths: (params) =>
+          this._cxAgentTabView.resolveDispositionHomePaths(params.id),
         collapseWhenLeft: true,
         // Submitting hands over to its background or to the log page.
         closeWhenLeft: true,

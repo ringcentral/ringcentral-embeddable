@@ -23,6 +23,11 @@ export interface CxDispositionViewProps {
  * CxDispositionView UI state props
  */
 export interface CxDispositionViewUIProps {
+  /**
+   * A voicemail drop runs on a "Hangup on Disp" call: submitting now would
+   * make the server end the call and cut the message off.
+   */
+  submitBlockedByVoicemailDrop: boolean;
   currentCall: any;
   callStatus: 'active' | 'callEnd';
   saveStatus: SaveStatus;

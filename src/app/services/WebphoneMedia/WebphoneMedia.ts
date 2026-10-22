@@ -106,6 +106,7 @@ type ManagedAudioElement = SinkIdMediaElement & {
   srcObject?: MediaStream | null;
   pause?: () => void;
   load?: () => void;
+  play?: () => Promise<void> | void;
 };
 
 const createId = () =>
@@ -151,6 +152,9 @@ export class BrowserWebRtcSession implements WebphoneWebRtcSession {
   private _inputTrack?: MediaStreamTrack;
 
   private _audio?: ManagedAudioElement;
+
+  /** The inbound stream, kept so the speaker can be re-attached. */
+  private _remoteStream?: MediaStream;
 
   private _muted = false;
 
@@ -225,13 +229,26 @@ export class BrowserWebRtcSession implements WebphoneWebRtcSession {
    * warm and the swap is seamless — the same reason `changeInputDevice` hot
    * swaps rather than stopping first.
    */
-  async stopSessionAudio() {
-    await this._noiseReduction?.reset(this._context.callId);
+  async stopSessionAudio({
+    keepVoiceChannel = false,
+  }: {
+    /**
+     * The session outlives the call, as the RingCX voice channel does. Only
+     * the outbound track is silenced: the speaker stays on and noise reduction
+     * stays attached, because resetting it would leave the microphone silent
+     * on the next call.
+     */
+    keepVoiceChannel?: boolean;
+  } = {}) {
+    if (!keepVoiceChannel) {
+      await this._noiseReduction?.reset(this._context.callId);
+    }
     const peerConnection = this._peerConnection;
     if (!peerConnection) return;
     peerConnection.getSenders().forEach((sender) => {
       if (sender.track) sender.track.enabled = false;
     });
+    if (keepVoiceChannel) return;
     const outputTrack = this.remoteAudioTrack;
     const audio = this._audio;
     if (!audio?.srcObject || !outputTrack) return;
@@ -251,6 +268,28 @@ export class BrowserWebRtcSession implements WebphoneWebRtcSession {
     this._peerConnection?.getSenders().forEach((sender) => {
       if (sender.track) sender.track.enabled = !this._muted;
     });
+  }
+
+  /**
+   * Puts a session that outlives its call back into a normal state: the
+   * microphone track on the sender, enabled unless the user muted, and the
+   * inbound stream on the speaker. Safe to call at any time.
+   */
+  async restoreVoiceChannel() {
+    const sender = this._peerConnection
+      ?.getSenders()
+      .find((candidate) => candidate.track?.kind === 'audio');
+    const inputTrack = this._inputTrack;
+    if (sender && inputTrack && sender.track !== inputTrack) {
+      await sender.replaceTrack(inputTrack);
+    }
+    this.restoreSessionAudio();
+    const audio = this._audio;
+    const remoteStream = this._remoteStream;
+    if (audio && remoteStream && audio.srcObject !== remoteStream) {
+      audio.srcObject = remoteStream;
+      void Promise.resolve(audio.play?.()).catch(() => undefined);
+    }
   }
 
   setVolume(volume: number) {
@@ -366,6 +405,7 @@ export class BrowserWebRtcSession implements WebphoneWebRtcSession {
       this._audio.load?.();
       this._audio = undefined;
     }
+    this._remoteStream = undefined;
     const handlers = [...this._disposeHandlers];
     this._disposeHandlers.clear();
     handlers.forEach((handler) => {
@@ -397,6 +437,7 @@ export class BrowserWebRtcSession implements WebphoneWebRtcSession {
     peerConnection.ontrack = ({ streams, track }) => {
       const stream = streams[0];
       if (!stream) return;
+      this._remoteStream = stream;
       this._ensureAudioElement().srcObject = stream;
       track.onended = () => undefined;
     };

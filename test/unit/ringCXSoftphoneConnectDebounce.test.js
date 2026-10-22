@@ -60,7 +60,12 @@ function createSoftphone({ isForceLogin = true } = {}) {
     },
     { subscribe: jest.fn(), emit: jest.fn() },
     cxAgentSession,
-    { isOffhook: false },
+    {
+      isOffhook: false,
+      onCallEnded: jest.fn(function onCallEnded() {
+        return this;
+      }),
+    },
     { enable: jest.fn() },
     {
       shared: true,

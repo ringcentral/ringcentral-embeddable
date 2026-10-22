@@ -21,3 +21,18 @@ export interface VoicemailDropMediaHandle {
   /** Re-enables the microphone after the recorded message finishes. */
   restoreSessionAudio?(): void;
 }
+
+export interface VoicemailDropOptions {
+  /**
+   * Keep the call up when the drop ends, as the RingCX voice channel needs:
+   * its owner hangs up the CX call itself. The speaker and noise reduction
+   * stay on during the drop.
+   */
+  keepSession?: boolean;
+}
+
+/** What a drop status change knows beyond the status itself. */
+export interface VoicemailDropStatusDetails {
+  /** The message length in seconds, sent with the `sending` status. */
+  messageDuration?: number;
+}

@@ -76,6 +76,19 @@ export interface CxHostIntegration {
    * so a CX call does not inherit it.
    */
   dismissExCallUiForCxCall(): void;
+  /** Whether the user may drop pre-recorded voicemail messages. */
+  readonly hasVoicemailDropPermission: boolean;
+  /** Open the host voicemail-drop picker for a CX call. */
+  openVoicemailDropForCxCall(cxCallId: string): Promise<void>;
+  /** Close the picker if it is open for this CX call. */
+  closeVoicemailDropForCxCall(cxCallId: string): Promise<void>;
+  /**
+   * Run picks made for CX calls through `handler`, which resolves to whether
+   * the drop started. Per port: call it on every port the chunk loads on.
+   */
+  setVoicemailDropHandler(
+    handler: (cxCallId: string, messageId: string) => Promise<boolean>,
+  ): void;
 }
 
 export interface CxRuntimeOptions {

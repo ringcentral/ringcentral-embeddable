@@ -9,6 +9,7 @@ import {
   List,
   ListItem,
   ListItemText,
+  Tag,
   Text,
 } from '@ringcentral/spring-ui';
 import React, { useEffect, useRef, useState } from 'react';
@@ -21,12 +22,15 @@ import i18n from './i18n';
 type PickerError = 'dropFailed' | 'loadFailed';
 
 export function VoicemailDropPanel({
+  forCxCall = false,
   messages,
   onClose,
   onDrop,
   onLoad,
   showCloseButton,
 }: {
+  /** The picker drops on a RingCX call, which has its own hint and tag. */
+  forCxCall?: boolean;
   messages: VoicemailMessage[];
   onClose: () => void;
   onDrop: (messageId: string) => Promise<boolean>;
@@ -95,17 +99,30 @@ export function VoicemailDropPanel({
       {/* The list runs edge to edge: its items carry their own inset. */}
       <div className="flex-auto overflow-y-auto py-4">
         <div className="mb-2 px-4">
-          <Text
-            component="h2"
-            className="typography-labelSemiBold text-neutral-b0"
-          >
-            {t('prerecordedMessages')}
-          </Text>
+          <div className="flex items-center gap-2">
+            <Text
+              component="h2"
+              className="typography-labelSemiBold text-neutral-b0"
+            >
+              {t('prerecordedMessages')}
+            </Text>
+            {/* Dropping on a RingCX call is new. */}
+            {forCxCall ? (
+              <Tag
+                color="warning"
+                variant="inverted"
+                className="shrink-0"
+                data-sign="voicemailDropExperimental"
+              >
+                {t('experimental')}
+              </Tag>
+            ) : null}
+          </div>
           <Text
             component="p"
             className="typography-descriptor mt-1 text-neutral-b2"
           >
-            {t('pickerInfo')}
+            {t(forCxCall ? 'cxPickerInfo' : 'pickerInfo')}
           </Text>
           {error ? (
             <Alert severity="error" className="mt-3">

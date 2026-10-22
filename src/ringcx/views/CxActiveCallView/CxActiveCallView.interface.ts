@@ -1,4 +1,5 @@
 import type { IvrAlertData } from '../../components/IvrAlertPanel';
+import type { CxVoicemailDropState } from '../../services/CxVoicemailDrop';
 
 export interface CxSideWidgetItem {
   /** Localized widget name, shown in the toggle tooltip. */
@@ -79,6 +80,12 @@ export interface CxActiveCallViewUIProps {
   /** Whether the call has dispositions for the agent to pick from. */
   showDisposition: boolean;
   allowTransfer: boolean;
+  /** Whether a pre-recorded voicemail can be dropped on this call. */
+  canDropVoicemail: boolean;
+  /** The running voicemail drop's status, or `null` when none runs. */
+  voicemailDropStatus: string | null;
+  /** The running voicemail drop with its progress, or `null`. */
+  voicemailDrop: CxVoicemailDropState | null;
   isDefaultRecord: boolean;
   isInbound: boolean;
   notes: string;
@@ -107,6 +114,9 @@ export interface CxActiveCallViewUIFunctions {
   onRestartTimer: () => Promise<void>;
   onActiveCall: () => void;
   onTransfer: () => void;
+  onVoicemailDrop: () => void;
+  /** Stops a running voicemail drop and gives the call back to the agent. */
+  onTakeOver: () => void;
   onDisposition: () => void;
   setKeypadOpen: (isOpen: boolean) => void;
   handleKeypadChange: (value: string) => void;

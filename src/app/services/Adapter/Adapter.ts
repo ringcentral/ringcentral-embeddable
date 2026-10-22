@@ -878,6 +878,11 @@ export class Adapter extends RcModule {
       });
     });
     this._webphoneV2.onCallVoicemailDropped((session: any) => {
+      // A drop on the RingCX voice channel is reported for the CX call
+      // instead, by `notifyRingCXVoicemailDropped`.
+      if (this._isCxOffhookWebphoneSession(session)) {
+        return;
+      }
       this._postMessage({
         type: 'rc-call-drop-voicemail-notify',
         call: this._withContactMatch(session),
@@ -3132,6 +3137,18 @@ export class Adapter extends RcModule {
     this._postRingCXEvent({ type, call });
     this._notifyRingCXActiveCall(event, call as RingCXActiveCallInput);
     this._openSideWidgetAppsForRingCXCall(event, call as SideWidgetCallInfo);
+  }
+
+  /**
+   * Posts `rc-call-drop-voicemail-notify` for a voicemail drop on a RingCX
+   * call: the CX call in the RingCX event shape plus the drop status, the
+   * field the RingEX event carries on its session.
+   */
+  notifyRingCXVoicemailDropped(call: object, voicemailDropStatus: string): void {
+    this._postRingCXEvent({
+      type: 'rc-call-drop-voicemail-notify',
+      call: { ...call, voicemailDropStatus },
+    });
   }
 
   /**

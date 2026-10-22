@@ -2,12 +2,15 @@ export default {
   voicemailDrop: 'Voicemail drop',
   close: 'Close voicemail drop',
   back: 'Back',
-  pickerInfo: 'Plays automatically when the voicemail greeting ends.',
+  pickerInfo:
+    'Plays automatically when the voicemail greeting ends. You can start your next call while it plays.',
+  cxPickerInfo: 'Plays automatically when the voicemail greeting ends.',
   prerecordedMessages: 'Pre-recorded messages',
   noMessages: 'No pre-recorded messages',
   noMessagesDescription:
     'Create a message in Settings before using voicemail drop.',
   drop: 'Drop',
+  experimental: 'Experimental',
   dropMessage: 'Drop {name}',
   dropFailed: 'The voicemail message could not be dropped. Try again.',
   loadFailed: 'External voicemail messages could not be loaded.',
