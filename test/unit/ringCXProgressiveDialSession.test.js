@@ -496,6 +496,82 @@ describe('CxCall progressive support', () => {
       expect(cxClient.offhookTerm).not.toHaveBeenCalled();
     });
 
+    describe('rejected by the server as an unavailable dial request', () => {
+      const rejection = (messageCode) => ({
+        messageCode,
+        message: 'Error processing preview dial request.',
+        detail: 'Unable to locate pended dial request.',
+        errorCode: 'PENDING.DIALREQUEST.UNAVAILABLE',
+      });
+
+      test.each(['-987', '-988'])(
+        'resets the dialer at once on %s and shows the server message',
+        async (messageCode) => {
+          const { call, cxClient, cxPresence, cxSubscription, toast } =
+            createCall({ isOffhook: true });
+
+          await call.previewDial('request-1', '6505550100', '');
+          cxSubscription.listeners[CxCallbackTypes.GENERIC_NOTIFICATION](
+            rejection(messageCode),
+          );
+
+          expect(cxPresence.dialoutStatus).toBe('idle');
+          expect(cxClient.offhookTerm).toHaveBeenCalledTimes(1);
+          expect(toast.danger).toHaveBeenCalledWith({
+            message:
+              'Error processing preview dial request. Unable to locate pended dial request.',
+          });
+
+          await jest.advanceTimersByTimeAsync(NO_ANSWER_TIMEOUT_MS);
+          expect(cxClient.offhookTerm).toHaveBeenCalledTimes(1);
+          expect(toast.danger).toHaveBeenCalledTimes(1);
+        },
+      );
+
+      test('keeps a manual offhook line', async () => {
+        const { call, cxClient, cxPresence, cxSettings, cxSubscription } =
+          createCall({ isOffhook: true });
+        cxSettings.isManualOffhook = true;
+
+        await call.previewDial('request-1', '6505550100', '');
+        cxSubscription.listeners[CxCallbackTypes.GENERIC_NOTIFICATION](
+          rejection('-987'),
+        );
+
+        expect(cxPresence.dialoutStatus).toBe('idle');
+        expect(cxClient.offhookTerm).not.toHaveBeenCalled();
+      });
+
+      test('ignores other generic notifications', async () => {
+        const { call, cxClient, cxPresence, cxSubscription, toast } =
+          createCall({ isOffhook: true });
+
+        await call.previewDial('request-1', '6505550100', '');
+        cxSubscription.listeners[CxCallbackTypes.GENERIC_NOTIFICATION](
+          rejection('-99'),
+        );
+
+        expect(cxPresence.dialoutStatus).toBe('dialing');
+        expect(cxClient.offhookTerm).not.toHaveBeenCalled();
+        expect(toast.danger).not.toHaveBeenCalled();
+      });
+
+      test('leaves a live call alone', async () => {
+        const { call, cxClient, cxPresence, cxSubscription, toast } =
+          createCall({ isOffhook: true });
+
+        await call.previewDial('request-1', '6505550100', '');
+        cxPresence.calls = [{ uii: 'uii-1' }];
+        cxSubscription.listeners[CxCallbackTypes.GENERIC_NOTIFICATION](
+          rejection('-987'),
+        );
+
+        expect(cxPresence.dialoutStatus).toBe('dialing');
+        expect(cxClient.offhookTerm).not.toHaveBeenCalled();
+        expect(toast.danger).not.toHaveBeenCalled();
+      });
+    });
+
     test.each([
       [CxCallbackTypes.PREVIEW_LEAD_STATE, { leadState: 'RINGING' }],
       [CxCallbackTypes.NEW_CALL, { callType: 'OUTBOUND' }],

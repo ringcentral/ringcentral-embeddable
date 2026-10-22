@@ -74,6 +74,19 @@ const PREVIEW_DIAL_RESPONSE_EVENTS = [
   CxCallbackTypes.OFFHOOK_TERM,
 ] as const;
 
+/**
+ * Generic notification codes for a preview dial the server rejected:
+ * -987 the pended dial request is unavailable, -988 it can't be found.
+ */
+const PREVIEW_DIAL_REJECTED_MESSAGE_CODES = ['-987', '-988'];
+
+interface CxGenericNotification {
+  messageCode?: string;
+  message?: string;
+  detail?: string;
+  errorCode?: string;
+}
+
 const DEFAULT_OUTBOUND_SETTING: DialoutFormGroup = {
   dialoutCallerId: '-1',
   dialoutQueueId: '-1',
@@ -425,6 +438,21 @@ class CxCall extends RcModule {
         this.setPhoneIdle();
       },
     );
+    // The server drops a preview dial it can no longer find (the pended
+    // request was used by an earlier call, or expired) with a generic error
+    // and never sends a lead state, so reset the dialer right away.
+    this.cxSubscription.subscribe(
+      CxCallbackTypes.GENERIC_NOTIFICATION,
+      (data?: CxGenericNotification) => {
+        if (
+          !data?.messageCode ||
+          !PREVIEW_DIAL_REJECTED_MESSAGE_CODES.includes(data.messageCode)
+        ) {
+          return;
+        }
+        this._rejectPreviewDial(data);
+      },
+    );
     // Subscribe to offhook term
     this.cxSubscription.subscribe(CxCallbackTypes.OFFHOOK_TERM, () => {
       this.setPhoneIdle();
@@ -756,6 +784,26 @@ class CxCall extends RcModule {
       });
       this._stopPreviewDialResponseWatch = undefined;
     };
+  }
+
+  private _rejectPreviewDial(data: CxGenericNotification): void {
+    this._stopPreviewDialResponseWatch?.();
+    if (
+      this.dialoutStatus !== dialoutStatuses.dialing ||
+      this.cxPresence.calls.length > 0
+    ) {
+      return;
+    }
+    this.logger.warn('previewDial rejected by the server', data.errorCode);
+    if (!this.cxSettings.isManualOffhook) {
+      this.cxClient.offhookTerm();
+    }
+    this.setPhoneIdle();
+    this.toast.danger({
+      message:
+        [data.message, data.detail].filter(Boolean).join(' ') ||
+        t(messageTypes.PREVIEW_DIAL_NO_ANSWER),
+    });
   }
 
   private _resetUnansweredPreviewDial(): void {
