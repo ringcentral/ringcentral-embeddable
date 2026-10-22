@@ -22,6 +22,7 @@ export default {
 
   // Actions
   submit: 'Submit',
+  submitAndHangUp: 'Submit and hang up',
 
   // Toast messages
   callDispositionSuccess: 'Call disposition saved successfully.',

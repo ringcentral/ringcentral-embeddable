@@ -1138,6 +1138,10 @@ class CxDispositionView extends RcViewModule {
     }
 
     const showCallEnded = callStatus === 'callEnd';
+    // A campaign with "Hangup on Disp" makes the server end a live call on
+    // submit, so the button says so, as in Agent One.
+    const submitEndsCall =
+      !showCallEnded && Boolean(currentCall?.hangupOnDisposition);
     const pageTitle = isHistoryMode
       ? (params.method === 'create' ? t('createCallLog') : t('updateCallLog'))
       : t('disposition');
@@ -1341,7 +1345,7 @@ class CxDispositionView extends RcViewModule {
               {saveStatus === SaveStatus.SAVED ? (
                 <Icon symbol={CheckMd} size="medium" />
               ) : saveStatus === SaveStatus.SAVING ? null : (
-                t('submit')
+                t(submitEndsCall ? 'submitAndHangUp' : 'submit')
               )}
             </Button>
           </div>
