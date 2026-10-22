@@ -53,6 +53,7 @@ RingCX calls use the existing call events:
 | `rc-call-start-notify` | RingCX call is connected. |
 | `rc-call-end-notify` | RingCX call ended. It usually comes before the disposition. If the agent dispositions while the call is still connected, it comes after `rc-ringcx-call-disposed-notify`. |
 | `rc-active-call-notify` | Sent on ring (inbound only), connect, and end, in the RingEX active call shape: `call.telephonyStatus` is `Ringing`, `CallConnected`, or `NoCall` (with `terminationType: 'final'`), and `call.startTime` is epoch milliseconds. `call.source` is `'ringcx'`. The RingEX leg that carries the RingCX audio is not reported. |
+| `rc-call-drop-voicemail-notify` | The status of a voicemail drop on the RingCX call changed. `call.voicemailDropStatus` is set. See [Voicemail drop](../config/voicemail-drop.md#voicemail-drop-event). |
 
 RingCX-only events:
 
@@ -187,6 +188,10 @@ A progressive dial group is a **Preview** dial group with **Enable progressive m
 - Agents cannot pick the lead or its number, so the Lead tab's numbers are not clickable; **View lead** and **Manual pass** stay available.
 - **Stop dialing** stops the dialer and disconnects the line once no call is live. A manual call, an inbound call, choosing a state other than Available, a dial group change, or logging out also stops it.
 - If RingCX leaves the agent in another state after a call, such as Working, the widget asks the agent to go available. **Go available** resumes dialing; **Dismiss** stops it.
+
+## Voicemail drop
+
+With `enableVoicemailDrop=1` and `enableSideWidget=1`, agents using the integrated softphone can drop a pre-recorded message on outbound RingCX calls. Unlike RingEX calls, the agent stays on the call until the message ends, and can take over if a person answers. See [Voicemail drop on RingCX calls](../config/voicemail-drop.md#voicemail-drop-on-ringcx-calls-experimental).
 
 ## Contact matching
 
