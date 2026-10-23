@@ -52,6 +52,7 @@ RingCX calls use the existing call events:
 | `rc-call-start-notify` | RingCX call is connected. |
 | `rc-call-end-notify` | RingCX call ended. It usually comes before the disposition. If the agent dispositions while the call is still connected, it comes after `rc-ringcx-call-disposed-notify`. |
 | `rc-active-call-notify` | Sent on ring (inbound only), connect, and end, in the RingEX active call shape: `call.telephonyStatus` is `Ringing`, `CallConnected`, or `NoCall` (with `terminationType: 'final'`), and `call.startTime` is epoch milliseconds. `call.source` is `'ringcx'`. The RingEX leg that carries the RingCX audio is not reported. |
+| `rc-call-drop-voicemail-notify` | The status of a voicemail drop on the RingCX call changed. `call.voicemailDropStatus` is set. See [Voicemail drop](../config/voicemail-drop.md#voicemail-drop-event). |
 
 RingCX-only events:
 
@@ -60,7 +61,8 @@ RingCX-only events:
 | `rc-ringcx-call-disposed-notify` | `{ type, call }` after the agent submits a disposition. `call.ringcx.disposition` and `call.ringcx.notes` are set, plus `call.aiNote` when the disposition form has a call summary. Calls without a disposition step do not send it. |
 | `rc-ringcx-agent-session-notify` | `{ type, status, agent?, session?, permissions? }`. `status` is `idle`, `loading`, `authenticating`, `chooseAccount`, `sessionConfig`, `ready`, or `error`. Sent when the status, agent, or session configuration changes. |
 | `rc-ringcx-agent-state-notify` | `{ type, state, auxState, pendingDisposition }` while the session is `ready`. `state` is the RingCX agent state, such as `AVAILABLE`, `ENGAGED`, or `ON-BREAK`. |
-| `rc-ringcx-lead-notify` | `{ type, action, leads?, lead?, destination? }`. `action` is `loaded`, `passed`, or `dialed`; `dialed` is sent once the dial request is sent. Each lead is `{ leadId, externId, campaignId, firstName, lastName, destination, raw }`, where `raw` is the original RingCX lead. |
+| `rc-ringcx-lead-notify` | `{ type, action, leads?, lead?, destination? }`. `action` is `loaded`, `passed`, `dialed`, or `updated`; `dialed` is sent once the dial request is sent, and `updated` once the agent saved an edit to the lead, with the saved fields on `lead`. Each lead is `{ leadId, externId, campaignId, firstName, lastName, destination, raw }`, where `raw` is the original RingCX lead. A lead dialed by the progressive dialer has no `destination`: the server picks the number. |
+| `rc-ringcx-progressive-dial-notify` | `{ type, running, phase, nextDialAt, lead?, reason }`. Sent when the progressive dialer starts, stops, or moves to another step, and when a start is refused; not every countdown second. `phase` is `idle`, `connecting`, `fetching`, `countdown`, `dialing`, `waiting`, or `noLeads`. `nextDialAt` is the epoch milliseconds of the next dial (`countdown`) or lead fetch (`noLeads`). `lead` is the lead the countdown dials, in the `rc-ringcx-lead-notify` shape. `reason` is set when the dialer stopped or did not start: `stopped`, `notProgressive`, `busy`, `notAvailable`, `offhookFailed`, `offhookEnded`, `manualOutdial`, `inboundCall`, `agentState`, `dialGroupChanged`, `dialFailed`, or `logout`. |
 
 The integrated softphone runs on the RingEX WebPhone, so its status is `rc-webphone-connection-status-notify`.
 
@@ -76,8 +78,10 @@ Event `startTime` is an ISO-8601 string. The call-log request uses the host call
 | `rc-adapter-control-call` | `{ callAction, callId, source: 'ringcx', options? }` | `answer`, `reject`, `hangup`, `hold`, `unhold`, `mute`, `unmute`, `record` or `startRecord`, `stopRecord`, and `dtmf` with `options.dtmf`. |
 | `rc-adapter-ringcx-start-agent-session` | `{}` | Starts the Agent tab session. |
 | `rc-adapter-ringcx-end-agent-session` | `{}` | Ends the session. Refused while a call or pending disposition is active. |
-| `rc-adapter-ringcx-set-agent-state` | `{ state }` | Sets the working state and clears any aux state. |
-| `rc-adapter-ringcx-dial-lead` | `{ lead, destination }` | Dials a preview lead. Pass the `raw` lead from `rc-ringcx-lead-notify` as `lead`. |
+| `rc-adapter-ringcx-set-agent-state` | `{ state, auxState? }` | Sets the agent state, such as `AVAILABLE` or `ON-BREAK`. `auxState` picks one of the agent's aux states for it, as `rc-ringcx-agent-state-notify` reports them; without it, the first aux state listed for `state` is used. A state the agent cannot choose is refused with a message. |
+| `rc-adapter-ringcx-dial-lead` | `{ lead, destination }` | Dials a preview lead. `lead` can be the lead from `rc-ringcx-lead-notify`, its `raw` lead, or `{ leadId, campaignId }`; with only `leadId`, the lead must be in the agent's current lead list. `destination` must be one of the lead's numbers, in its national or E.164 form; another number is not dialed. |
+| `rc-adapter-ringcx-start-progressive-dial` | `{}` | Same as **Start dialing** on the Leads tab. Needs a progressive dial group (`permissions.progressiveEnabled`). When the agent is not available, the widget opens on the Leads tab and asks the agent to go available. |
+| `rc-adapter-ringcx-stop-progressive-dial` | `{}` | Same as **Stop dialing** on the Leads tab. |
 
 `rc-adapter-control-call` actions apply to the current RingCX call, as the Agent tab controls do. `hold`, `unhold`, `hangup`, and recording actions follow the call permissions. `answer`, `reject`, `mute`, `unmute`, and `dtmf` need the integrated softphone; `answer` and `reject` do nothing when no call is ringing there. A refused or failed action shows a message in the widget.
 
@@ -141,7 +145,11 @@ RingCX history stays in the Agent tab. `/unlogged-calls` does not include RingCX
 
 ## Leads
 
-Register `leadViewerPath` to show **View lead** on a preview lead. The request body is `{ lead, agentId }`, where `lead` is the original RingCX lead (the same object as `raw` in `rc-ringcx-lead-notify`). The button is hidden when the path is not registered.
+Register `leadViewerPath` to show **View lead** in the Lead tab header. The request body is `{ lead, agentId }`. For a lead from the Leads tab, `lead` is the original RingCX lead (the same object as `raw` in `rc-ringcx-lead-notify`). For a call's lead, it is the lead data from the call, merged with the matching Leads tab lead when there is one. The button is hidden when the path is not registered.
+
+## Voicemail drop
+
+With `enableVoicemailDrop=1` and `enableSideWidget=1`, agents using the integrated softphone can drop a pre-recorded message on outbound RingCX calls. Unlike RingEX calls, the agent stays on the call until the message ends, and can take over if a person answers. See [Voicemail drop on RingCX calls](../config/voicemail-drop.md#voicemail-drop-on-ringcx-calls-experimental).
 
 ## Contact matching
 
