@@ -1857,10 +1857,22 @@ export class ThirdParty extends RcModule {
       if (item.type === 'VoiceMail' || item.type === 'Fax') {
         await this._hydrateConversationAttachments(item);
       }
-      await this._sendConversationLog(messageLoggerPath, {
+      const response = await this._sendConversationLog(messageLoggerPath, {
         conversation: item,
         ...options,
       });
+      const messageLogs = response?.data?.messageLogs;
+      if (messageLogs && typeof messageLogs === 'object') {
+        const stateMap: Record<string, ThirdPartyMessageLogState> = {};
+        Object.entries(messageLogs).forEach(([messageId, logId]) => {
+          if (logId) {
+            stateMap[String(messageId)] = { logId: String(logId) };
+          }
+        });
+        if (Object.keys(stateMap).length > 0) {
+          this._setMessageLogState(stateMap);
+        }
+      }
       if (this._messageLogEntityMatchSourceAdded && item.conversationLogId) {
         this._conversationMatcherApi?.match({
           queries: [item.conversationLogId],
@@ -1882,8 +1894,8 @@ export class ThirdParty extends RcModule {
       conversation: ThirdPartyConversation;
       [key: string]: unknown;
     }
-  ): Promise<void> {
-    await requestWithPostMessage(path, data, LOG_TIMEOUT);
+  ): Promise<{ data?: { messageLogs?: Record<string, unknown> } } | null> {
+    return requestWithPostMessage(path, data, LOG_TIMEOUT);
   }
 
   private async _hydrateConversationAttachments(

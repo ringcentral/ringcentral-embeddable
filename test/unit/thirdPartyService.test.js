@@ -1082,6 +1082,32 @@ describe('ThirdParty service', () => {
     await expect(service.logConversation({ item: { type: 'SMS' } })).resolves.toBeUndefined();
   });
 
+  test('stores message log state returned from the message logger', async () => {
+    const { service } = createThirdParty();
+    registerService(service);
+    const item = { type: 'SMS', messages: [{ id: 101 }, { id: 102 }, { id: 103 }] };
+
+    requestWithPostMessage.mockResolvedValueOnce({
+      data: { messageLogs: { 101: 'log-1', 102: 2002, 103: '' } },
+    });
+    await service.logConversation({ item });
+    expect(service.messageLogStateMap).toEqual({
+      101: { logId: 'log-1' },
+      102: { logId: '2002' },
+    });
+
+    requestWithPostMessage.mockResolvedValueOnce({ data: { messageLogs: { 104: null } } });
+    await service.logConversation({ item });
+    requestWithPostMessage.mockResolvedValueOnce({ data: {} });
+    await service.logConversation({ item });
+    requestWithPostMessage.mockResolvedValueOnce(null);
+    await service.logConversation({ item });
+    expect(service.messageLogStateMap).toEqual({
+      101: { logId: 'log-1' },
+      102: { logId: '2002' },
+    });
+  });
+
   test('runs simple registered actions and settings updates', async () => {
     const { service } = createThirdParty();
     registerService(service);
