@@ -1368,6 +1368,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#voicemail-drop-on-ringcx-calls-experimental" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Voicemail drop on RingCX calls (Experimental)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Voicemail drop on RingCX calls (Experimental)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#different-between-ringex-and-ringcx-calls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Different between RingEX and RingCX calls
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#online-demo" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2733,6 +2761,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#voicemail-drop-on-ringcx-calls-experimental" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Voicemail drop on RingCX calls (Experimental)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Voicemail drop on RingCX calls (Experimental)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#different-between-ringex-and-ringcx-calls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Different between RingEX and RingCX calls
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#online-demo" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2873,6 +2929,55 @@
 <p><img alt="voicemail drop settings" src="../../assets/voicemail-drop-setting.png" /></p>
 <p>After pre-recorded messages added, user will get voicemail drop button in call actions. User can select one of the pre-recorded messages to leave.</p>
 <p><img alt="voicemail drop" src="../../assets/voicemail-drop.png" /></p>
+<h2 id="voicemail-drop-on-ringcx-calls-experimental">Voicemail drop on RingCX calls (Experimental)</h2>
+<p><span class="mdx-badge"><span class="mdx-badge__icon"><a href="https://github.com/ringcentral/ringcentral-embeddable/releases" title="Minimum version"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m21.41 11.58-9-9A2 2 0 0 0 11 2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 .59 1.42l9 9A2 2 0 0 0 13 22a2 2 0 0 0 1.41-.59l7-7A2 2 0 0 0 22 13a2 2 0 0 0-.59-1.42M13 20l-9-9V4h7l9 9M6.5 5A1.5 1.5 0 1 1 5 6.5 1.5 1.5 0 0 1 6.5 5"/></svg></span></a></span><span class="mdx-badge__text"><a href="https://github.com/ringcentral/ringcentral-embeddable/releases">3.1.0</a></span></span></p>
+<p>Voicemail drop on <a href="../../integration/ringcx/">RingCX</a> calls needs <code>enableRingCX=1</code> as well, and the agent's voice connection must be the integrated softphone. The message plays on the agent's own line, so the agent stays on the call while it plays:</p>
+<ul>
+<li>The agent's microphone is muted during the drop, but the agent still hears the call, including the greeting and beep.</li>
+<li>The call page shows the progress: an elapsed timer while waiting for the greeting to end, then a bar with the played and total time of the message.</li>
+<li>Mute, keypad, hold, transfer and recording are disabled during the drop. <strong>End call</strong> stays available.</li>
+<li>If a person answers, <strong>Take over</strong> stops the message and gives the call back to the agent, with the microphone as it was before the drop.</li>
+<li>When the drop starts, the disposition opens in the side panel if the call needs one, so the agent can fill it in while the message plays.</li>
+<li>For campaigns that hang up on disposition, <strong>Submit and hang up</strong> is disabled until the message ends.</li>
+<li>When the message ends, the call hangs up. The agent submits the disposition and can then take the next call.</li>
+</ul>
+<h3 id="different-between-ringex-and-ringcx-calls">Different between RingEX and RingCX calls</h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>RingEX call</th>
+<th>RingCX call</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Calls</td>
+<td>Outbound</td>
+<td>Outbound</td>
+</tr>
+<tr>
+<td>After <strong>Drop</strong></td>
+<td>The widget goes to the dialer. The call keeps playing the message in the background.</td>
+<td>The agent stays on the call page, which shows the drop's progress.</td>
+</tr>
+<tr>
+<td>Next call</td>
+<td>Can be started right away.</td>
+<td>Can be started once the message ends and the call is dispositioned. RingCX keeps the agent engaged on the call until then.</td>
+</tr>
+<tr>
+<td>Talk to the caller during the drop</td>
+<td>No</td>
+<td>Yes, with <strong>Take over</strong></td>
+</tr>
+<tr>
+<td>When the message ends</td>
+<td>The call hangs up.</td>
+<td>The call hangs up, and the agent finishes the disposition.</td>
+</tr>
+</tbody>
+</table>
 <h2 id="online-demo">Online demo</h2>
 <p><a class="md-button md-button--primary" href="https://apps.ringcentral.com/integration/ringcentral-embeddable/3.x/index.html">Voicemail drop online demo</a></p>
 
