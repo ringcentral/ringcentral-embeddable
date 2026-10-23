@@ -2160,6 +2160,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#voicemail-drop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Voicemail drop
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#contact-matching" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2900,6 +2911,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#voicemail-drop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Voicemail drop
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#contact-matching" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3091,6 +3113,10 @@
 <td><code>rc-active-call-notify</code></td>
 <td>Sent on ring (inbound only), connect, and end, in the RingEX active call shape: <code>call.telephonyStatus</code> is <code>Ringing</code>, <code>CallConnected</code>, or <code>NoCall</code> (with <code>terminationType: 'final'</code>), and <code>call.startTime</code> is epoch milliseconds. <code>call.source</code> is <code>'ringcx'</code>. The RingEX leg that carries the RingCX audio is not reported.</td>
 </tr>
+<tr>
+<td><code>rc-call-drop-voicemail-notify</code></td>
+<td>The status of a voicemail drop on the RingCX call changed. <code>call.voicemailDropStatus</code> is set. See <a href="../../config/voicemail-drop/#voicemail-drop-event">Voicemail drop</a>.</td>
+</tr>
 </tbody>
 </table>
 <p>RingCX-only events:</p>
@@ -3116,7 +3142,11 @@
 </tr>
 <tr>
 <td><code>rc-ringcx-lead-notify</code></td>
-<td><code>{ type, action, leads?, lead?, destination? }</code>. <code>action</code> is <code>loaded</code>, <code>passed</code>, or <code>dialed</code>; <code>dialed</code> is sent once the dial request is sent. Each lead is <code>{ leadId, externId, campaignId, firstName, lastName, destination, raw }</code>, where <code>raw</code> is the original RingCX lead.</td>
+<td><code>{ type, action, leads?, lead?, destination? }</code>. <code>action</code> is <code>loaded</code>, <code>passed</code>, <code>dialed</code>, or <code>updated</code>; <code>dialed</code> is sent once the dial request is sent, and <code>updated</code> once the agent saved an edit to the lead, with the saved fields on <code>lead</code>. Each lead is <code>{ leadId, externId, campaignId, firstName, lastName, destination, raw }</code>, where <code>raw</code> is the original RingCX lead. A lead dialed by the progressive dialer has no <code>destination</code>: the server picks the number.</td>
+</tr>
+<tr>
+<td><code>rc-ringcx-progressive-dial-notify</code></td>
+<td><code>{ type, running, phase, nextDialAt, lead?, reason }</code>. Sent when the progressive dialer starts, stops, or moves to another step, and when a start is refused; not every countdown second. <code>phase</code> is <code>idle</code>, <code>connecting</code>, <code>fetching</code>, <code>countdown</code>, <code>dialing</code>, <code>waiting</code>, or <code>noLeads</code>. <code>nextDialAt</code> is the epoch milliseconds of the next dial (<code>countdown</code>) or lead fetch (<code>noLeads</code>). <code>lead</code> is the lead the countdown dials, in the <code>rc-ringcx-lead-notify</code> shape. <code>reason</code> is set when the dialer stopped or did not start: <code>stopped</code>, <code>notProgressive</code>, <code>busy</code>, <code>notAvailable</code>, <code>offhookFailed</code>, <code>offhookEnded</code>, <code>manualOutdial</code>, <code>inboundCall</code>, <code>agentState</code>, <code>dialGroupChanged</code>, <code>dialFailed</code>, or <code>logout</code>.</td>
 </tr>
 </tbody>
 </table>
@@ -3155,13 +3185,23 @@
 </tr>
 <tr>
 <td><code>rc-adapter-ringcx-set-agent-state</code></td>
-<td><code>{ state }</code></td>
-<td>Sets the working state and clears any aux state.</td>
+<td><code>{ state, auxState? }</code></td>
+<td>Sets the agent state, such as <code>AVAILABLE</code> or <code>ON-BREAK</code>. <code>auxState</code> picks one of the agent's aux states for it, as <code>rc-ringcx-agent-state-notify</code> reports them; without it, the first aux state listed for <code>state</code> is used. A state the agent cannot choose is refused with a message.</td>
 </tr>
 <tr>
 <td><code>rc-adapter-ringcx-dial-lead</code></td>
 <td><code>{ lead, destination }</code></td>
-<td>Dials a preview lead. Pass the <code>raw</code> lead from <code>rc-ringcx-lead-notify</code> as <code>lead</code>.</td>
+<td>Dials a preview lead. <code>lead</code> can be the lead from <code>rc-ringcx-lead-notify</code>, its <code>raw</code> lead, or <code>{ leadId, campaignId }</code>; with only <code>leadId</code>, the lead must be in the agent's current lead list. <code>destination</code> must be one of the lead's numbers, in its national or E.164 form; another number is not dialed.</td>
+</tr>
+<tr>
+<td><code>rc-adapter-ringcx-start-progressive-dial</code></td>
+<td><code>{}</code></td>
+<td>Same as <strong>Start dialing</strong> on the Leads tab. Needs a progressive dial group (<code>permissions.progressiveEnabled</code>). When the agent is not available, the widget opens on the Leads tab and asks the agent to go available.</td>
+</tr>
+<tr>
+<td><code>rc-adapter-ringcx-stop-progressive-dial</code></td>
+<td><code>{}</code></td>
+<td>Same as <strong>Stop dialing</strong> on the Leads tab.</td>
 </tr>
 </tbody>
 </table>
@@ -3230,7 +3270,9 @@
 <p>History rows also show <strong>Refresh contact</strong> and the <code>callAction</code> buttons registered with <code>buttonEventPath</code>, as RingEX rows do. A <code>callAction</code> click sends the row as <code>resource</code> in the same shape as the call events, so <code>resource.source</code> is <code>'ringcx'</code> and RingCX fields are under <code>resource.ringcx</code>.</p>
 <p>RingCX history stays in the Agent tab. <code>/unlogged-calls</code> does not include RingCX calls.</p>
 <h2 id="leads">Leads</h2>
-<p>Register <code>leadViewerPath</code> to show <strong>View lead</strong> on a preview lead. The request body is <code>{ lead, agentId }</code>, where <code>lead</code> is the original RingCX lead (the same object as <code>raw</code> in <code>rc-ringcx-lead-notify</code>). The button is hidden when the path is not registered.</p>
+<p>Register <code>leadViewerPath</code> to show <strong>View lead</strong> in the Lead tab header. The request body is <code>{ lead, agentId }</code>. For a lead from the Leads tab, <code>lead</code> is the original RingCX lead (the same object as <code>raw</code> in <code>rc-ringcx-lead-notify</code>). For a call's lead, it is the lead data from the call, merged with the matching Leads tab lead when there is one. The button is hidden when the path is not registered.</p>
+<h2 id="voicemail-drop">Voicemail drop</h2>
+<p>With <code>enableVoicemailDrop=1</code> and <code>enableSideWidget=1</code>, agents using the integrated softphone can drop a pre-recorded message on outbound RingCX calls. Unlike RingEX calls, the agent stays on the call until the message ends, and can take over if a person answers. See <a href="../../config/voicemail-drop/#voicemail-drop-on-ringcx-calls-experimental">Voicemail drop on RingCX calls</a>.</p>
 <h2 id="contact-matching">Contact matching</h2>
 <p><code>contactMatchPath</code> receives the same body as for RingEX calls, <code>{ phoneNumbers, callerIds, triggerFrom? }</code>, with plain phone numbers. The old phone-plus-call-type match key from the standalone RingCX Embeddable is not used. <code>callType</code> is on <code>call.ringcx</code>.</p>
 <h2 id="migrating-from-the-standalone-ringcx-embeddable">Migrating from the standalone RingCX Embeddable</h2>
