@@ -380,7 +380,7 @@ export class ConversationLogger extends ConversationLoggerBase {
           new Date(b.creationTime ?? 0).getTime(),
       )
       .map((message) => this._addTypingDuration(message));
-    await this._thirdParty.logSelectedMessages({
+    await this._thirdParty.sendSelectedMessagesLog({
       conversation: {
         conversationId,
         type: logItem?.type ?? selectedMessages[0].type,
