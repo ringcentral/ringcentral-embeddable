@@ -1490,7 +1490,7 @@ export class ThirdParty extends RcModule {
    * them logged into the CRM log entry the service responds with.
    */
   @delegate('server')
-  async logSelectedMessages({
+  async sendSelectedMessagesLog({
     conversation,
     selectedMessageIds,
     correspondentEntity,
@@ -1503,7 +1503,7 @@ export class ThirdParty extends RcModule {
     if (!messageLoggerPath || selectedMessageIds.length === 0) {
       return;
     }
-    const logId = await this._sendSelectedMessagesLog(messageLoggerPath, {
+    const logId = await this._requestSelectedMessagesLog(messageLoggerPath, {
       conversation,
       triggerType: 'selectedLog',
       selectedMessageIds,
@@ -1523,7 +1523,7 @@ export class ThirdParty extends RcModule {
   }
 
   @delegate('mainClient')
-  private async _sendSelectedMessagesLog(
+  private async _requestSelectedMessagesLog(
     path: string,
     data: {
       conversation: ThirdPartyConversation;
