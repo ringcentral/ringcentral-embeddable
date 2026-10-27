@@ -28,3 +28,15 @@ storybook-static
 npm-package
 dist
 coverage
+legacy
+legacy-test
+legacy-getBrandConfig
+plans
+.github/instructions
+.github/prompts
+.github/copilot-instructions.md
+.cursor
+.claude
+.auto-dev
+.playwright-mcp
+plans

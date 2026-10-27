@@ -18,6 +18,8 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
+      - name: Check package-lock.json uses the public npm registry
+        run: npm run lockfile:check
       - run: npm ci
       - run: npm test
       - run: npm run test:e2e

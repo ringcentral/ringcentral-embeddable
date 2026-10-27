@@ -1,0 +1,4 @@
+# Keep registry mirror URLs out of package-lock.json
+if git diff --cached --name-only | grep -qx 'package-lock.json'; then
+  npm run -s lockfile:normalize && git add package-lock.json
+fi
