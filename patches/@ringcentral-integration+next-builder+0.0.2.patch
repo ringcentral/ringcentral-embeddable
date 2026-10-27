@@ -1,0 +1,408 @@
+diff --git a/node_modules/@ringcentral-integration/next-builder/src/themeInject/getThemeInjectTemplate.js b/node_modules/@ringcentral-integration/next-builder/src/themeInject/getThemeInjectTemplate.js
+--- a/node_modules/@ringcentral-integration/next-builder/src/themeInject/getThemeInjectTemplate.js
++++ b/node_modules/@ringcentral-integration/next-builder/src/themeInject/getThemeInjectTemplate.js
+@@ -31,11 +31,11 @@ function getThemeInjectTemplate(code) {
+   var renderAs = options.renderAs;
+   // brandConfig.code
+   var mainSource = _fsExtra["default"].readFileSync(_path["default"].join(__dirname, './inline/themeInject.js')).toString();
+-  var theme = code && _themeMap.themeMap[code];
++  var theme = code && (0, _themeMap.getTheme)(code);
+   if (!theme) throw new Error('theme not found, please add the brand code into themeMap');
+   var primaryColor = getSuiPrimary(theme);
+-  var darkColors = getSuiPrimary(_themeMap.themeMap['rc_dark']);
+-  var contrastColors = getSuiPrimary(_themeMap.themeMap['rc_contrast']);
++  var darkColors = getSuiPrimary((0, _themeMap.getTheme)('rc_dark'));
++  var contrastColors = getSuiPrimary((0, _themeMap.getTheme)('rc_contrast'));
+   var scriptContent = (0, _template["default"])(mainSource)({
+     primaryColor: primaryColor.foreground,
+     bgColor: primaryColor.background,
+diff --git a/node_modules/@ringcentral-integration/next-builder/src/themeInject/getThemeInjectTemplate.ts b/node_modules/@ringcentral-integration/next-builder/src/themeInject/getThemeInjectTemplate.ts
+--- a/node_modules/@ringcentral-integration/next-builder/src/themeInject/getThemeInjectTemplate.ts
++++ b/node_modules/@ringcentral-integration/next-builder/src/themeInject/getThemeInjectTemplate.ts
+@@ -2,7 +2,7 @@ import fs from 'fs-extra';
+ import template from 'lodash/template';
+ import path from 'path';
+ 
+-import { themeMap } from './themeMap';
++import { getTheme, type themeMap } from './themeMap';
+ 
+ const getSuiPrimary = (obj: any) => {
+   const theme: any = Object.entries(obj)[0][1];
+@@ -32,14 +32,14 @@ export function getThemeInjectTemplate(
+     .readFileSync(path.join(__dirname, './inline/themeInject.js'))
+     .toString();
+ 
+-  const theme = code && themeMap[code];
++  const theme = code && getTheme(code);
+ 
+   if (!theme)
+     throw new Error('theme not found, please add the brand code into themeMap');
+ 
+   const primaryColor = getSuiPrimary(theme);
+-  const darkColors = getSuiPrimary(themeMap['rc_dark']);
+-  const contrastColors = getSuiPrimary(themeMap['rc_contrast']);
++  const darkColors = getSuiPrimary(getTheme('rc_dark'));
++  const contrastColors = getSuiPrimary(getTheme('rc_contrast'));
+ 
+   const scriptContent = template(mainSource)({
+     primaryColor: primaryColor.foreground,
+diff --git a/node_modules/@ringcentral-integration/next-builder/src/themeInject/themeMap.js b/node_modules/@ringcentral-integration/next-builder/src/themeInject/themeMap.js
+--- a/node_modules/@ringcentral-integration/next-builder/src/themeInject/themeMap.js
++++ b/node_modules/@ringcentral-integration/next-builder/src/themeInject/themeMap.js
+@@ -1,112 +1,86 @@
+ "use strict";
+ 
+ require("core-js/modules/es.object.define-property.js");
++require("core-js/modules/es.array.concat.js");
+ Object.defineProperty(exports, "__esModule", {
+   value: true
+ });
+-exports.themeMap = void 0;
+-var _atosRich = _interopRequireDefault(require("@ringcentral/spring-theme/tailwind/themes/atosRich"));
+-var _attRich = _interopRequireDefault(require("@ringcentral/spring-theme/tailwind/themes/attRich"));
+-var _avayaCustomized = _interopRequireDefault(require("@ringcentral/spring-theme/tailwind/themes/avayaCustomized"));
+-var _brightSpeedRich = _interopRequireDefault(require("@ringcentral/spring-theme/tailwind/themes/brightSpeedRich"));
+-var _btRich = _interopRequireDefault(require("@ringcentral/spring-theme/tailwind/themes/btRich"));
+-var _charterEnterpriseBalanced = _interopRequireDefault(require("@ringcentral/spring-theme/tailwind/themes/charterEnterpriseBalanced"));
+-var _dtTelekomRich = _interopRequireDefault(require("@ringcentral/spring-theme/tailwind/themes/dtTelekomRich"));
+-var _dtatosRich = _interopRequireDefault(require("@ringcentral/spring-theme/tailwind/themes/dtatosRich"));
+-var _eastlinkSimple = _interopRequireDefault(require("@ringcentral/spring-theme/tailwind/themes/eastlinkSimple"));
+-var _ecotelSimple = _interopRequireDefault(require("@ringcentral/spring-theme/tailwind/themes/ecotelSimple"));
+-var _frontierBalanced = _interopRequireDefault(require("@ringcentral/spring-theme/tailwind/themes/frontierBalanced"));
+-var _highContrast = _interopRequireDefault(require("@ringcentral/spring-theme/tailwind/themes/highContrast"));
+-var _junoDark = _interopRequireDefault(require("@ringcentral/spring-theme/tailwind/themes/junoDark"));
+-var _junoLight = _interopRequireDefault(require("@ringcentral/spring-theme/tailwind/themes/junoLight"));
+-var _mcmRich = _interopRequireDefault(require("@ringcentral/spring-theme/tailwind/themes/mcmRich"));
+-var _optusRich = _interopRequireDefault(require("@ringcentral/spring-theme/tailwind/themes/optusRich"));
+-var _sunriseSimple = _interopRequireDefault(require("@ringcentral/spring-theme/tailwind/themes/sunriseSimple"));
+-var _telusRich = _interopRequireDefault(require("@ringcentral/spring-theme/tailwind/themes/telusRich"));
+-var _verizonSimple = _interopRequireDefault(require("@ringcentral/spring-theme/tailwind/themes/verizonSimple"));
+-var _versatelBalanced = _interopRequireDefault(require("@ringcentral/spring-theme/tailwind/themes/versatelBalanced"));
+-var _vodafoneRich = _interopRequireDefault(require("@ringcentral/spring-theme/tailwind/themes/vodafoneRich"));
+-var _zayoRich = _interopRequireDefault(require("@ringcentral/spring-theme/tailwind/themes/zayoRich"));
+-function _interopRequireDefault(e) { return e && e.__esModule ? e : { "default": e }; }
+-// @ts-ignore
+-
+-// @ts-ignore
+-
+-// @ts-ignore
+-
+-// @ts-ignore
+-
+-// @ts-ignore
+-
+-// @ts-ignore
+-
+-// @ts-ignore
+-
+-// @ts-ignore
+-
+-// @ts-ignore
+-
+-// @ts-ignore
+-
+-// @ts-ignore
+-
+-// @ts-ignore
+-
+-// @ts-ignore
+-
+-// @ts-ignore
+-
+-// @ts-ignore
+-
+-// @ts-ignore
+-
+-// @ts-ignore
+-
+-// @ts-ignore
+-
+-// @ts-ignore
+-
+-// @ts-ignore
+-
+-// @ts-ignore
+-
+-// @ts-ignore
+-
++exports.themeMap = exports.getTheme = void 0;
++/**
++ * Brand code to spring-theme tailwind theme name.
++ *
++ * Themes are loaded lazily, because the public npm build of
++ * `@ringcentral/spring-theme` only ships a subset of the brand themes.
++ */
+ var themeMap = exports.themeMap = {
+-  '2000': _junoLight["default"],
+-  '2000.Optus': _junoLight["default"],
+-  '3000': _junoLight["default"],
+-  '3000.Brightspeed': _junoLight["default"],
+-  '3000.NWNC': _junoLight["default"],
+-  '3000.Zayo': _junoLight["default"],
+-  atos: _atosRich["default"],
+-  att: _attRich["default"],
+-  avaya: _avayaCustomized["default"],
+-  bt: _btRich["default"],
+-  charterEnterprise: _charterEnterpriseBalanced["default"],
+-  charterSMB: _charterEnterpriseBalanced["default"],
+-  dtatos: _dtatosRich["default"],
+-  dttelekom: _dtTelekomRich["default"],
+-  eastlink: _eastlinkSimple["default"],
+-  ecotel: _ecotelSimple["default"],
+-  fedramp: _junoLight["default"],
+-  frontier: _frontierBalanced["default"],
+-  mcm: _mcmRich["default"],
+-  rc: _junoLight["default"],
+-  rc_dark: _junoDark["default"],
+-  rc_contrast: _highContrast["default"],
+-  rcau: _junoLight["default"],
+-  rcca: _junoLight["default"],
+-  rceu: _junoLight["default"],
+-  rcuk: _junoLight["default"],
+-  sharedConfig: _junoLight["default"],
+-  sunrise: _sunriseSimple["default"],
+-  telus: _telusRich["default"],
+-  versatel: _versatelBalanced["default"],
+-  verizon: _verizonSimple["default"],
+-  vodafone: _vodafoneRich["default"],
+-  brightSpeed: _brightSpeedRich["default"],
+-  optus: _optusRich["default"],
+-  zayo: _zayoRich["default"]
++  '2000': 'junoLight',
++  '2000.Optus': 'junoLight',
++  '3000': 'junoLight',
++  '3000.Brightspeed': 'junoLight',
++  '3000.NWNC': 'junoLight',
++  '3000.Zayo': 'junoLight',
++  atos: 'atosRich',
++  att: 'attRich',
++  avaya: 'avayaCustomized',
++  bt: 'btRich',
++  charterEnterprise: 'charterEnterpriseBalanced',
++  charterSMB: 'charterEnterpriseBalanced',
++  dtatos: 'dtatosRich',
++  dttelekom: 'dtTelekomRich',
++  eastlink: 'eastlinkSimple',
++  ecotel: 'ecotelSimple',
++  fedramp: 'junoLight',
++  frontier: 'frontierBalanced',
++  mcm: 'mcmRich',
++  rc: 'junoLight',
++  rc_dark: 'junoDark',
++  rc_contrast: 'highContrast',
++  rcau: 'junoLight',
++  rcca: 'junoLight',
++  rceu: 'junoLight',
++  rcuk: 'junoLight',
++  sharedConfig: 'junoLight',
++  sunrise: 'sunriseSimple',
++  telus: 'telusRich',
++  versatel: 'versatelBalanced',
++  verizon: 'verizonSimple',
++  vodafone: 'vodafoneRich',
++  brightSpeed: 'brightSpeedRich',
++  optus: 'optusRich',
++  zayo: 'zayoRich'
++};
++var fallbackThemeNames = {
++  junoDark: ['dark']
++};
++var requireTheme = function requireTheme(name) {
++  try {
++    var _theme$default;
++    var theme = require("@ringcentral/spring-theme/tailwind/themes/".concat(name));
++    return (_theme$default = theme === null || theme === void 0 ? void 0 : theme["default"]) !== null && _theme$default !== void 0 ? _theme$default : theme;
++  } catch (error) {
++    return undefined;
++  }
++};
++
++/**
++ * Load the spring-theme tailwind theme of a brand code,
++ * fallback to `junoLight` when the brand theme is not published.
++ */
++var getTheme = exports.getTheme = function getTheme(code) {
++  var _fallbackThemeNames$n;
++  var name = themeMap[code];
++  if (!name) return undefined;
++  var candidates = [name].concat((_fallbackThemeNames$n = fallbackThemeNames[name]) !== null && _fallbackThemeNames$n !== void 0 ? _fallbackThemeNames$n : [], ['junoLight']);
++  for (var i = 0; i < candidates.length; i++) {
++    var candidate = candidates[i];
++    var theme = requireTheme(candidate);
++    if (theme) {
++      if (candidate !== name) {
++        // eslint-disable-next-line no-console
++        console.warn("[next-builder] spring-theme \"".concat(name, "\" not found, fallback to \"").concat(candidate, "\""));
++      }
++      return theme;
++    }
++  }
++  throw new Error("spring-theme \"".concat(name, "\" not found"));
+ };
+-//# sourceMappingURL=themeMap.js.map
+diff --git a/node_modules/@ringcentral-integration/next-builder/src/themeInject/themeMap.ts b/node_modules/@ringcentral-integration/next-builder/src/themeInject/themeMap.ts
+--- a/node_modules/@ringcentral-integration/next-builder/src/themeInject/themeMap.ts
++++ b/node_modules/@ringcentral-integration/next-builder/src/themeInject/themeMap.ts
+@@ -1,82 +1,82 @@
+-// @ts-ignore
+-import atosRich from '@ringcentral/spring-theme/tailwind/themes/atosRich';
+-// @ts-ignore
+-import attRich from '@ringcentral/spring-theme/tailwind/themes/attRich';
+-// @ts-ignore
+-import avayaCustomized from '@ringcentral/spring-theme/tailwind/themes/avayaCustomized';
+-// @ts-ignore
+-import brightSpeedRich from '@ringcentral/spring-theme/tailwind/themes/brightSpeedRich';
+-// @ts-ignore
+-import btRich from '@ringcentral/spring-theme/tailwind/themes/btRich';
+-// @ts-ignore
+-import charterEnterpriseBalanced from '@ringcentral/spring-theme/tailwind/themes/charterEnterpriseBalanced';
+-// @ts-ignore
+-import dtTelekomRich from '@ringcentral/spring-theme/tailwind/themes/dtTelekomRich';
+-// @ts-ignore
+-import dtatosRich from '@ringcentral/spring-theme/tailwind/themes/dtatosRich';
+-// @ts-ignore
+-import eastlinkSimple from '@ringcentral/spring-theme/tailwind/themes/eastlinkSimple';
+-// @ts-ignore
+-import ecotelSimple from '@ringcentral/spring-theme/tailwind/themes/ecotelSimple';
+-// @ts-ignore
+-import frontierBalanced from '@ringcentral/spring-theme/tailwind/themes/frontierBalanced';
+-// @ts-ignore
+-import highContrast from '@ringcentral/spring-theme/tailwind/themes/highContrast';
+-// @ts-ignore
+-import junoDark from '@ringcentral/spring-theme/tailwind/themes/junoDark';
+-// @ts-ignore
+-import junoLight from '@ringcentral/spring-theme/tailwind/themes/junoLight';
+-// @ts-ignore
+-import mcmRich from '@ringcentral/spring-theme/tailwind/themes/mcmRich';
+-// @ts-ignore
+-import optusRich from '@ringcentral/spring-theme/tailwind/themes/optusRich';
+-// @ts-ignore
+-import sunriseSimple from '@ringcentral/spring-theme/tailwind/themes/sunriseSimple';
+-// @ts-ignore
+-import telusRich from '@ringcentral/spring-theme/tailwind/themes/telusRich';
+-// @ts-ignore
+-import verizonSimple from '@ringcentral/spring-theme/tailwind/themes/verizonSimple';
+-// @ts-ignore
+-import versatelBalanced from '@ringcentral/spring-theme/tailwind/themes/versatelBalanced';
+-// @ts-ignore
+-import vodafoneRich from '@ringcentral/spring-theme/tailwind/themes/vodafoneRich';
+-// @ts-ignore
+-import zayoRich from '@ringcentral/spring-theme/tailwind/themes/zayoRich';
+-
++/**
++ * Brand code to spring-theme tailwind theme name.
++ *
++ * Themes are loaded lazily, because the public npm build of
++ * `@ringcentral/spring-theme` only ships a subset of the brand themes.
++ */
+ export const themeMap = {
+-  '2000': junoLight,
+-  '2000.Optus': junoLight,
+-  '3000': junoLight,
+-  '3000.Brightspeed': junoLight,
+-  '3000.NWNC': junoLight,
+-  '3000.Zayo': junoLight,
+-  atos: atosRich,
+-  att: attRich,
+-  avaya: avayaCustomized,
+-  bt: btRich,
+-  charterEnterprise: charterEnterpriseBalanced,
+-  charterSMB: charterEnterpriseBalanced,
+-  dtatos: dtatosRich,
+-  dttelekom: dtTelekomRich,
+-  eastlink: eastlinkSimple,
+-  ecotel: ecotelSimple,
+-  fedramp: junoLight,
+-  frontier: frontierBalanced,
+-  mcm: mcmRich,
+-  rc: junoLight,
+-  rc_dark: junoDark,
+-  rc_contrast: highContrast,
+-  rcau: junoLight,
+-  rcca: junoLight,
+-  rceu: junoLight,
+-  rcuk: junoLight,
+-  sharedConfig: junoLight,
+-  sunrise: sunriseSimple,
+-  telus: telusRich,
+-  versatel: versatelBalanced,
+-  verizon: verizonSimple,
+-  vodafone: vodafoneRich,
+-  brightSpeed: brightSpeedRich,
+-  optus: optusRich,
+-  zayo: zayoRich,
++  '2000': 'junoLight',
++  '2000.Optus': 'junoLight',
++  '3000': 'junoLight',
++  '3000.Brightspeed': 'junoLight',
++  '3000.NWNC': 'junoLight',
++  '3000.Zayo': 'junoLight',
++  atos: 'atosRich',
++  att: 'attRich',
++  avaya: 'avayaCustomized',
++  bt: 'btRich',
++  charterEnterprise: 'charterEnterpriseBalanced',
++  charterSMB: 'charterEnterpriseBalanced',
++  dtatos: 'dtatosRich',
++  dttelekom: 'dtTelekomRich',
++  eastlink: 'eastlinkSimple',
++  ecotel: 'ecotelSimple',
++  fedramp: 'junoLight',
++  frontier: 'frontierBalanced',
++  mcm: 'mcmRich',
++  rc: 'junoLight',
++  rc_dark: 'junoDark',
++  rc_contrast: 'highContrast',
++  rcau: 'junoLight',
++  rcca: 'junoLight',
++  rceu: 'junoLight',
++  rcuk: 'junoLight',
++  sharedConfig: 'junoLight',
++  sunrise: 'sunriseSimple',
++  telus: 'telusRich',
++  versatel: 'versatelBalanced',
++  verizon: 'verizonSimple',
++  vodafone: 'vodafoneRich',
++  brightSpeed: 'brightSpeedRich',
++  optus: 'optusRich',
++  zayo: 'zayoRich',
++};
++
++const fallbackThemeNames: Record<string, string[]> = {
++  junoDark: ['dark'],
++};
++
++const requireTheme = (name: string) => {
++  try {
++    // eslint-disable-next-line @typescript-eslint/no-var-requires
++    const theme = require(`@ringcentral/spring-theme/tailwind/themes/${name}`);
++    return theme?.default ?? theme;
++  } catch (error) {
++    return undefined;
++  }
++};
++
++/**
++ * Load the spring-theme tailwind theme of a brand code,
++ * fallback to `junoLight` when the brand theme is not published.
++ */
++export const getTheme = (code: keyof typeof themeMap) => {
++  const name = themeMap[code];
++  if (!name) return undefined;
++
++  const candidates = [name, ...(fallbackThemeNames[name] ?? []), 'junoLight'];
++  for (const candidate of candidates) {
++    const theme = requireTheme(candidate);
++    if (theme) {
++      if (candidate !== name) {
++        // eslint-disable-next-line no-console
++        console.warn(
++          `[next-builder] spring-theme "${name}" not found, fallback to "${candidate}"`,
++        );
++      }
++      return theme;
++    }
++  }
++
++  throw new Error(`spring-theme "${name}" not found`);
+ };
