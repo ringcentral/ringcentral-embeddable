@@ -1,5 +1,5 @@
 import type { BrandConfig } from '@ringcentral-integration/commons/modules/Brand';
-import suiTelusRich from '@ringcentral/spring-theme/themes/telusRich';
+import suiTelusRich from '../themes/telusRich';
 
 import { baseBrandConfig } from '../base/baseBrandConfig';
 

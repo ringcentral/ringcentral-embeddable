@@ -1,5 +1,5 @@
 import type { BrandConfig } from '@ringcentral-integration/commons/modules/Brand';
-import suiBtRich from '@ringcentral/spring-theme/themes/btRich';
+import suiBtRich from '../themes/btRich';
 
 import { baseBrandConfig } from '../base/baseBrandConfig';
 

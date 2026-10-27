@@ -1,5 +1,5 @@
 import type { BrandConfig } from '@ringcentral-integration/commons/modules/Brand';
-import suiAtosRich from '@ringcentral/spring-theme/themes/atosRich';
+import suiAtosRich from '../themes/atosRich';
 
 import { baseBrandConfig } from '../base/baseBrandConfig';
 

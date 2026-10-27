@@ -1,5 +1,5 @@
 import type { BrandConfig } from '@ringcentral-integration/commons/modules/Brand';
-import suiAvayaCustomized from '@ringcentral/spring-theme/themes/avayaCustomized';
+import suiAvayaCustomized from '../themes/avayaCustomized';
 
 import { baseBrandConfig } from '../base/baseBrandConfig';
 
