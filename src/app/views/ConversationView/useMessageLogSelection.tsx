@@ -46,6 +46,26 @@ function isSelectableMessage(message: Message): boolean {
   return Boolean(message.id) && message.messageType !== 'info';
 }
 
+function getIndicatorCheckbox(indicator: Element): HTMLInputElement | null {
+  return indicator.querySelector<HTMLInputElement>('input[type="checkbox"]');
+}
+
+/** Unlogged message checkboxes in on-screen order. */
+function getAllIndicatorCheckboxes(): HTMLInputElement[] {
+  return Array.from(
+    document.querySelectorAll<HTMLInputElement>(
+      '[data-message-log-id] input[type="checkbox"]',
+    ),
+  );
+}
+
+function getIndicatorMessageId(checkbox: HTMLInputElement): string {
+  return (
+    checkbox.closest<HTMLElement>('[data-message-log-id]')?.dataset
+      .messageLogId ?? ''
+  );
+}
+
 /**
  * Granular per-message SMS logging: lets the user check the messages of a
  * personal conversation and log only those, when the third-party service
@@ -91,12 +111,32 @@ export function useMessageLogSelection(
   const inFlightRef = useRef(new Set<string>());
   const latestRef = useRef({ active, selectedMessageIds, messages });
   latestRef.current = { active, selectedMessageIds, messages };
+  const dragRef = useRef<{ select: boolean; moved: boolean } | null>(null);
 
   useEffect(() => {
     setSelectedMessageIds(new Set());
     checkedAtRef.current.clear();
     inFlightRef.current.clear();
   }, [conversationId, active]);
+
+  useEffect(() => {
+    const endDrag = (): void => {
+      if (!dragRef.current) {
+        return;
+      }
+      // Clear after the click that follows `pointerup`, so the checkbox the
+      // drag ends on is not toggled back.
+      setTimeout(() => {
+        dragRef.current = null;
+      });
+    };
+    window.addEventListener('pointerup', endDrag);
+    window.addEventListener('pointercancel', endDrag);
+    return () => {
+      window.removeEventListener('pointerup', endDrag);
+      window.removeEventListener('pointercancel', endDrag);
+    };
+  }, []);
 
   useEffect(() => {
     setSelectedMessageIds((selected) => {
@@ -195,34 +235,95 @@ export function useMessageLogSelection(
     }
     const messageId = String(message.id);
     const logState = logStateMap[messageId];
-    if (logState) {
-      return (
-        <IconButton
-          data-sign="messageLoggedIcon"
-          symbol={CircleCheckFilledSm}
-          variant="icon"
-          color="success"
-          size="small"
-          TooltipProps={{ title: t('logged') }}
-          onClick={() => {
-            void thirdParty.openMessageLog({
-              logId: logState.logId,
-              messageId,
-              conversationId,
-            });
-          }}
-        />
-      );
-    }
+    const checked = selectedMessageIds.has(messageId);
     return (
-      <Checkbox
-        data-sign="messageSelectCheckbox"
-        checked={selectedMessageIds.has(messageId)}
-        inputProps={{ 'aria-label': t('selectMessage') }}
-        onChange={(event) => {
-          setMessageSelected(messageId, event.target.checked);
+      // Read by `main.global.scss` to keep every indicator on the right edge.
+      <span
+        className="inline-flex"
+        data-message-log-indicator={message.direction}
+        data-message-log-id={messageId}
+        onPointerDown={(event) => {
+          if (logState || isLogging || event.button !== 0) {
+            return;
+          }
+          // Prevents text selection while dragging across messages.
+          event.preventDefault();
+          getIndicatorCheckbox(event.currentTarget)?.focus();
+          dragRef.current = { select: !checked, moved: false };
         }}
-      />
+        onPointerEnter={() => {
+          const drag = dragRef.current;
+          if (!drag || logState || isLogging) {
+            return;
+          }
+          drag.moved = true;
+          setMessageSelected(messageId, drag.select);
+        }}
+        onPointerLeave={() => {
+          // Applies the drag to the starting checkbox once the pointer leaves it.
+          const drag = dragRef.current;
+          if (drag && !drag.moved && !logState && !isLogging) {
+            drag.moved = true;
+            setMessageSelected(messageId, drag.select);
+          }
+        }}
+        onKeyDown={(event) => {
+          if (
+            logState ||
+            isLogging ||
+            (event.key !== 'ArrowDown' && event.key !== 'ArrowUp')
+          ) {
+            return;
+          }
+          event.preventDefault();
+          const checkboxes = getAllIndicatorCheckboxes();
+          const index = checkboxes.indexOf(
+            getIndicatorCheckbox(event.currentTarget)!,
+          );
+          if (event.key === 'ArrowDown') {
+            const next = checkboxes[index + 1];
+            setMessageSelected(messageId, true);
+            if (next) {
+              setMessageSelected(getIndicatorMessageId(next), true);
+              next.focus();
+            }
+          } else {
+            setMessageSelected(messageId, false);
+            checkboxes[index - 1]?.focus();
+          }
+        }}
+      >
+        {logState ? (
+          <IconButton
+            data-sign="messageLoggedIcon"
+            symbol={CircleCheckFilledSm}
+            variant="icon"
+            color="success"
+            size="small"
+            TooltipProps={{ title: t('logged') }}
+            onClick={() => {
+              void thirdParty.openMessageLog({
+                logId: logState.logId,
+                messageId,
+                conversationId,
+              });
+            }}
+          />
+        ) : (
+          <Checkbox
+            data-sign="messageSelectCheckbox"
+            checked={checked}
+            disabled={isLogging}
+            inputProps={{ 'aria-label': t('selectMessage') }}
+            onChange={(event) => {
+              if (dragRef.current?.moved) {
+                return;
+              }
+              setMessageSelected(messageId, event.target.checked);
+            }}
+          />
+        )}
+      </span>
     );
   };
 

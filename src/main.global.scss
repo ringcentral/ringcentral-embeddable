@@ -13,3 +13,11 @@ html,
 
   @apply bg-neutral-base text-neutral-b0;
 }
+
+// micro-message renders the per-message log indicator before inbound
+// bubbles; move it after the bubble and against the right edge so it lines up
+// with the outbound indicators.
+[data-sign='message'] div:has(> [data-message-log-indicator='Inbound']) {
+  order: 1;
+  margin-left: auto;
+}
