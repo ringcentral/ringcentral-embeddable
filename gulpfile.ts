@@ -1,6 +1,5 @@
 /* eslint-disable no-console */
 require('dotenv').config();
-import fs from 'fs';
 import path from 'path';
 import {
   getProjectConfig,
@@ -18,27 +17,6 @@ const RELEASE_PATH = path.resolve(
 );
 const EXTENSION_BUILD_PATH = path.resolve(__dirname, 'extension');
 const EXTENSION_BUILD_ID = 'extension';
-const NOISE_REDUCTION_PATH = path.resolve(SOURCE_PATH, 'noise-reduction');
-const REQUIRED_NOISE_REDUCTION_FILES = [
-  'krispsdk.es5.js',
-  'worker.es5.js',
-  'worklet.es5.js',
-  'models/model_8.kw',
-  'models/model_16.kw',
-] as const;
-
-const assertNoiseReductionAssets = (): void => {
-  const missingFiles = REQUIRED_NOISE_REDUCTION_FILES.filter(
-    (filePath) => !fs.existsSync(path.resolve(NOISE_REDUCTION_PATH, filePath)),
-  );
-  if (missingFiles.length === 0) {
-    return;
-  }
-  throw new Error(
-    `Missing extension noise-reduction assets: ${missingFiles.join(', ')}`,
-  );
-};
-
 const getConfiguredProject = (): ProjectConfig<AppConfig> => {
   const projectConfig = getProjectConfig<AppConfig>();
   projectConfig.themePath = SOURCE_PATH;
@@ -118,16 +96,8 @@ export async function build(): Promise<void> {
 }
 
 export async function buildExtension(): Promise<void> {
-  assertNoiseReductionAssets();
   const projectConfig = getConfiguredProject();
   projectConfig.runtimeEnvironment = 'extension';
-  projectConfig.assetsEntries = [
-    ...(projectConfig.assetsEntries ?? []),
-    {
-      from: NOISE_REDUCTION_PATH,
-      to: 'noise-reduction',
-    },
-  ];
   await runBuild(projectConfig, {
     buildId: EXTENSION_BUILD_ID,
     outputPath: EXTENSION_BUILD_PATH,
