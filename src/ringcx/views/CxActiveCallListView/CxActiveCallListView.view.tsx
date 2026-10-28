@@ -10,6 +10,7 @@ import {
 } from '@ringcentral-integration/next-core';
 import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
 import {
+  AppFooterNav,
   AppHeaderNav,
 } from '@ringcentral-integration/micro-core/src/app/components';
 import { PageHeader } from '@ringcentral-integration/next-widgets/components';
@@ -152,6 +153,7 @@ class CxActiveCallListView extends RcViewModule {
             </PageHeader>
           </AppHeaderNav>
           <div className="flex-1" />
+          <AppFooterNav />
         </>
       );
     }
@@ -281,6 +283,7 @@ class CxActiveCallListView extends RcViewModule {
             );
           })}
         </div>
+        <AppFooterNav />
       </>
     );
   }

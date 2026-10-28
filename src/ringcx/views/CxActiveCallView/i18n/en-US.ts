@@ -27,8 +27,8 @@ export default {
   conferenceCall: 'Conference call',
   participants: '{count} participants',
   viewParticipants: 'View participants',
-  everyone: 'Everyone',
-  justMe: 'Just me',
+  leaveCall: 'Leave call',
+  endCallForEveryone: 'End call for everyone',
   cancelTransfer: 'Cancel transfer',
 
   // Recording

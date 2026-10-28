@@ -77,7 +77,11 @@ import type { CallControlAction } from '../../components/CallControlGrid';
 const MAX_VISIBLE_CALL_ACTIONS = 6;
 import { IvrAlertPanel } from '../../components/IvrAlertPanel';
 import { DialpadPanel } from '../../components/DialpadPanel';
-import { EndCallDialog } from '../../components/EndCallDialog';
+import { EndCallDrawer } from '../../components/EndCallDrawer';
+import type {
+  EndCallOption,
+  EndCallOptionAppearance,
+} from '../../components/EndCallDrawer';
 import { SideWidgetToggleButton } from '../../components/SideWidgetToggleButton';
 import { useCxCallContactRenderInfo } from '../../hooks/useCxCallContactRenderInfo';
 import { getCxCallSelectionKey } from '../../lib/getCxCallSelectionKey';
@@ -87,8 +91,32 @@ import type {
   CxActiveCallViewUIProps,
   CxActiveCallViewUIFunctions,
   EndCallOptionData,
+  EndCallOptionType,
 } from './CxActiveCallView.interface';
 import i18n, { t as translate } from './i18n';
+import type { I18nKey } from './i18n';
+
+/**
+ * Labels that say what each end call option does without the drawer title.
+ */
+const END_CALL_OPTION_LABEL_KEYS: Record<EndCallOptionType, I18nKey> = {
+  justMe: 'leaveCall',
+  everyone: 'endCallForEveryone',
+  cancelTransfer: 'cancelTransfer',
+};
+
+/**
+ * Leaving is the expected choice; cancelling a transfer keeps the call going,
+ * so only ending it for everyone reads as dangerous.
+ */
+const END_CALL_OPTION_APPEARANCES: Record<
+  EndCallOptionType,
+  EndCallOptionAppearance
+> = {
+  justMe: 'primary',
+  everyone: 'danger',
+  cancelTransfer: 'neutral',
+};
 
 /**
  * CxActiveCallView options for configuration
@@ -292,16 +320,18 @@ class CxActiveCallView extends RcViewModule {
   get endCallOptions(): EndCallOptionData[] {
     const [mainCall, ownCall, ...transferCalls] = this.callList;
     if (!mainCall?.session || !ownCall?.session) return [];
+    // Leaving is the least destructive way and the expected one, so it comes
+    // first, the way the RingCentral app offers it.
     const options: EndCallOptionData[] = [
-      {
-        id: 'everyone',
-        type: 'everyone',
-        sessionId: mainCall.session.sessionId,
-      },
       {
         id: 'justMe',
         type: 'justMe',
         sessionId: ownCall.session.sessionId,
+      },
+      {
+        id: 'everyone',
+        type: 'everyone',
+        sessionId: mainCall.session.sessionId,
       },
     ];
     transferCalls.forEach((call: any) => {
@@ -1087,34 +1117,35 @@ class CxActiveCallView extends RcViewModule {
 
     // Which parties to drop is only a question once the warm transfer added a
     // leg, so a plain call still hangs up straight from the button.
-    const [isEndCallDialogOpen, setEndCallDialogOpen] = useState(false);
+    const [isEndCallDrawerOpen, setEndCallDrawerOpen] = useState(false);
 
-    const endCallDialogOptions = endCallOptions.map(
-      ({ id, type, destination }) => ({
+    const endCallDrawerOptions = endCallOptions.map(
+      ({ id, type, destination }): EndCallOption => ({
         id,
-        label: t(type),
+        label: t(END_CALL_OPTION_LABEL_KEYS[type]),
         description:
           type === 'cancelTransfer'
             ? formatPhoneNumber({ phoneNumber: destination ?? '' })
             : undefined,
+        appearance: END_CALL_OPTION_APPEARANCES[type],
       }),
     );
 
-    const closeEndCallDialog = useCallback(() => {
-      setEndCallDialogOpen(false);
+    const closeEndCallDrawer = useCallback(() => {
+      setEndCallDrawerOpen(false);
     }, []);
 
-    // A leg dropping on its own leaves the dialog offering options that no
+    // A leg dropping on its own leaves the drawer offering options that no
     // longer exist.
     useEffect(() => {
       if (!isMultipleCalls) {
-        setEndCallDialogOpen(false);
+        setEndCallDrawerOpen(false);
       }
     }, [isMultipleCalls]);
 
     const handleHangupClick = useCallback(() => {
       if (isMultipleCalls) {
-        setEndCallDialogOpen(true);
+        setEndCallDrawerOpen(true);
         return;
       }
       uiFunctions.onHangup();
@@ -1122,7 +1153,7 @@ class CxActiveCallView extends RcViewModule {
 
     const handleEndCallConfirm = useCallback(
       (optionId: string) => {
-        setEndCallDialogOpen(false);
+        setEndCallDrawerOpen(false);
         uiFunctions.onEndCall(optionId);
       },
       [uiFunctions],
@@ -1240,7 +1271,12 @@ class CxActiveCallView extends RcViewModule {
       splitCallActions(callActions, MAX_VISIBLE_CALL_ACTIONS);
 
     return (
-      <div className="flex flex-col h-full bg-neutral-base overflow-hidden">
+      // Layout containment scopes the keypad and end call drawers to the main
+      // column, so they do not cover the side column when the app is expanded.
+      // `overflow-clip` instead of `overflow-hidden`: a hidden box is still
+      // programmatically scrollable, and focusing a drawer while it slides in
+      // scrolls it.
+      <div className="flex flex-col h-full min-h-0 bg-neutral-base overflow-clip [contain:layout]">
         <AppHeaderNav override resetImmediately>
           <PageHeader
             onBackClick={uiFunctions.onBack}
@@ -1337,14 +1373,6 @@ class CxActiveCallView extends RcViewModule {
               <CallControlGrid actions={visibleCallActions} />
             </div>
           </div>
-
-          <DialpadPanel
-            isOpen={isKeypadOpen}
-            value={keypadValue}
-            onToggle={uiFunctions.setKeypadOpen}
-            onChange={uiFunctions.handleKeypadChange}
-            onKeyPress={uiFunctions.handleKeypadKeyPress}
-          />
         </div>
 
         <div className="flex-shrink-0">
@@ -1397,10 +1425,17 @@ class CxActiveCallView extends RcViewModule {
           </div>
         </div>
 
-        <EndCallDialog
-          open={isEndCallDialogOpen}
-          options={endCallDialogOptions}
-          onClose={closeEndCallDialog}
+        <DialpadPanel
+          isOpen={isKeypadOpen}
+          value={keypadValue}
+          onToggle={uiFunctions.setKeypadOpen}
+          onChange={uiFunctions.handleKeypadChange}
+          onKeyPress={uiFunctions.handleKeypadKeyPress}
+        />
+        <EndCallDrawer
+          open={isEndCallDrawerOpen}
+          options={endCallDrawerOptions}
+          onClose={closeEndCallDrawer}
           onConfirm={handleEndCallConfirm}
         />
         <AppFooterNav />

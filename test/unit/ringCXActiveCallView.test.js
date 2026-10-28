@@ -28,7 +28,7 @@ jest.mock('../../src/ringcx/hooks/useCxCallContactRenderInfo', () => ({
 [
   'CallControlGrid',
   'DialpadPanel',
-  'EndCallDialog',
+  'EndCallDrawer',
   'IvrAlertPanel',
   'SideWidgetToggleButton',
 ].forEach((name) => {
@@ -227,5 +227,77 @@ describe('CxActiveCallView voicemail drop progress', () => {
     const uiProps = createCallPage().getUIProps();
 
     expect(uiProps.voicemailDrop).toBeNull();
+  });
+});
+
+describe('CxActiveCallView end call options', () => {
+  const CALL_LIST = [
+    { session: { sessionId: 'main' } },
+    { session: { sessionId: 'own' } },
+    {
+      session: {
+        sessionId: 'leg-3',
+        transferSessions: { 'leg-3': { destination: '+16508446685' } },
+      },
+    },
+  ];
+
+  function createConference() {
+    const view = Object.create(CxActiveCallView.prototype);
+    Object.defineProperty(view, 'callList', { value: CALL_LIST });
+    Object.assign(view, {
+      hangUp: jest.fn(),
+      hangupEveryone: jest.fn(),
+      hangupTransferLeg: jest.fn(),
+    });
+    return view;
+  }
+
+  test('offers leaving first, then ending for everyone, then each transfer', () => {
+    expect(createConference().endCallOptions).toEqual([
+      { id: 'justMe', type: 'justMe', sessionId: 'own' },
+      { id: 'everyone', type: 'everyone', sessionId: 'main' },
+      {
+        id: 'cancelTransfer:leg-3',
+        type: 'cancelTransfer',
+        sessionId: 'leg-3',
+        destination: '+16508446685',
+      },
+    ]);
+  });
+
+  test('offers no options before the call has a second party', () => {
+    const view = Object.create(CxActiveCallView.prototype);
+    Object.defineProperty(view, 'callList', { value: CALL_LIST.slice(0, 1) });
+
+    expect(view.endCallOptions).toEqual([]);
+  });
+
+  test('leaves the call for the agent only', async () => {
+    const view = createConference();
+
+    await view.endCall('justMe');
+
+    expect(view.hangUp).toHaveBeenCalledTimes(1);
+    expect(view.hangupEveryone).not.toHaveBeenCalled();
+    expect(view.hangupTransferLeg).not.toHaveBeenCalled();
+  });
+
+  test('ends the call for everyone through the main call', async () => {
+    const view = createConference();
+
+    await view.endCall('everyone');
+
+    expect(view.hangupEveryone).toHaveBeenCalledWith('main');
+    expect(view.hangUp).not.toHaveBeenCalled();
+  });
+
+  test('cancels the transfer by hanging up its leg', async () => {
+    const view = createConference();
+
+    await view.endCall('cancelTransfer:leg-3');
+
+    expect(view.hangupTransferLeg).toHaveBeenCalledWith('leg-3');
+    expect(view.hangUp).not.toHaveBeenCalled();
   });
 });
