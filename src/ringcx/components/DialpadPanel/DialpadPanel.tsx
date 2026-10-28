@@ -8,6 +8,11 @@ import type { DialpadPanelProps } from './DialpadPanel.interface';
 /**
  * DialpadPanel - Pure Drawer-based keypad overlay.
  * Opens as a bottom Drawer with close button, dial text field, and dial pad.
+ *
+ * The drawer renders in place instead of portaling to `document.body`, so it
+ * overlays its host view only. The host must establish a containing block for
+ * fixed-position descendants (e.g. `[contain:layout]`); otherwise the drawer
+ * still spans the whole viewport, including the expanded side column.
  */
 export const DialpadPanel: FunctionComponent<DialpadPanelProps> = ({
   isOpen,
@@ -23,7 +28,10 @@ export const DialpadPanel: FunctionComponent<DialpadPanelProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      requestAnimationFrame(() => inputRef.current?.focus());
+      // The drawer is still sliding in; scrolling to it would shift the host
+      requestAnimationFrame(() =>
+        inputRef.current?.focus({ preventScroll: true }),
+      );
     }
   }, [isOpen]);
 
@@ -50,6 +58,7 @@ export const DialpadPanel: FunctionComponent<DialpadPanelProps> = ({
       anchor="bottom"
       open={isOpen}
       onClose={handleClose}
+      disablePortal
       footer={footer}
       className={className}
       data-sign={dataSign}
