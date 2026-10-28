@@ -18,7 +18,6 @@ import {
 } from '@ringcentral-integration/micro-core/src/app/views';
 import type {
   HeaderNavPanelProps,
-  HeaderNavViewSpringOptions,
   NavButtonProps,
 } from '@ringcentral-integration/micro-core/src/app/views/HeaderNavViewSpring/HeaderNav.view.interface';
 import {
@@ -34,12 +33,15 @@ import {
   ContactsMd,
   ContactsFilledMd,
   HeadphonesFilledMd,
+  MessagesMd,
 } from '@ringcentral/spring-icon';
 import type { AppFeatures as EmbeddableAppFeatures } from '../../services/AppFeatures';
 import { ThirdParty } from '../../services/ThirdParty';
+import { CHATS_PATH } from '../TeamMessagingView/getChatPath';
 import { RoutedSideWidgetView } from '../RoutedSideWidgetView';
 import { t as localT } from './i18n';
 import { HeaderNavWithOverflow } from './components/HeaderNavWithOverflow';
+import type { EmbeddableHeaderNavViewOptions } from './HeaderNavViewOptions';
 
 type PrioritizedTab = {
   priority: number;
@@ -58,6 +60,10 @@ function isTextPath(path?: string): boolean {
     path === '/composeText' ||
     !!path?.includes('/conversations/')
   );
+}
+
+function isChatPath(path?: string): boolean {
+  return path === CHATS_PATH || !!path?.startsWith(`${CHATS_PATH}/`);
 }
 
 function isSettingsPath(path?: string): boolean {
@@ -83,6 +89,8 @@ function isTabActive(to: string, path?: string): boolean {
       return isTextPath(path);
     case '/contacts':
       return !!path?.includes('/contacts');
+    case CHATS_PATH:
+      return isChatPath(path);
     case '/meeting':
     case '/meeting/schedule':
       return !!path?.includes('/meeting');
@@ -143,7 +151,7 @@ export class HeaderNavViewSpring extends HeaderNavViewSpringBase {
     private _theme: Theme,
     private _routedSideWidgetView: RoutedSideWidgetView,
     @optional('HeaderNavViewOptions')
-    protected _headerNavViewOptions?: HeaderNavViewSpringOptions,
+    protected _headerNavViewOptions?: EmbeddableHeaderNavViewOptions,
   ) {
     super(_locale, _router, _headerNavViewOptions);
   }
@@ -197,6 +205,21 @@ export class HeaderNavViewSpring extends HeaderNavViewSpringBase {
   }
 
   @computed
+  get chatTab(): NavButtonProps {
+    return {
+      title: localT('chat'),
+      to: CHATS_PATH,
+      dataSign: 'glipTab',
+      symbol: MessagesMd,
+      activeSymbol: MessagesMd,
+      BadgeProps: {
+        count: this._headerNavViewOptions?.getChatUnreadCount?.() ?? 0,
+        max: 99,
+      },
+    };
+  }
+
+  @computed
   get agentTab(): NavButtonProps {
     return {
       title: localT('agentTab'),
@@ -220,6 +243,9 @@ export class HeaderNavViewSpring extends HeaderNavViewSpringBase {
     const showFax = this._appFeatures?.hasReadFaxPermission;
     const showVideo = this._appFeatures?.hasMeetingsPermission;
     const showContacts = this._appFeatures?.isContactsEnabled;
+    const showChat =
+      !!this._headerNavViewOptions?.getChatUnreadCount &&
+      this._appFeatures?.hasGlipPermission;
 
     const tabs: PrioritizedTab[] = [];
 
@@ -228,6 +254,8 @@ export class HeaderNavViewSpring extends HeaderNavViewSpringBase {
       tabs.push({ priority: 15, tab: this.agentTab });
     showText && tabs.push({ priority: 20, tab: this.textTab });
     showContacts && tabs.push({ priority: 30, tab: this.contactsTab });
+    // The legacy app placed the Chat tab at priority 40.
+    showChat && tabs.push({ priority: 40, tab: this.chatTab });
     this._thirdParty.customizedTabs.forEach((customizedTab) => {
       if (customizedTab.hidden) {
         return;

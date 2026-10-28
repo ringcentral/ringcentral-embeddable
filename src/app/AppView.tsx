@@ -97,6 +97,10 @@ import {
 import { VoicemailDropSettingsView } from './views/VoicemailDropSettingsView';
 import { PhoneNumberFormatSettingView } from './views/PhoneNumberFormatSettingView';
 import { TextSettingView } from './views/TextSettingView';
+import {
+  TeamMessagingChatsView,
+  TeamMessagingChatView,
+} from './views/TeamMessagingView';
 import type { ComposeText as EmbeddableComposeText } from './services/ComposeText';
 import type { ThirdPartyWidgetContact } from './services/ThirdParty';
 
@@ -382,6 +386,23 @@ export class AppView extends RcViewModule {
       path: '/messages',
       component: this.Text,
       authentication: true,
+    },
+    {
+      path: '/glip',
+      component: this._teamMessagingChatsView.component,
+      authentication: true,
+      exact: true,
+    },
+    {
+      path: '/glip/groups/:groupId',
+      component: this._teamMessagingChatView.component,
+      authentication: true,
+      sideWidget: {
+        id: 'glip-chat',
+        name: () => t('chat'),
+        scope: 'global',
+        backgroundPath: '/glip',
+      },
     },
     {
       path: '/fax',
@@ -724,6 +745,8 @@ export class AppView extends RcViewModule {
     private _routedSideWidgetView: RoutedSideWidgetView,
     private _thirdPartyBannerView: ThirdPartyBannerView,
     private _audioInitView: AudioInitView,
+    private _teamMessagingChatsView: TeamMessagingChatsView,
+    private _teamMessagingChatView: TeamMessagingChatView,
     @inject(ComposeText) private _composeText: EmbeddableComposeText,
     @optional()
     private _messageThread?: MessageThread,

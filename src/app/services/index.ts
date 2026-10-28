@@ -23,6 +23,7 @@ export * from './AccountContacts';
 export * from './GenericMeeting';
 export * from './SmsOptOut';
 export * from './MonitoredExtensions';
+export * from './TeamMessaging';
 export * from './CallQueueManagement';
 export * from './CallQueues';
 export * from './ThirdParty';

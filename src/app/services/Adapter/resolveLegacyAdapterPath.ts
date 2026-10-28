@@ -11,6 +11,8 @@ const DIRECT_ROUTE_PATTERNS: readonly RegExp[] = [
   /^\/customized\/[^/]+$/,
   /^\/customizedTabs\/[^/]+$/,
   /^\/fax$/,
+  /^\/glip$/,
+  /^\/glip\/groups\/[^/]+$/,
   /^\/meeting$/,
   /^\/meeting\/personalMeetingSettings$/,
   /^\/meeting\/schedule$/,
