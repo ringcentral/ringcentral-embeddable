@@ -33,7 +33,7 @@ import {
   isChatInTab,
 } from './chatTabs';
 import { ChatListPanel } from './components/ChatListPanel';
-import { getStrongestMention } from './getUnreadBadgeColor';
+import { CreateConversationContent } from './components/CreateConversationContent';
 import { CreateTeamContent } from './components/CreateTeamContent';
 import { t } from './i18n';
 import { getChatPath } from './getChatPath';
@@ -44,7 +44,7 @@ import type {
   CreateTeamContact,
 } from './TeamMessaging.view.interface';
 
-/** People suggested in "Create team", as in the legacy app. */
+/** People suggested in "New conversation" and "Create team", as in legacy. */
 const MAX_CONTACT_SUGGESTIONS = 10;
 
 type CompanyContactData = {
@@ -76,7 +76,8 @@ function toCreateTeamContact(
 }
 
 /**
- * The Chat tab (`/glip`): the recent chats, search, and "Create team".
+ * The Chat tab (`/glip`): the recent chats, search, "New conversation" and
+ * "Create team".
  */
 @injectable({
   name: 'TeamMessagingChatsView',
@@ -134,9 +135,6 @@ export class TeamMessagingChatsView extends RcViewModule {
           (sum, chat) => sum + chat.unreadCount,
           0,
         ),
-        unreadMention: getStrongestMention(
-          tabChats.map((chat) => chat.unreadMention),
-        ),
       };
     });
   }
@@ -156,9 +154,28 @@ export class TeamMessagingChatsView extends RcViewModule {
     }),
   });
 
-  /** Company contacts with an email that match the search text. */
+  @portal
+  private _createConversationModal = this._modalView.create({
+    view: () => (
+      <CreateConversationContent
+        searchContacts={(searchText) => this.searchContacts(searchText)}
+        onStart={(personIds) => this.createConversation(personIds)}
+        onCancel={() => undefined}
+      />
+    ),
+    props: () => ({
+      header: t('newConversation'),
+      'data-sign': 'createConversationModal',
+    }),
+  });
+
+  /**
+   * Company contacts with an email that match the search text, except the
+   * user, who is always in the chat.
+   */
   searchContacts(searchText: string): CreateTeamContact[] {
     const search = searchText.trim().toLowerCase();
+    const myId = this._teamMessagingChats.myId;
     const contacts = (this._companyContacts.filteredContacts ??
       []) as CompanyContactData[];
     return contacts
@@ -166,10 +183,22 @@ export class TeamMessagingChatsView extends RcViewModule {
       .filter(
         (contact): contact is CreateTeamContact =>
           !!contact &&
+          contact.id !== myId &&
           (contact.name.toLowerCase().includes(search) ||
             contact.email.toLowerCase().includes(search)),
       )
       .slice(0, MAX_CONTACT_SUGGESTIONS);
+  }
+
+  /** Open the conversation with these people, then show it. */
+  async createConversation(personIds: string[]): Promise<TeamMessagingResult> {
+    const result = await this._teamMessagingChats.openConversation(personIds);
+    if (!result?.ok || !result.id) {
+      this._toast.danger({ message: t('startConversationFailed') });
+      return { ok: false };
+    }
+    this.openChat(result.id);
+    return result;
   }
 
   async createTeam(params: {
@@ -190,6 +219,10 @@ export class TeamMessagingChatsView extends RcViewModule {
     if (!result?.ok) {
       this._toast.danger({ message: t('favoriteFailed') });
     }
+  }
+
+  openCreateConversation(): void {
+    this._modalView.open(this._createConversationModal);
   }
 
   openCreateTeam(): void {
@@ -217,9 +250,10 @@ export class TeamMessagingChatsView extends RcViewModule {
         }}
         data-sign="chatTabs"
         // Four tabs in the 300px column: drop the 100px minimum and size each
-        // tab to its label.
+        // tab to its label. Labels carry unread counts, so a row too wide for
+        // the column scrolls rather than cutting off the last tab.
         className="[&_.sui-tab]:max-w-none [&_.sui-tab]:min-w-0 [&_.sui-tab]:flex-[1_1_auto] [&_.sui-tab]:px-1"
-        variant="standard"
+        variant="scrollable"
       />
     );
   }
@@ -248,6 +282,7 @@ export class TeamMessagingChatsView extends RcViewModule {
     | 'onReadStatusFilterChange'
     | 'onSelectChat'
     | 'onToggleFavorite'
+    | 'onCreateConversation'
     | 'onCreateTeam'
     | 'formatTime'
     | 'renderTabs'
@@ -259,6 +294,7 @@ export class TeamMessagingChatsView extends RcViewModule {
         this._teamMessagingChats.setReadStatusFilter(readStatusFilter),
       onSelectChat: (chatId) => this.openChat(chatId),
       onToggleFavorite: (chatId) => void this.toggleFavorite(chatId),
+      onCreateConversation: () => this.openCreateConversation(),
       onCreateTeam: () => this.openCreateTeam(),
       formatTime: (utcTimestamp) => this.formatTime(utcTimestamp),
       renderTabs: (tabs) => this._renderTabs(tabs),

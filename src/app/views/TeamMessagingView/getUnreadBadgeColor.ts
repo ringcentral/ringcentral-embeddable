@@ -15,12 +15,3 @@ export function getUnreadBadgeColor(
   return mention === 'team' ? 'primary' : 'secondary';
 }
 
-/** The strongest of several chats' unread mentions. */
-export function getStrongestMention(
-  mentions: readonly TeamMessagingUnreadMention[],
-): TeamMessagingUnreadMention {
-  if (mentions.includes('me')) {
-    return 'me';
-  }
-  return mentions.includes('team') ? 'team' : null;
-}

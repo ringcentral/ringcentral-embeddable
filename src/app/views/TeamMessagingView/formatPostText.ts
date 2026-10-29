@@ -2,10 +2,15 @@ import type {
   TeamMessagingMember,
   TeamMessagingPost,
 } from '../../services/TeamMessaging';
-import { getPersonName } from '../../services/TeamMessaging';
+import {
+  getNoteAttachments,
+  getPersonName,
+  getPostTask,
+  getTaskActivity,
+} from '../../services/TeamMessaging';
 import { t } from './i18n';
 
-const PICTURE_EXTENSIONS = ['jpg', 'jpeg', 'gif', 'svg', 'png'];
+const PICTURE_EXTENSIONS = ['jpg', 'jpeg', 'gif', 'svg', 'png', 'webp'];
 
 const EMOJI_SHORTCODE_PATTERN = /:([a-zA-Z0-9_+-]+):/g;
 
@@ -94,6 +99,24 @@ export function getPostAbstract({
     return t('addedToTheTeam', {
       persons: getAddedPersonsText(post, members),
     });
+  }
+  const activity = getTaskActivity(post);
+  if (activity) {
+    const subject = activity.subject ?? '';
+    if (activity.status === 'Completed') {
+      return t('completedTaskPreview', { subject });
+    }
+    return activity.status === 'Pending'
+      ? t('reopenedTaskPreview', { subject })
+      : t('updatedTaskPreview', { subject });
+  }
+  const task = getPostTask(post);
+  if (task) {
+    return t('taskPreview', { subject: task.subject ?? '' });
+  }
+  const note = getNoteAttachments([post])[0];
+  if (note) {
+    return t('notePreview', { title: note.title ?? '' });
   }
   const attachment = post.attachments?.[0];
   if (attachment && !post.text) {

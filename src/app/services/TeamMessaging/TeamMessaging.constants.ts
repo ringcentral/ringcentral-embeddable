@@ -25,6 +25,12 @@ export const LEGACY_GLIP_GROUPS_PATH = '/restapi/v1.0/glip/groups';
  */
 export const MAX_MEMBER_PROFILES = 300;
 
+/**
+ * People a new conversation can include besides the user. The API takes at
+ * most 15 member ids, the user's own included.
+ */
+export const MAX_CONVERSATION_PEOPLE = 14;
+
 /** Posts loaded per page, as in the legacy app. */
 export const POSTS_PER_PAGE = 20;
 

@@ -4,7 +4,10 @@ import { Virtuoso } from 'react-virtuoso';
 
 import type { TeamMessagingPostItem } from '../../../services/TeamMessaging';
 import type { EmojiLookup } from '../formatPostText';
-import type { ChatPanelProps } from '../TeamMessaging.view.interface';
+import type {
+  ChatPanelProps,
+  ThreadInfo,
+} from '../TeamMessaging.view.interface';
 import { PostItem, type PostItemProps } from './PostItem';
 
 /** Virtuoso needs a positive first index that drops as older posts load. */
@@ -52,12 +55,27 @@ function useFirstItemIndex(posts: readonly TeamMessagingPostItem[]): number {
   return stateRef.current.firstItemIndex;
 }
 
+/**
+ * Whether the newest post is a new one the user sent, so the list should
+ * follow it even when not scrolled to the bottom. Loading older posts also
+ * changes the list, but keeps the newest post, so it must not scroll.
+ */
+function useSentNewPost(posts: readonly TeamMessagingPostItem[]): boolean {
+  const lastPost = posts[posts.length - 1];
+  const lastIdRef = useRef(lastPost?.id);
+  const isNew = !!lastPost && lastPost.id !== lastIdRef.current;
+  lastIdRef.current = lastPost?.id;
+  return isNew && !!lastPost.sentByMe;
+}
+
 type PostListProps = Pick<
   ChatPanelProps,
   'posts' | 'isLoading' | 'hasOlderPosts' | 'loadOlderPosts'
 > &
-  Omit<PostItemProps, 'post' | 'showCreator'> & {
+  Omit<PostItemProps, 'post' | 'showCreator' | 'thread' | 'onOpenThread'> & {
     emojiLookup?: EmojiLookup;
+    getThreadInfo?: (post: TeamMessagingPostItem) => ThreadInfo | undefined;
+    openThread?: (post: TeamMessagingPostItem) => void;
   };
 
 /**
@@ -69,10 +87,12 @@ export function PostList({
   isLoading,
   hasOlderPosts,
   loadOlderPosts,
+  getThreadInfo,
+  openThread,
   ...itemProps
 }: PostListProps): React.ReactElement {
   const firstItemIndex = useFirstItemIndex(posts);
-  const lastPost = posts[posts.length - 1];
+  const sentNewPost = useSentNewPost(posts);
   const loadingOlderRef = useRef(false);
   const handleStartReached = useCallback(async () => {
     if (!hasOlderPosts || loadingOlderRef.current) {
@@ -93,10 +113,12 @@ export function PostList({
           {...itemProps}
           post={post}
           showCreator={shouldShowCreator(post, posts[position - 1])}
+          thread={getThreadInfo?.(post)}
+          onOpenThread={openThread ? () => openThread(post) : undefined}
         />
       );
     },
-    [firstItemIndex, itemProps, posts],
+    [firstItemIndex, itemProps, posts, getThreadInfo, openThread],
   );
   if (posts.length === 0) {
     return (
@@ -117,7 +139,7 @@ export function PostList({
       computeItemKey={(_index, post) => post.id ?? _index}
       startReached={() => void handleStartReached()}
       followOutput={(isAtBottom) =>
-        isAtBottom || lastPost?.sentByMe ? 'smooth' : false
+        isAtBottom || sentNewPost ? 'smooth' : false
       }
       components={{
         Header: () =>

@@ -164,6 +164,9 @@ import type { EmbeddableHeaderNavViewOptions } from './views/HeaderNavView/Heade
 import {
   TeamMessagingChatsView,
   TeamMessagingChatView,
+  TeamMessagingNotesView,
+  TeamMessagingTasksView,
+  TeamMessagingThreadView,
 } from './views/TeamMessagingView';
 import { ExpandedView } from './views/ExpandedView';
 import { FaxDetailsView } from './views/FaxDetailsView';
@@ -237,7 +240,10 @@ import {
   TeamMessagingCompany,
   TeamMessagingFavorites,
   TeamMessagingPersons,
+  TeamMessagingNotes,
   TeamMessagingPosts,
+  TeamMessagingTasks,
+  TeamMessagingThreads,
   CallQueueManagement as CallQueueManagementV2,
   CallQueues as CallQueuesV2,
   CallViewState as CallViewStateV2,
@@ -805,6 +811,9 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       MonitoredExtensions,
       TeamMessagingCompany,
       TeamMessagingPersons,
+      TeamMessagingThreads,
+      TeamMessagingTasks,
+      TeamMessagingNotes,
       TeamMessagingPosts,
       TeamMessagingFavorites,
       TeamMessagingChats,
@@ -827,6 +836,9 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       CallHUDView,
       TeamMessagingChatsView,
       TeamMessagingChatView,
+      TeamMessagingThreadView,
+      TeamMessagingTasksView,
+      TeamMessagingNotesView,
       {
         provide: 'HistoryActiveCallsView',
         useClass: HistoryActiveCallsView,

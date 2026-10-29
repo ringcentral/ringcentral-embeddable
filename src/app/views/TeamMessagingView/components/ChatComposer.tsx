@@ -1,4 +1,5 @@
 import { MessageInput } from '@ringcentral-integration/next-widgets/components/MessageInput';
+import type { FileItem } from '@ringcentral-integration/next-widgets/components/MessageInput/FileAttacher';
 import { ListItem, ListItemText } from '@ringcentral/spring-ui';
 import React, {
   type KeyboardEvent,
@@ -26,8 +27,6 @@ const MAX_TEXT_LENGTH = 10000;
 /** Any file type can be shared in a chat. */
 const ACCEPT_ANY_FILE = '*/*';
 
-const NO_ATTACHMENTS: never[] = [];
-
 type MentionState = { query: string; start: number; caret: number };
 
 /** A member whose profile has loaded, so it has a name to match and show. */
@@ -48,6 +47,19 @@ function filterSuggestions(
         getPersonName(member).toLowerCase().includes(search),
     )
     .slice(0, MAX_SUGGESTIONS);
+}
+
+let fileItemCount = 0;
+
+function toFileItem(file: File): FileItem {
+  fileItemCount += 1;
+  return {
+    id: `${Date.now()}-${fileItemCount}`,
+    name: file.name,
+    size: file.size,
+    type: file.type,
+    file,
+  };
 }
 
 /** Keeps the draft in the chat view when the composer unmounts. */
@@ -94,20 +106,24 @@ function MentionSuggestions({
 
 /**
  * The chat composer, the same input as SMS: attach, emoji, and the send
- * button inside the text field. Typing "@" suggests chat members.
+ * button inside the text field. Attached files wait in the input and go out
+ * with the text as one post. Typing "@" suggests chat members.
  */
 export function ChatComposer({
   members,
   draft,
   saveDraft,
-  sendText,
-  sendFile,
+  sendMessage,
+  canAttach,
+  toolbar,
 }: {
   members: readonly TeamMessagingMember[];
   draft: string;
   saveDraft: (text: string) => void;
-  sendText: (text: string) => Promise<boolean>;
-  sendFile: (file: File) => Promise<void>;
+  sendMessage: (text: string, files: File[]) => Promise<boolean>;
+  canAttach: (file: File) => boolean;
+  /** More buttons after attach and emoji, such as "Create task". */
+  toolbar?: React.ReactNode;
 }): React.ReactElement {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const caretRef = useRef<number | null>(null);
@@ -115,6 +131,7 @@ export function ChatComposer({
   const [mentions, setMentions] = useState<ComposerMention[]>([]);
   const [mentionState, setMentionState] = useState<MentionState | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [attachments, setAttachments] = useState<FileItem[]>([]);
   useDraftSaver(text, saveDraft);
   const suggestions = mentionState
     ? filterSuggestions(members, mentionState.query)
@@ -166,24 +183,41 @@ export function ChatComposer({
     event.preventDefault();
     event.stopPropagation();
   };
+  const addAttachments = (files: File[]): void => {
+    const accepted = files.filter(canAttach).map(toFileItem);
+    if (accepted.length > 0) {
+      setAttachments((items) => [...items, ...accepted]);
+    }
+  };
+  const removeAttachment = (item: FileItem): void => {
+    setAttachments((items) => items.filter(({ id }) => id !== item.id));
+  };
   const handleSend = async (value: string): Promise<void> => {
     const rawMentions = mentions;
-    if (!value.trim()) {
+    const rawAttachments = attachments;
+    if (!value.trim() && rawAttachments.length === 0) {
       return;
     }
     setText('');
     setMentions([]);
     setMentionState(null);
-    const sent = await sendText(serializeMentions(value, rawMentions));
+    setAttachments([]);
+    const sent = await sendMessage(
+      value.trim() ? serializeMentions(value, rawMentions) : '',
+      rawAttachments.map(({ file }) => file),
+    );
     if (!sent) {
       // Restore the message, as the legacy app did.
       setText(value);
       setMentions(rawMentions);
+      setAttachments(rawAttachments);
     }
   };
   return (
     <div
-      className="relative flex-none border-t border-neutral-b4"
+      // Attachments are compact chips sized to their names, several to a row,
+      // instead of the SMS input's full-width rows.
+      className="relative flex-none border-t border-neutral-b4 [&_[data-sign=file-info]]:h-8 [&_[data-sign=file-info]]:gap-1 [&_[data-sign=file-info]]:w-auto [&_[data-sign=file-info]]:max-w-full [&_[data-sign=file-info]]:py-1 [&_[data-sign=file-info]]:pl-2 [&_[data-sign=file-info]]:pr-1.5"
       data-sign="chatComposer"
       onKeyDownCapture={handleKeyDownCapture}
     >
@@ -197,16 +231,15 @@ export function ChatComposer({
       <MessageInput
         inputText={text}
         inputRef={inputRef}
-        attachments={NO_ATTACHMENTS}
+        attachments={attachments}
         acceptFileTypes={ACCEPT_ANY_FILE}
         maxLength={MAX_TEXT_LENGTH}
-        sendDisabled={!text.trim()}
+        sendDisabled={!text.trim() && attachments.length === 0}
         onChange={handleChange}
         onSend={(value) => void handleSend(value)}
-        onAddAttachment={(files) => {
-          files.forEach((file) => void sendFile(file));
-        }}
-        onRemoveAttachment={() => undefined}
+        onAddAttachment={addAttachments}
+        onRemoveAttachment={removeAttachment}
+        toolbar={toolbar}
       />
     </div>
   );

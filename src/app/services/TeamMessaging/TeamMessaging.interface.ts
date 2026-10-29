@@ -1,6 +1,8 @@
 import type TMChatInfo from '@rc-ex/core/lib/definitions/TMChatInfo';
 import type TMPersonInfo from '@rc-ex/core/lib/definitions/TMPersonInfo';
 import type TMPostInfo from '@rc-ex/core/lib/definitions/TMPostInfo';
+import type TMNoteWithBodyInfo from '@rc-ex/core/lib/definitions/TMNoteWithBodyInfo';
+import type TMTaskInfo from '@rc-ex/core/lib/definitions/TMTaskInfo';
 
 /** A chat as kept in the chat list, normalized from the REST API or an event. */
 export type TeamMessagingChat = TMChatInfo;
@@ -14,6 +16,14 @@ export type TeamMessagingPostSendStatus = 'sending' | 'failed';
 
 export interface TeamMessagingPost extends TMPostInfo {
   sendStatus?: TeamMessagingPostSendStatus;
+  /** Fetched posts name their chat `chatId`; post events use `groupId`. */
+  chatId?: string;
+  /** The thread a parent or reply belongs to. */
+  threadId?: string;
+  /** Set on a reply: the post it replies to. */
+  parentPostId?: string;
+  /** Set on the first post of a thread. */
+  isParent?: boolean;
 }
 
 /** A chat member with the person's details, when they are loaded. */
@@ -47,6 +57,14 @@ export interface TeamMessagingChatItem {
   /** Time of the latest post, or of the last chat change. */
   updatedTime: number;
 }
+
+export type TeamMessagingTask = TMTaskInfo;
+
+/** A note; its HTML `body` is only known once the note is loaded. */
+export type TeamMessagingNote = TMNoteWithBodyInfo;
+
+/** The tasks drawer lists open (pending or in progress) or completed tasks. */
+export type TeamMessagingTaskFilter = 'Open' | 'Completed';
 
 /** The chat list's read status filter, as in the SMS list. */
 export type TeamMessagingReadStatusFilter = 'All' | 'Unread';
@@ -98,11 +116,22 @@ export interface TeamMessagingResult {
   id?: string;
 }
 
-export interface SendTeamMessagingFileParams {
-  chatId: string;
+/** A file to upload with a post. */
+export interface TeamMessagingFileUpload {
   name: string;
   /** The file content as a base64 data URL, so it can cross ports. */
   base64Url: string;
+}
+
+export interface SendTeamMessagingPostParams {
+  chatId: string;
+  /** Mentions are written as `![:Person](id)`. Optional with files. */
+  text?: string;
+  files?: TeamMessagingFileUpload[];
+  /** Reply in this thread. */
+  threadId?: string;
+  /** Reply to this post, starting its thread when it has none. */
+  parentPostId?: string;
 }
 
 export interface CreateTeamParams {

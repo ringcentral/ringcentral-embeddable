@@ -1,17 +1,19 @@
 import { AppHeaderNav } from '@ringcentral-integration/micro-core/src/app/components';
 import { Filter } from '@ringcentral-integration/micro-message/src/app/views/ConversationsViewSpring/ConversationsPage/Filter';
-import { AddTeamMd, MessagesMd } from '@ringcentral/spring-icon';
+import { MessagesMd, PlusMd } from '@ringcentral/spring-icon';
 import {
   CircularProgressIndicator,
   EmptyState,
   IconButton,
+  Menu,
+  MenuItem,
   VirtualizedList,
 } from '@ringcentral/spring-ui';
-import React, { type ChangeEvent } from 'react';
+import React, { type ChangeEvent, useRef, useState } from 'react';
 
 import type { ChatTabId } from '../chatTabs';
 import type { EmojiLookup } from '../formatPostText';
-import { getUnreadBadgeColor } from '../getUnreadBadgeColor';
+import { getChatTabLabel } from '../getChatTabLabel';
 import { t } from '../i18n';
 import type {
   ChatListPanelProps,
@@ -30,7 +32,7 @@ const TAB_LABEL_KEYS = {
 
 type ChatListProps = Omit<
   ChatListPanelProps,
-  'tabs' | 'onCreateTeam' | 'renderTabs'
+  'tabs' | 'onCreateConversation' | 'onCreateTeam' | 'renderTabs'
 > & {
   tab: ChatTab;
   emojiLookup?: EmojiLookup;
@@ -125,12 +127,58 @@ function ChatList({
   );
 }
 
+/** The header's "+" menu: start a conversation or create a team. */
+function NewChatMenu({
+  onCreateConversation,
+  onCreateTeam,
+}: Pick<
+  ChatListPanelProps,
+  'onCreateConversation' | 'onCreateTeam'
+>): React.ReactElement {
+  const anchorRef = useRef<HTMLButtonElement>(null);
+  const [open, setOpen] = useState(false);
+  const pick = (handler: () => void) => () => {
+    setOpen(false);
+    handler();
+  };
+  return (
+    <>
+      <IconButton
+        ref={anchorRef}
+        variant="contained"
+        color="secondary"
+        size="small"
+        symbol={PlusMd}
+        data-sign="newChatButton"
+        TooltipProps={{ title: t('newChat') }}
+        onClick={() => setOpen(true)}
+      />
+      <Menu
+        open={open}
+        anchorEl={anchorRef.current}
+        onClose={() => setOpen(false)}
+      >
+        <MenuItem
+          data-sign="newConversationMenuItem"
+          onClick={pick(onCreateConversation)}
+        >
+          {t('newConversation')}
+        </MenuItem>
+        <MenuItem data-sign="createTeamMenuItem" onClick={pick(onCreateTeam)}>
+          {t('createTeam')}
+        </MenuItem>
+      </Menu>
+    </>
+  );
+}
+
 /**
- * The Chat tab: "Chat" with "Create team" in the header, then the All,
- * Direct and Team sub tabs, laid out like the SMS list.
+ * The Chat tab: "Chat" with the "+" menu in the header, then the All, Direct,
+ * Team and Favorites sub tabs, laid out like the SMS list.
  */
 export function ChatListPanel({
   tabs,
+  onCreateConversation,
   onCreateTeam,
   renderTabs,
   ...listProps
@@ -138,11 +186,8 @@ export function ChatListPanel({
   const emojiLookup = useEmojiLookup();
   const syncTabs: ChatSyncTab[] = tabs.map((tab) => ({
     id: tab.id,
-    label: t(TAB_LABEL_KEYS[tab.id]),
-    BadgeProps: {
-      count: tab.unreadCount,
-      color: getUnreadBadgeColor(tab.unreadMention),
-    },
+    // The count is in the label; sub tabs show no badge.
+    label: getChatTabLabel(t(TAB_LABEL_KEYS[tab.id]), tab.unreadCount),
     component: <ChatList {...listProps} tab={tab} emojiLookup={emojiLookup} />,
   }));
   return (
@@ -151,14 +196,9 @@ export function ChatListPanel({
       data-sign="chatListPanel"
     >
       <AppHeaderNav title={t('chat')}>
-        <IconButton
-          variant="contained"
-          color="secondary"
-          size="small"
-          symbol={AddTeamMd}
-          data-sign="createTeamButton"
-          TooltipProps={{ title: t('createTeam') }}
-          onClick={onCreateTeam}
+        <NewChatMenu
+          onCreateConversation={onCreateConversation}
+          onCreateTeam={onCreateTeam}
         />
       </AppHeaderNav>
       {renderTabs(syncTabs)}

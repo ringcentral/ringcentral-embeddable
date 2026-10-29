@@ -41,6 +41,63 @@ After pre-recorded messages added, user will get voicemail drop button in call a
 
 The message plays automatically when the voicemail greeting ends. If no greeting end is detected within 45 seconds, the message is not dropped and the call ends.
 
+## Pre-recorded messages from your service
+
+<!-- md:version 3.0.0 -->
+
+Besides the messages users upload in the widget, your service can provide shared pre-recorded messages. Pass `voicemailDropFilesPath` when you [register your service](../integration/index.md):
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-register-third-party-service',
+  service: {
+    name: 'TestService',
+    voicemailDropFilesPath: '/voicemailDropFiles',
+  }
+}, '*');
+```
+
+The widget sends a request to this path to get the message list. Respond with an array of messages in `data`:
+
+```js
+// Function to response message to widget
+function responseMessage(request, response) {
+  document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+    type: 'rc-post-message-response',
+    responseId: request.requestId,
+    response,
+  }, '*');
+}
+
+window.addEventListener('message', function (e) {
+  var data = e.data;
+  if (data && data.type === 'rc-post-message-request') {
+    const request = data;
+    if (request.path === '/voicemailDropFiles') {
+      responseMessage(request, {
+        data: [
+          {
+            id: 'my-service-intro', // required, unique and stable
+            label: 'Intro message', // required, shown in the message list
+            uri: 'https://example.com/voicemail/intro.mp3', // required, audio file URI
+          },
+        ],
+      });
+    }
+  }
+});
+```
+
+| Field | Required | Description |
+| --- | --- | --- |
+| `id` | Yes | Unique and stable message ID. The widget finds the selected message by this ID when it drops the message. Use a prefix, such as your service name, so it doesn't collide with messages users upload. |
+| `label` | Yes | Name shown in the message list. |
+| `uri` | Yes | Audio file URI: an `https://` URL, or a `data:audio/mpeg;` or `data:audio/wav;` data URI. The widget downloads the file in the browser, so a URL on another domain must allow cross-origin (CORS) requests from the widget. |
+
+Messages without a valid `uri` or a `label` are ignored. If `data` is not an array, the widget logs an error and shows no messages from your service.
+
+The widget requests the list when the user opens the voicemail drop settings page or the voicemail drop message list on a call. The messages are listed after the user's own messages, marked as "Provided by an external service". Users can play them but can't edit or delete them in the widget.
+
 ## RingEX and RingCX calls
 
 | | RingEX call | RingCX call |

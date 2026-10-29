@@ -419,16 +419,17 @@ export class TeamMessagingChats extends DataFetcherConsumer<
   }
 
   /**
-   * Open the 1:1 chat with a person, creating it when needed. The API
-   * returns the existing chat when there is one.
+   * Open the conversation with these people, creating it when needed: one
+   * person gives a 1:1 chat, more a group. The API returns the existing
+   * conversation when there is one with exactly the same people.
    */
   @delegate('server')
-  async openConversation(personId: string): Promise<TeamMessagingResult> {
+  async openConversation(personIds: string[]): Promise<TeamMessagingResult> {
     try {
       const response = await this._client.service
         .platform()
         .post(`${TEAM_MESSAGING_API_PATH}/conversations`, {
-          members: [{ id: personId }],
+          members: personIds.map((id) => ({ id })),
         });
       const conversation = (await response.json()) as TMConversationInfo;
       this._saveChat(conversation);

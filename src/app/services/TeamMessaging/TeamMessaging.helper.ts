@@ -67,6 +67,16 @@ export function getPostTime(post?: TeamMessagingPost): number {
   return post?.creationTime ? new Date(post.creationTime).getTime() : 0;
 }
 
+/** A post's chat: fetched posts have `chatId`, post events `groupId`. */
+export function getPostChatId(post: TeamMessagingPost): string | undefined {
+  return post.groupId ?? post.chatId;
+}
+
+/** A thread reply, which the chat's post list hides under its parent. */
+export function isThreadReply(post: TeamMessagingPost): boolean {
+  return !!post.parentPostId || (!!post.threadId && !post.isParent);
+}
+
 export function isLocalPost(post: TeamMessagingPost): boolean {
   return !!post.id?.startsWith(LOCAL_POST_ID_PREFIX);
 }
