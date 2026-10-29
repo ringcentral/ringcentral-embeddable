@@ -564,6 +564,31 @@ describe('voicemail drop on a kept session (RingCX offhook)', () => {
     expect(handler).toHaveBeenCalledTimes(1);
   });
 
+  it('skips the tab broadcast once the call record is released', async () => {
+    const { webphone } = create({ shared: false, isServer: true });
+    const statusHandler = jest.fn();
+    const droppedHandler = jest.fn();
+    webphone.onVoicemailDropStatusChanged(statusHandler);
+    webphone.onCallVoicemailDropped(droppedHandler);
+
+    // The other party hung up mid-drop, so the record is already gone.
+    await webphone.setVoicemailDropStatus('wp-1', voicemailDropStatus.finished);
+
+    expect(statusHandler).toHaveBeenCalledWith(
+      'wp-1',
+      voicemailDropStatus.finished,
+      undefined,
+    );
+    expect(droppedHandler).not.toHaveBeenCalled();
+
+    seedRecord(webphone);
+    await webphone.setVoicemailDropStatus('wp-1', voicemailDropStatus.sending);
+    expect(droppedHandler).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'wp-1' }),
+      webphone.activeSession,
+    );
+  });
+
   it('stops a running drop and restores the voice channel', async () => {
     const { webphone } = create({ shared: true, isServer: true });
     const { mediaSession, pipelineArgs } = armMediaOwner(webphone);

@@ -541,7 +541,7 @@ export class Webphone extends WebphoneV2 {
   }
 
   /** Emits a voicemail drop on this port. Public only so `fork()` can reach it. */
-  async emitVoicemailDroppedOnPort(session: WebphoneNormalizedSession | null) {
+  async emitVoicemailDroppedOnPort(session: WebphoneNormalizedSession) {
     this._eventEmitter.emit(
       'callVoicemailDropped',
       session,
@@ -572,7 +572,12 @@ export class Webphone extends WebphoneV2 {
       status,
       details,
     );
-    const session = this._sessionRecords.get(callId)?.normalized ?? null;
+    const session = this._sessionRecords.get(callId)?.normalized;
+    // The record is released once the call ends, e.g. when the other party
+    // hangs up mid-drop, so there is no call left to report to the tabs.
+    if (!session) {
+      return;
+    }
     await runOnAllPorts(
       this._portManager,
       this as Webphone,
