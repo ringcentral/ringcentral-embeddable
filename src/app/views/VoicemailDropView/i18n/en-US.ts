@@ -43,6 +43,7 @@ export default {
   deleteDescription: 'This removes "{name}" from your pre-recorded messages.',
   deleteAction: 'Delete',
   externalMessage: 'Provided by an external service',
+  externalMessageFrom: 'Provided by {name}',
   play: 'Play {name}',
   stop: 'Stop {name}',
 } as const;

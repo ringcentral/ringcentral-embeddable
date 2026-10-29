@@ -54,7 +54,8 @@ describe('VoicemailDropSettingsView', () => {
       setNoBeepSilenceDuration: jest.fn(async () => {}),
     };
     const router = { push: jest.fn() };
-    const view = new VoicemailDropSettingsView(voicemailDrop, router);
+    const thirdParty = { serviceName: 'Acme CRM' };
+    const view = new VoicemailDropSettingsView(voicemailDrop, router, thirdParty);
 
     renderViewModule(view);
 
@@ -63,6 +64,7 @@ describe('VoicemailDropSettingsView', () => {
     expect(props.messages).not.toBe(voicemailDrop.voicemailMessages);
     expect(props.externalMessages).toEqual([{ id: 'external' }]);
     expect(props.noBeepSilenceDuration).toBe(4);
+    expect(props.externalServiceName).toBe('Acme CRM');
     props.onBack();
     props.onDelete({ id: 'local' });
     await props.onLoad();

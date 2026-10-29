@@ -41,16 +41,21 @@ const NEW_MESSAGE_ID = '__new_voicemail_message__';
 function MessageRow({
   message,
   external,
+  externalServiceName,
   onEdit,
   onDelete,
 }: {
   message: VoicemailMessage;
   external: boolean;
+  externalServiceName: string | null;
   onEdit: () => void;
   onDelete: () => void;
 }) {
   const { t } = useLocale(i18n);
   const source = message.file || message.uri;
+  const externalSource = externalServiceName
+    ? t('externalMessageFrom', { name: externalServiceName })
+    : t('externalMessage');
 
   return (
     <ListItem size="auto">
@@ -58,7 +63,7 @@ function MessageRow({
         <div className="flex min-w-0 items-center gap-2">
           <ListItemText
             primary={message.label}
-            secondary={external ? t('externalMessage') : message.fileName}
+            secondary={external ? externalSource : message.fileName}
             classes={{
               root: 'min-w-0 flex-1',
               primary: 'truncate',
@@ -102,6 +107,7 @@ function MessageRow({
 export function VoicemailDropSettingsPanel({
   messages,
   externalMessages,
+  externalServiceName = null,
   noBeepSilenceDuration,
   onBack,
   onDelete,
@@ -111,6 +117,7 @@ export function VoicemailDropSettingsPanel({
 }: {
   messages: VoicemailMessage[];
   externalMessages: VoicemailMessage[];
+  externalServiceName?: string | null;
   noBeepSilenceDuration: number;
   onBack: () => void;
   onDelete: (message: VoicemailMessage) => void;
@@ -219,6 +226,7 @@ export function VoicemailDropSettingsPanel({
                   key={`${external ? 'external' : 'local'}-${message.id}`}
                   message={message}
                   external={external}
+                  externalServiceName={externalServiceName}
                   onEdit={() => setEditingMessageId(message.id)}
                   onDelete={() => setDeleteTarget(message)}
                 />
