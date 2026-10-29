@@ -451,36 +451,47 @@ export class VoicemailDrop extends RcModule {
     await audioContext.resume();
     source.start();
 
-    const cleanup = async (status: string) => {
+    const stopSource = () => {
+      try {
+        source.stop();
+      } catch {
+        // Already stopped.
+      }
+    };
+
+    const cleanup = async (
+      status: string,
+      { restoreTrack = true }: { restoreTrack?: boolean } = {},
+    ) => {
       source.onended = null;
       webphoneSession.off('disposed', onDisposed);
       signal?.removeEventListener('abort', onAbort);
       audioTrack.stop();
-      try {
-        await sender.replaceTrack(originalTrack);
-        // The track was disabled rather than stopped, so it has to be
-        // re-enabled for the microphone to work again.
-        webphoneSession.restoreSessionAudio?.();
-      } catch (error) {
-        console.error(error);
+      if (restoreTrack) {
+        try {
+          await sender.replaceTrack(originalTrack);
+          // The track was disabled rather than stopped, so it has to be
+          // re-enabled for the microphone to work again.
+          webphoneSession.restoreSessionAudio?.();
+        } catch (error) {
+          console.error(error);
+        }
       }
       updateStatus(status);
     };
 
+    // The peer connection is already closed when the session is disposed,
+    // so there is no sender to restore the microphone track on.
     const onDisposed = () => {
-      void cleanup(voicemailDropStatus.terminated);
+      void cleanup(voicemailDropStatus.terminated, {
+        restoreTrack: false,
+      }).then(stopSource);
     };
 
     // Stopping the source would fire `onended`, which hangs up; cleanup
     // clears that handler first.
     const onAbort = () => {
-      void cleanup(voicemailDropStatus.cancelled).then(() => {
-        try {
-          source.stop();
-        } catch {
-          // Already stopped.
-        }
-      });
+      void cleanup(voicemailDropStatus.cancelled).then(stopSource);
     };
 
     webphoneSession.once('disposed', onDisposed);
