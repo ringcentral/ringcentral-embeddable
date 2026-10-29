@@ -316,6 +316,18 @@ describe("Adapter navigation compatibility", () => {
     expect(adapter._router.push).toHaveBeenCalledWith(path);
   });
 
+  test.each(["/glip", "/glip/groups/group-id"])(
+    "routes the legacy chat page %s",
+    async (path) => {
+      const adapter = createAdapter();
+
+      await Adapter.prototype._navigateTo.call(adapter, path);
+
+      expect(adapter._router.push).toHaveBeenCalledWith(path);
+      expect(adapter.logger.warn).not.toHaveBeenCalled();
+    }
+  );
+
   test("lets the log call view open the log page, so a call page stays open", async () => {
     const adapter = createAdapter({
       _router: { currentPath: "/calling", push: jest.fn(async () => {}) },
@@ -348,8 +360,6 @@ describe("Adapter navigation compatibility", () => {
 
   test.each([
     "/HUD",
-    "/glip",
-    "/glip/groups/group-id",
     "/settings/thirdParty/general",
   ])("does not push unsupported legacy path %s", async (path) => {
     const adapter = createAdapter();

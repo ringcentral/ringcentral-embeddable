@@ -1,5 +1,6 @@
 export default {
   callDetails: 'Call details',
+  chat: 'Chat',
   composeFax: 'Compose fax',
   composeText: 'Compose text',
   contact: 'Contact',

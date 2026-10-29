@@ -148,6 +148,9 @@ export function AddExtensionContent({
           onInputChange={onFilterChange}
           onChange={handleSelectionChange}
           renderOption={renderOption}
+          // Inside a dialog the list renders in the dialog by default, whose
+          // body clips it; render it over the page instead.
+          PopperProps={{ disablePortal: false }}
           openOnFocus={false}
           toggleWithInput={false}
           clearBtn

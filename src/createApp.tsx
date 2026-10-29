@@ -76,6 +76,7 @@ interface UrlParams {
   disableCall?: boolean;
   disableCallHistory?: boolean;
   disableContacts?: boolean;
+  disableGlip?: boolean;
   disableMeeting?: boolean;
   disableMessages?: boolean;
   disableReadText?: boolean;
@@ -157,6 +158,7 @@ function readUrlParams(): UrlParams {
     disableCall: parseBooleanParam(params.disableCall),
     disableCallHistory: parseBooleanParam(params.disableCallHistory),
     disableContacts: parseBooleanParam(params.disableContacts),
+    disableGlip: parseOptionalBooleanParam(params.disableGlip),
     disableMeeting: parseBooleanParam(params.disableMeeting),
     disableMessages: parseBooleanParam(params.disableMessages),
     disableReadText: parseBooleanParam(params.disableReadText),
@@ -283,6 +285,7 @@ export const createApp = async (
     disableCall: urlParams.disableCall,
     disableCallHistory: urlParams.disableCallHistory,
     disableContacts: urlParams.disableContacts,
+    disableGlip: urlParams.disableGlip,
     disableMeeting: urlParams.disableMeeting,
     disableMessages: urlParams.disableMessages,
     disableReadText: urlParams.disableReadText,

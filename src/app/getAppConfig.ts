@@ -104,10 +104,7 @@ import {
   RcVideo,
   type RcVideoOptions,
 } from '@ringcentral-integration/micro-meeting/src/app/services';
-import type {
-  HeaderNavViewSpringOptions,
-  HeaderViewOptions,
-} from '@ringcentral-integration/micro-core/src/app/views';
+import type { HeaderViewOptions } from '@ringcentral-integration/micro-core/src/app/views';
 import { PersonalMeetingSettingsViewSpring } from '@ringcentral-integration/micro-meeting/src/app/views';
 import { AudioSettingsView } from '@ringcentral-integration/micro-setting/src/app/views';
 import {
@@ -163,6 +160,14 @@ import {
 } from './views/CallHistoryView';
 import { HistoryActiveCallsView } from './views/CallHistoryView/HistoryActiveCalls.view';
 import { CallHUDView } from './views/CallHUDView';
+import type { EmbeddableHeaderNavViewOptions } from './views/HeaderNavView/HeaderNavViewOptions';
+import {
+  TeamMessagingChatsView,
+  TeamMessagingChatView,
+  TeamMessagingNotesView,
+  TeamMessagingTasksView,
+  TeamMessagingThreadView,
+} from './views/TeamMessagingView';
 import { ExpandedView } from './views/ExpandedView';
 import { FaxDetailsView } from './views/FaxDetailsView';
 import { VoicemailPage } from './views/VoicemailView';
@@ -231,6 +236,14 @@ import {
   RingCX,
   Adapter,
   MonitoredExtensions,
+  TeamMessagingChats,
+  TeamMessagingCompany,
+  TeamMessagingFavorites,
+  TeamMessagingPersons,
+  TeamMessagingNotes,
+  TeamMessagingPosts,
+  TeamMessagingTasks,
+  TeamMessagingThreads,
   CallQueueManagement as CallQueueManagementV2,
   CallQueues as CallQueuesV2,
   CallViewState as CallViewStateV2,
@@ -303,6 +316,8 @@ interface CreateAppEntryOptions<T extends typeof createSharedApp>
   appVersion: string;
   /** Shown as the version on the settings page instead of `appVersion`. */
   displayAppVersion?: string;
+  /** Team messaging is off unless the host passes `disableGlip=false`. */
+  disableGlip?: boolean;
   prefix?: string;
   brandConfig: BaseBrandConfig;
   brandConfigs?: DynamicBrandOptions['brandConfigs'];
@@ -395,6 +410,7 @@ export const getAppConfig = <T extends typeof createSharedApp>({
   disableCall = false,
   disableCallHistory = false,
   disableContacts = false,
+  disableGlip = true,
   disableMeeting = false,
   disableMessages = false,
   disableReadText = false,
@@ -793,6 +809,14 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       },
       Grant,
       MonitoredExtensions,
+      TeamMessagingCompany,
+      TeamMessagingPersons,
+      TeamMessagingThreads,
+      TeamMessagingTasks,
+      TeamMessagingNotes,
+      TeamMessagingPosts,
+      TeamMessagingFavorites,
+      TeamMessagingChats,
       ParkView,
       ApplicationLogsView,
       CustomizedPageView,
@@ -810,6 +834,11 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       VoicemailDropView,
       VoicemailDropSettingsView,
       CallHUDView,
+      TeamMessagingChatsView,
+      TeamMessagingChatView,
+      TeamMessagingThreadView,
+      TeamMessagingTasksView,
+      TeamMessagingNotesView,
       {
         provide: 'HistoryActiveCallsView',
         useClass: HistoryActiveCallsView,
@@ -1037,6 +1066,8 @@ export const getAppConfig = <T extends typeof createSharedApp>({
             disableMessages,
             disableReadText,
           }),
+          // Team messaging is opt-in (`disableGlip=false`), as in the legacy app.
+          Glip: !disableGlip,
           SignUpButton: showSignUpButton,
           NoiseReduction: !disableNoiseReduction,
           AudioInitPrompt: enableAudioInitPrompt,
@@ -1179,9 +1210,14 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       },
       {
         provide: 'HeaderNavViewOptions',
-        useValue: {
+        useFactory: (
+          teamMessagingChats: TeamMessagingChats,
+        ): EmbeddableHeaderNavViewOptions => ({
           enableVideoTab: true,
-        } satisfies HeaderNavViewSpringOptions,
+          // A function, so the tab bar does not wait on the chat list.
+          getChatUnreadCount: () => teamMessagingChats.totalUnreadCount,
+        }),
+        deps: [TeamMessagingChats],
       },
       {
         provide: 'HeaderViewOptions',
