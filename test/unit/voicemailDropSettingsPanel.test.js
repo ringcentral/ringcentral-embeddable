@@ -5,6 +5,7 @@ import {
   AppFooterNav,
   AppHeaderNav,
 } from '@ringcentral-integration/micro-core/src/app/components';
+import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
 import { PageHeader } from '@ringcentral-integration/next-widgets/components';
 
 import { AudioPreview } from '../../src/app/views/VoicemailDropSettingsView/AudioPreview';
@@ -160,6 +161,30 @@ describe('VoicemailDropSettingsPanel', () => {
     );
     expect(screen.getAllByRole('button', { name: 'edit' })).toHaveLength(1);
     expect(screen.getAllByRole('button', { name: 'delete' })).toHaveLength(1);
+  });
+
+  test('names the registered service as the external message source', () => {
+    const defaultLocale = useLocale.getMockImplementation();
+    useLocale.mockImplementation(() => ({
+      t: (key, params) => (params?.name ? `${key}:${params.name}` : key),
+    }));
+    const external = {
+      id: 'external',
+      label: 'External greeting',
+      uri: 'https://example.com/external.wav',
+    };
+    const props = createProps({
+      externalMessages: [external],
+      externalServiceName: 'Acme CRM',
+    });
+    try {
+      render(<VoicemailDropSettingsPanel {...props} />);
+
+      expect(screen.getByText('externalMessageFrom:Acme CRM')).toBeInTheDocument();
+      expect(screen.queryByText('externalMessage')).not.toBeInTheDocument();
+    } finally {
+      useLocale.mockImplementation(defaultLocale);
+    }
   });
 
   test('opens an existing message for editing', () => {

@@ -6,6 +6,7 @@ import {
 } from '@ringcentral-integration/next-core';
 import React, { useRef } from 'react';
 
+import { ThirdParty } from '../../services/ThirdParty';
 import {
   VoicemailDrop,
   type VoicemailMessage,
@@ -20,6 +21,7 @@ export class VoicemailDropSettingsView extends RcViewModule {
   constructor(
     private _voicemailDrop: VoicemailDrop,
     private _router: RouterPlugin,
+    private _thirdParty: ThirdParty,
   ) {
     super();
   }
@@ -29,6 +31,7 @@ export class VoicemailDropSettingsView extends RcViewModule {
       messages: this._voicemailDrop.voicemailMessages.slice(),
       externalMessages: this._voicemailDrop.externalVoicemailDropFiles.slice(),
       noBeepSilenceDuration: this._voicemailDrop.noBeepSilenceDuration,
+      externalServiceName: this._thirdParty.serviceName,
     }));
     const { current: uiFunctions } = useRef({
       onBack: () => this._router.push('/settings'),

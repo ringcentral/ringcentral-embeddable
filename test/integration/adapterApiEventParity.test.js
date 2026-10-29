@@ -171,6 +171,48 @@ describe('Adapter API and event parity', () => {
     expect(sideWidgetView.onCallInit).not.toHaveBeenCalled();
   });
 
+  test('relays voicemail drops except on the RingCX voice channel', () => {
+    const handlers = {};
+    const webphone = new Proxy(
+      {
+        cxOffhookSessionId: 'cx-offhook',
+        cxOffhookTelephonySessionIds: ['cx-telephony'],
+      },
+      {
+        get: (target, key) =>
+          typeof key === 'string' && key.startsWith('on')
+            ? (handler) => {
+                handlers[key] = handler;
+                return jest.fn();
+              }
+            : target[key],
+      },
+    );
+    const adapter = createAdapter({
+      _webphone: webphone,
+      _postMessage: jest.fn(),
+      _withContactMatch: (session) => session,
+    });
+
+    Adapter.prototype._bindWebphoneEvents.call(adapter);
+    adapter._postMessage.mockClear();
+    handlers.onCallVoicemailDropped({ id: 'cx-offhook' });
+    handlers.onCallVoicemailDropped({
+      id: 'bridged',
+      partyData: { sessionId: 'cx-telephony' },
+    });
+    handlers.onCallVoicemailDropped({ id: 'outbound', partyData: null });
+
+    expect(adapter._postMessage.mock.calls).toEqual([
+      [
+        {
+          type: 'rc-call-drop-voicemail-notify',
+          call: { id: 'outbound', partyData: null },
+        },
+      ],
+    ]);
+  });
+
   test('exposes refreshLoginSession through the Adapter client', async () => {
     const request = jest.fn(async () => ({ result: 'ok' }));
     const client = createAdapter({ _requestWithPostMessage: request });

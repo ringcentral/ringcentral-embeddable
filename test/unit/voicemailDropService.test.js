@@ -481,22 +481,34 @@ describe('VoicemailDrop service', () => {
   test('cleans up with terminated status when the call is disposed', async () => {
     const { service } = createVoicemailDrop();
     const session = createSession();
+    session.restoreSessionAudio = jest.fn();
     const context = createAudioContext();
+    context.source.stop = jest.fn();
     const updateStatus = jest.fn();
+    const endCall = jest.fn();
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
 
     await service._sendAudioData({
       webphoneSession: session,
       audioContext: context,
       audioBuffer: {},
-      endCall: jest.fn(),
+      endCall,
       updateStatus,
     });
     session.emit('disposed');
-    await Promise.resolve();
-    await Promise.resolve();
+    await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(updateStatus).toHaveBeenCalledWith(voicemailDropStatus.terminated);
     expect(session.off).toHaveBeenCalled();
+    expect(context.audioTrack.stop).toHaveBeenCalled();
+    // The peer connection is closed, so the microphone track is not restored.
+    expect(session.rtcSender.replaceTrack.mock.calls).toEqual([[context.audioTrack]]);
+    expect(session.restoreSessionAudio).not.toHaveBeenCalled();
+    expect(consoleError).not.toHaveBeenCalled();
+    expect(context.source.onended).toBeNull();
+    expect(context.source.stop).toHaveBeenCalledTimes(1);
+    expect(endCall).not.toHaveBeenCalled();
+    consoleError.mockRestore();
   });
 
   test('still updates status when restoring the original track fails', async () => {
