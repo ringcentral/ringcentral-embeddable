@@ -2707,15 +2707,17 @@
   <div class="rcb-section">
     <div class="rcb-section-header" onclick="rcbToggleSection(this)" style="cursor:default">
       <span class="rcb-section-title">App credentials</span>
+      <button class="rcb-reset-btn" onclick="event.stopPropagation(); rcbReset()" title="Reset all settings and custom tabs to their defaults">Reset all</button>
     </div>
     <div class="rcb-section-body" id="sec-creds">
       <div class="rcb-field">
         <label class="rcb-field-label">
           Library version
-          <i class="rcb-help" data-tip="Which release of the Embeddable library to load. Latest is recommended; 2.x and 1.x are pinned branches for legacy deployments.">?</i>
+          <i class="rcb-help" data-tip="Which release of the Embeddable library to load. Latest is recommended; 3.1.x is the beta with RingCX support; 2.x and 1.x are pinned branches for legacy deployments.">?</i>
         </label>
-        <select class="rcb-select" id="rcb-version" onchange="rcbScheduleUpdate()">
+        <select class="rcb-select" id="rcb-version" onchange="rcbApplyVersion(); rcbScheduleUpdate()">
           <option value="latest" selected>Latest (recommended)</option>
+          <option value="3.1.x">3.1.x (beta)</option>
           <option value="3.x">3.x</option>
           <option value="2.x">2.x</option>
           <option value="1.x">1.x (deprecated)</option>
@@ -2724,7 +2726,7 @@
       <div class="rcb-field">
         <label class="rcb-field-label">
           Client ID <span style="font-weight:400;color:#bbb">(optional)</span>
-          <i class="rcb-help" data-tip="Removes the 'FOR DEMO PURPOSES ONLY' banner and scopes permissions to your registered app.">?</i>
+          <i class="rcb-help" data-tip="Removes the 'FOR DEMO PURPOSES ONLY' banner and scopes permissions to your registered app. Saved in this page's link, so it is included when you share the link.">?</i>
         </label>
         <input class="rcb-input" id="rcb-clientId" type="text" placeholder="your-client-id" oninput="rcbScheduleUpdate()">
       </div>
@@ -2782,11 +2784,11 @@
       </div>
       <div class="rcb-toggle-row">
         <span class="rcb-toggle-label">
-          Team messaging
-          <i class="rcb-help" data-tip="Enables Glip / Team Messaging. Your app must include the 'Glip' or 'Team Messaging' permission in the Developer Console.">?</i>
-          <small>Requires Glip / Team Messaging scope</small>
+          Chat
+          <i class="rcb-help" data-tip="Adds the Chat tab for RingCentral team messaging. Off by default. Your app must include the 'Team Messaging' (or 'Glip') permission in the Developer Console.">?</i>
+          <small>Requires Team Messaging scope</small>
         </span>
-        <button class="rcb-toggle off" data-on-param="disableGlip" data-on-val="0" onclick="rcbToggle(this)"></button>
+        <button class="rcb-toggle off" data-on-param="disableGlip" data-on-val="false" onclick="rcbToggle(this)"></button>
       </div>
       <div class="rcb-toggle-row">
         <span class="rcb-toggle-label">
@@ -2801,6 +2803,32 @@
           <i class="rcb-help" data-tip="Shows a link for new users to sign up for a RingCentral account.">?</i>
         </span>
         <button class="rcb-toggle off" data-on-param="showSignUpButton" data-on-val="1" onclick="rcbToggle(this)"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2b · RingCX (3.1.x only) -->
+  <div class="rcb-section" data-only-in="3.1.x">
+    <div class="rcb-section-header" onclick="rcbToggleSection(this)">
+      <span class="rcb-section-title">RingCX <span class="rcb-badge-new">3.1.x</span></span>
+      <svg class="rcb-chevron" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M4 6l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </div>
+    <div class="rcb-section-body" id="sec-ringcx">
+      <div class="rcb-toggle-row">
+        <span class="rcb-toggle-label">
+          RingCX contact center
+          <i class="rcb-help" data-tip="Adds the Agent tab so RingCX agents can handle contact center calls next to their RingEX calls. Only shown to users who have a RingCX account.">?</i>
+          <small>Agent tab for RingCX users</small>
+        </span>
+        <button class="rcb-toggle off" data-on-param="enableRingCX" data-on-val="1" onclick="rcbToggle(this)"></button>
+      </div>
+      <div class="rcb-toggle-row" data-requires="enableRingCX">
+        <span class="rcb-toggle-label">
+          Agent scripts
+          <i class="rcb-help" data-tip="Shows RingCX agent scripts in the side panel during calls. Best used with Call widgets (side widget) on.">?</i>
+          <small>Use with Call widgets (side widget)</small>
+        </span>
+        <button class="rcb-toggle off" data-on-param="enableAgentScript" data-on-val="1" onclick="rcbToggle(this)"></button>
       </div>
     </div>
   </div>
@@ -2869,14 +2897,14 @@
         </span>
         <button class="rcb-toggle off" data-on-param="newAdapterUI" data-on-val="1" onclick="rcbToggle(this)"></button>
       </div>
-      <div class="rcb-toggle-row">
+      <div class="rcb-toggle-row" data-hide-in="3.1.x">
         <span class="rcb-toggle-label">
           Ringtone settings
           <i class="rcb-help" data-tip="Adds ringtone customization controls to the settings page so users can pick their own ringtone.">?</i>
         </span>
         <button class="rcb-toggle off" data-on-param="enableRingtoneSettings" data-on-val="1" onclick="rcbToggle(this)"></button>
       </div>
-      <div class="rcb-field">
+      <div class="rcb-field" data-hide-in="3.1.x">
         <label class="rcb-field-label">
           Custom styles URI <span style="font-weight:400;color:#bbb">(optional)</span>
           <i class="rcb-help" data-tip="URL to a CSS stylesheet that will be injected into the widget for custom branding.">?</i>
@@ -2907,14 +2935,14 @@
         </label>
         <input class="rcb-input" id="rcb-popupPageUri" type="text" placeholder="https://your-site.com/popup.html" oninput="rcbScheduleUpdate()">
       </div>
-      <div class="rcb-toggle-row">
+      <div class="rcb-toggle-row" data-hide-in="3.1.x">
         <span class="rcb-toggle-label">
           Multiple tabs support
           <i class="rcb-help" data-tip="Keeps the widget functional when the same page is open in multiple browser tabs simultaneously.">?</i>
         </span>
         <button class="rcb-toggle off" data-on-param="multipleTabsSupport" data-on-val="1" onclick="rcbToggle(this)"></button>
       </div>
-      <div class="rcb-toggle-row">
+      <div class="rcb-toggle-row" data-hide-in="3.1.x">
         <span class="rcb-toggle-label">
           Disconnect inactive tab
           <i class="rcb-help" data-tip="Automatically disconnects the WebPhone in background tabs to prevent duplicate registrations.">?</i>
@@ -2969,6 +2997,14 @@
         </span>
         <button class="rcb-toggle off" data-on-param="enableSideWidget" data-on-val="1" onclick="rcbToggle(this)"></button>
       </div>
+      <div class="rcb-toggle-row" data-requires="enableSideWidget">
+        <span class="rcb-toggle-label">
+          Voicemail drop
+          <i class="rcb-help" data-tip="Lets users drop a pre-recorded message on outbound calls. Requires Call widgets (side widget) and v3.0.0+.">?</i>
+          <small>v3.0.0+</small>
+        </span>
+        <button class="rcb-toggle off" data-on-param="enableVoicemailDrop" data-on-val="1" onclick="rcbToggle(this)"></button>
+      </div>
       <div class="rcb-toggle-row">
         <span class="rcb-toggle-label">
           Audio init prompt
@@ -3007,6 +3043,16 @@
      ══════════════════════════════════════════════════════════ -->
 <div class="rcb-preview">
 
+  <div class="rcb-link-notice" id="rcb-link-notice" role="alert" hidden>
+    <div class="rcb-link-notice-title">This link changed your app settings</div>
+    <p class="rcb-link-notice-text">Only keep them if you trust whoever shared the link. The preview loads once you choose.</p>
+    <dl class="rcb-link-notice-list" id="rcb-link-notice-list"></dl>
+    <div class="rcb-link-notice-actions">
+      <button class="rcb-link-notice-keep" onclick="rcbKeepLinkConfig()">Keep</button>
+      <button class="rcb-link-notice-discard" onclick="rcbDiscardLinkConfig()">Discard</button>
+    </div>
+  </div>
+
   <div class="rcb-refresh-note" id="rcb-refresh-note">
     Preview updating…
   </div>
@@ -3016,10 +3062,9 @@
     <div class="rcb-widget-wrap">
       <iframe
         id="rcb-frame"
-        src="https://apps.ringcentral.com/integration/ringcentral-embeddable/latest/app.html"
         width="300"
         height="500"
-        allow="microphone">
+        allow="microphone; autoplay">
       </iframe>
     </div>
 
@@ -3103,22 +3148,201 @@ window.rcbToggleSection = function(header) {
 };
 
 // ── Toggle switches ──────────────────────────────────────────
+// Show/hide popupPageUri field
+function syncPopupField() {
+  var enablePopupBtn = document.querySelector('[data-on-param="enablePopup"]');
+  var field = document.getElementById('popupUriField');
+  if (enablePopupBtn && field) field.style.display = enablePopupBtn.classList.contains('off') ? 'none' : 'block';
+}
+
 window.rcbToggle = function(btn) {
   btn.classList.toggle('off');
-  // Show/hide popupPageUri field
-  var enablePopupBtn = document.querySelector('[data-on-param="enablePopup"]');
-  if (enablePopupBtn) {
-    var field = document.getElementById('popupUriField');
-    if (field) field.style.display = enablePopupBtn.classList.contains('off') ? 'none' : 'block';
-  }
+  syncPopupField();
+  rcbApplyVersion();
   rcbScheduleUpdate();
 };
 
 // ── Base URL (version-aware) ─────────────────────────────────
-function getBase() {
-  var ver = (document.getElementById('rcb-version') || {}).value || 'latest';
-  return 'https://apps.ringcentral.com/integration/ringcentral-embeddable/' + ver + '/';
+function getVersion() {
+  return (document.getElementById('rcb-version') || {}).value || 'latest';
 }
+
+function getBase() {
+  return 'https://apps.ringcentral.com/integration/ringcentral-embeddable/' + getVersion() + '/';
+}
+
+// ── Version- and dependency-gated fields ─────────────────────
+// data-only-in / data-hide-in: shown only in / hidden in the listed version.
+// data-requires: shown only when the toggle with that data-on-param is on.
+function isToggleOn(param) {
+  var btn = document.querySelector('[data-on-param="' + param + '"]');
+  return !!btn && !btn.classList.contains('off') && !isGated(btn);
+}
+
+function isGated(el) {
+  var ver = getVersion();
+  var node = el;
+  while (node && node.getAttribute) {
+    var onlyIn   = node.getAttribute('data-only-in');
+    var hideIn   = node.getAttribute('data-hide-in');
+    var requires = node.getAttribute('data-requires');
+    if (onlyIn && onlyIn !== ver) return true;
+    if (hideIn && hideIn === ver) return true;
+    if (requires && !isToggleOn(requires)) return true;
+    node = node.parentNode;
+  }
+  return false;
+}
+
+window.rcbApplyVersion = function() {
+  document.querySelectorAll('[data-only-in],[data-hide-in],[data-requires]').forEach(function(el) {
+    el.style.display = isGated(el) ? 'none' : '';
+  });
+};
+
+// ── Preview ──────────────────────────────────────────────────
+// Where the Embeddable app is served from, for messages to it
+var APP_ORIGIN = 'https://apps.ringcentral.com';
+// The iframe tab previews app.html directly. The adapter.js tab previews a
+// host page that runs the adapter.js snippet, so the frame shows the
+// floating widget with its header, badge and popup button.
+var APP_WIDTH = 300;
+// adapter.js keeps the widget this far from the page edges, under a header
+// this tall.
+var ADAPTER_PADDING = 15;
+var ADAPTER_HEADER_HEIGHT = 36;
+// Room above the widget on the host page so it can be dragged; the page
+// also fills the width the code box leaves.
+var HOST_EXTRA_HEIGHT = 60;
+// The app width with the side panel open
+var EXPANDED_APP_WIDTH = 600;
+
+// The mode the preview was last loaded in: 'adapter' or 'iframe'
+var _previewMode = null;
+
+function getDefaultAppHeight() {
+  return getVersion() === '3.1.x' ? 540 : 500;
+}
+
+function getPrefix() {
+  var prefix = ((document.getElementById('rcb-prefix') || {}).value || '').trim();
+  return prefix || 'rc-widget';
+}
+
+// Whether the app can widen to show a side panel: 3.1.x opens detail pages
+// in it, older versions only with the side widget on.
+function canExpand() {
+  return getVersion() === '3.1.x' || isToggleOn('enableSideWidget');
+}
+
+// Sizes the preview frame to fit the app. A host page for adapter.js fills
+// the width beside the code box and leaves room to drag the widget. Like a
+// real page, it is already wide enough for the expanded widget, so it does
+// not grow when the side panel opens.
+function setFrameSize(appWidth, appHeight) {
+  var frame = document.getElementById('rcb-frame');
+  if (!frame) return;
+  var height = appHeight;
+  if (_previewMode === 'adapter') {
+    var pageWidth = Math.max(appWidth, canExpand() ? EXPANDED_APP_WIDTH : APP_WIDTH);
+    height += ADAPTER_HEADER_HEIGHT + 2 * ADAPTER_PADDING + HOST_EXTRA_HEIGHT;
+    frame.style.width    = '100%';
+    frame.style.minWidth = (pageWidth + 2 * ADAPTER_PADDING) + 'px';
+  } else {
+    frame.style.width    = appWidth + 'px';
+    frame.style.minWidth = '';
+  }
+  frame.style.height = height + 'px';
+  var row = frame.closest('.rcb-preview-row');
+  if (row) row.style.setProperty('--rcb-frame-h', height + 'px');
+}
+
+// The window of the Embeddable app inside the preview frame
+function getAppWindow() {
+  var frame = document.getElementById('rcb-frame');
+  if (!frame || !frame.contentWindow) return null;
+  if (_previewMode !== 'adapter') return frame.contentWindow;
+  try {
+    var appFrame = frame.contentDocument.getElementById(getPrefix() + '-adapter-frame');
+    return appFrame ? appFrame.contentWindow : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+// The app posts its size when it loads and when the side widget opens or
+// closes, and adapter.js resizes its frame to match.
+function onAppMessage(e) {
+  var data = e.data;
+  if (!data || !e.source || e.source !== getAppWindow()) return;
+  if (data.type === 'rc-adapter-syncSize' || data.type === 'rc-adapter-pushAdapterState') {
+    var size = data.size;
+    if (size && size.width > 0 && size.height > 0) setFrameSize(size.width, size.height);
+    // adapter.js widens the widget from where it was dragged to, which can
+    // push it past the page's left edge. A resize makes it fit the widget
+    // back into the page.
+    if (_previewMode === 'adapter') e.currentTarget.dispatchEvent(new Event('resize'));
+  } else if (data.type === 'rc-login-status-notify') {
+    // A reloaded app has lost the custom tabs, so register them again.
+    tbRegister();
+  }
+}
+
+// In iframe mode the app posts to this page; with adapter.js it posts to the
+// host page in the frame.
+window.addEventListener('message', onAppMessage);
+
+function buildHostPage() {
+  return '<!doctype html><html><head><meta charset="utf-8">' +
+    '<style>html,body{margin:0;height:100%;overflow:hidden;background:#f6f7f9;}' +
+    'p{margin:0;padding:16px 20px;font:12px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#999;user-select:none;}</style>' +
+    '</head><body><p>This area stands in for your website. Drag the widget by its header to move it.</p>' +
+    buildAdapterSnippet() + '</body></html>';
+}
+
+function buildPausedPage() {
+  return '<!doctype html><html><head><meta charset="utf-8">' +
+    '<style>html,body{margin:0;height:100%;background:#f6f7f9;}' +
+    'p{margin:0;padding:24px 20px;text-align:center;font:12px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#999;}</style>' +
+    '</head><body><p>Preview paused. Keep or discard the settings from the link to load it.</p></body></html>';
+}
+
+function reloadPreview() {
+  var frame = document.getElementById('rcb-frame');
+  if (!frame) return;
+  _previewMode = _tab;
+  if (_linkNoticeOpen) {
+    // Signing in to an app from an untrusted link is the risk, so nothing
+    // loads until the user decides.
+    _previewMode = 'paused';
+    var pausedRow = frame.closest('.rcb-preview-row');
+    if (pausedRow) pausedRow.classList.remove('rcb-preview-row-host');
+    setFrameSize(APP_WIDTH, getDefaultAppHeight());
+    frame.classList.remove('rcb-frame-host');
+    frame.removeAttribute('src');
+    frame.srcdoc = buildPausedPage();
+    return;
+  }
+  var row = frame.closest('.rcb-preview-row');
+  if (row) row.classList.toggle('rcb-preview-row-host', _previewMode === 'adapter');
+  // The reloaded app starts folded and posts its size once it loads.
+  setFrameSize(APP_WIDTH, getDefaultAppHeight());
+  frame.classList.toggle('rcb-frame-host', _previewMode === 'adapter');
+  if (_previewMode === 'adapter') {
+    frame.removeAttribute('src');
+    frame.srcdoc = buildHostPage();
+  } else {
+    frame.removeAttribute('srcdoc');
+    frame.src = buildAppSrc();
+  }
+}
+
+document.getElementById('rcb-frame').addEventListener('load', function() {
+  if (_previewMode !== 'adapter') return;
+  try {
+    this.contentWindow.addEventListener('message', onAppMessage);
+  } catch (e) {}
+});
 
 // ── Build query params ───────────────────────────────────────
 function buildParams() {
@@ -3128,7 +3352,8 @@ function buildParams() {
 
   var clientId    = (document.getElementById('rcb-clientId') || {}).value || '';
   var redirectUri = (document.getElementById('rcb-redirectUri') || {}).value || '';
-  var stylesUri   = (document.getElementById('rcb-stylesUri') || {}).value || '';
+  var stylesEl    = document.getElementById('rcb-stylesUri');
+  var stylesUri   = (stylesEl && !isGated(stylesEl)) ? stylesEl.value : '';
   var prefix      = (document.getElementById('rcb-prefix') || {}).value || '';
   var userAgent   = (document.getElementById('rcb-userAgent') || {}).value || '';
   var popupUri    = (document.getElementById('rcb-popupPageUri') || {}).value || '';
@@ -3148,6 +3373,7 @@ function buildParams() {
 
   // Toggles
   document.querySelectorAll('.rcb-toggle').forEach(function(t) {
+    if (isGated(t)) return;
     var isOff = t.classList.contains('off');
     var onParam  = t.getAttribute('data-on-param');
     var onVal    = t.getAttribute('data-on-val');
@@ -3161,15 +3387,25 @@ function buildParams() {
 }
 
 // ── Render code snippet ──────────────────────────────────────
-function renderCode() {
+function getQuery() {
   var params = buildParams();
-  var qs  = params.length ? '?' + params.join('&') : '';
-  var base = getBase();
+  return params.length ? '?' + params.join('&') : '';
+}
+
+function buildAppSrc() {
+  return getBase() + 'app.html' + getQuery();
+}
+
+function buildAdapterSnippet() {
+  var src = getBase() + 'adapter.js' + getQuery();
+  return '<script>\n(function() {\n  var rcs = document.createElement("script");\n  rcs.src = "' + src + '";\n  var rcs0 = document.getElementsByTagName("script")[0];\n  rcs0.parentNode.insertBefore(rcs, rcs0);\n})();\n<\/script>';
+}
+
+function renderCode() {
   var out;
 
   if (_tab === 'adapter') {
-    var src = base + 'adapter.js' + qs;
-    out = '<script>\n(function() {\n  var rcs = document.createElement("script");\n  rcs.src = "' + src + '";\n  var rcs0 = document.getElementsByTagName("script")[0];\n  rcs0.parentNode.insertBefore(rcs, rcs0);\n})();\n<\/script>';
+    out = buildAdapterSnippet();
     if (typeof _tb !== 'undefined' && _tb.tabs && _tb.tabs.length) {
       var tabLines = _tb.tabs.map(function(tab) {
         var page = tbBuildPage(tab);
@@ -3183,8 +3419,7 @@ function renderCode() {
       out += '\n\n<script>\n// Register custom tabs\n' + tabLines.join('\n\n') + '\n<\/script>';
     }
   } else {
-    var src = base + 'app.html' + qs;
-    out = '<iframe width="300" height="500"\n  allow="microphone"\n  src="' + src + '">\n</iframe>';
+    out = '<iframe width="' + APP_WIDTH + '" height="' + getDefaultAppHeight() + '"\n  allow="microphone"\n  src="' + buildAppSrc() + '">\n</iframe>';
   }
 
   var el = document.getElementById('rcb-code-out');
@@ -3194,27 +3429,35 @@ function renderCode() {
 // ── Update iframe (debounced) ────────────────────────────────
 window.rcbScheduleUpdate = function() {
   renderCode();
+  saveConfig();
   var note = document.getElementById('rcb-refresh-note');
   if (note) note.classList.add('visible');
   clearTimeout(_debounce);
   _debounce = setTimeout(function() {
-    var params = buildParams();
-    var qs  = params.length ? '?' + params.join('&') : '';
-    var src = getBase() + 'app.html' + qs;
-    var frame = document.getElementById('rcb-frame');
-    if (frame) frame.src = src;
+    reloadPreview();
     if (note) note.classList.remove('visible');
   }, 1000);
 };
 
 // ── Tab switching ─────────────────────────────────────────────
-window.rcbSetTab = function(tab) {
-  _tab = tab;
+function renderCodeTabs() {
   ['adapter','iframe'].forEach(function(t) {
     var btn = document.getElementById('rcb-tab-' + t);
-    if (btn) btn.className = 'rcb-code-tab-btn' + (t === tab ? ' active' : '');
+    if (btn) btn.className = 'rcb-code-tab-btn' + (t === _tab ? ' active' : '');
   });
+}
+
+window.rcbSetTab = function(tab) {
+  _tab = tab;
+  renderCodeTabs();
   renderCode();
+  saveConfig();
+  if (_previewMode !== tab) {
+    clearTimeout(_debounce);
+    var note = document.getElementById('rcb-refresh-note');
+    if (note) note.classList.remove('visible');
+    reloadPreview();
+  }
 };
 
 // ── Copy ──────────────────────────────────────────────────────
@@ -3229,12 +3472,218 @@ window.rcbCopy = function() {
   });
 };
 
+// ── Saved settings ───────────────────────────────────────────
+// Settings are kept in the URL hash, so a reload keeps them and the link can
+// be shared, and in localStorage, so opening the page without a hash brings
+// back the last ones. Keys and values match the snippet's parameters, and
+// only changes from the defaults are saved. Custom tabs are too big for a
+// link, so they are only kept in localStorage.
+var STORAGE_KEY_CONFIG = 'rcb-config';
+var STORAGE_KEY_TABS   = 'rcb-tabs';
+var TEXT_FIELDS = ['clientId', 'redirectUri', 'stylesUri', 'popupPageUri', 'prefix', 'userAgent'];
+var RADIO_FIELDS = [
+  { name: 'rcb-callwith', key: 'defaultCallWith' },
+  { name: 'rcb-dir',      key: 'defaultDirection' },
+];
+// The settings last written to the hash
+var _savedConfig = null;
+
+function storageGet(key) {
+  try { return localStorage.getItem(key); } catch (e) { return null; }
+}
+
+function storageSet(key, value) {
+  try {
+    if (value) localStorage.setItem(key, value);
+    else localStorage.removeItem(key);
+  } catch (e) {}
+}
+
+// A hash holds settings when it has key=value pairs, not a heading anchor
+function getHashConfig() {
+  var hash = location.hash.replace(/^#/, '');
+  return hash.indexOf('=') >= 0 ? hash : '';
+}
+
+function serializeConfig() {
+  var p = new URLSearchParams();
+  if (getVersion() !== 'latest') p.set('version', getVersion());
+  if (_tab !== 'adapter') p.set('code', _tab);
+  TEXT_FIELDS.forEach(function(key) {
+    var el = document.getElementById('rcb-' + key);
+    if (el && el.value.trim()) p.set(key, el.value);
+  });
+  RADIO_FIELDS.forEach(function(field) {
+    var checked = document.querySelector('input[name="' + field.name + '"]:checked');
+    if (checked && !checked.defaultChecked) p.set(field.key, checked.value);
+  });
+  // On-param toggles are off by default and off-param toggles on, so a
+  // saved param always means a change from the default.
+  document.querySelectorAll('.rcb-toggle').forEach(function(t) {
+    var isOff    = t.classList.contains('off');
+    var onParam  = t.getAttribute('data-on-param');
+    var offParam = t.getAttribute('data-off-param');
+    if (onParam && !isOff) p.set(onParam,  t.getAttribute('data-on-val')  || '1');
+    if (offParam && isOff) p.set(offParam, t.getAttribute('data-off-val') || '1');
+  });
+  return p.toString();
+}
+
+function applyConfig(query) {
+  var p = new URLSearchParams(query);
+  var version = document.getElementById('rcb-version');
+  if (version) {
+    var wanted = p.get('version');
+    var known = wanted && version.querySelector('option[value="' + CSS.escape(wanted) + '"]');
+    version.value = known ? wanted : 'latest';
+  }
+  _tab = p.get('code') === 'iframe' ? 'iframe' : 'adapter';
+  renderCodeTabs();
+  TEXT_FIELDS.forEach(function(key) {
+    var el = document.getElementById('rcb-' + key);
+    if (el) el.value = p.get(key) || '';
+  });
+  RADIO_FIELDS.forEach(function(field) {
+    var radios = Array.prototype.slice.call(document.querySelectorAll('input[name="' + field.name + '"]'));
+    var wanted = p.get(field.key);
+    var match = radios.some(function(r) { return r.value === wanted; });
+    radios.forEach(function(r) { r.checked = match ? r.value === wanted : r.defaultChecked; });
+  });
+  document.querySelectorAll('.rcb-toggle').forEach(function(t) {
+    var onParam  = t.getAttribute('data-on-param');
+    var offParam = t.getAttribute('data-off-param');
+    if (onParam)  t.classList.toggle('off', !p.has(onParam));
+    if (offParam) t.classList.toggle('off', p.has(offParam));
+  });
+  syncPopupField();
+  rcbApplyVersion();
+}
+
+function writeHash(query) {
+  _savedConfig = query;
+  history.replaceState(history.state, '', location.pathname + location.search + (query ? '#' + query : ''));
+}
+
+function saveConfig() {
+  var query = serializeConfig();
+  writeHash(query);
+  // Settings from a link are only remembered once the user keeps them, or,
+  // when the link changed no app credentials or URLs, changes something.
+  if (_linkNoticeOpen) return;
+  storageSet(STORAGE_KEY_CONFIG, query);
+}
+
+// ── Settings from a link ──────────────────────────────────────
+// A link can point the widget at someone else's app or pages, so the
+// settings that do that need the user's OK before they load or are saved.
+var LINK_CHECKED_FIELDS = [
+  { key: 'clientId',     label: 'Client ID' },
+  { key: 'redirectUri',  label: 'Redirect URI' },
+  { key: 'stylesUri',    label: 'Custom styles URI' },
+  { key: 'popupPageUri', label: 'Popup page URI' },
+];
+var _linkNoticeOpen = false;
+
+// The checked fields the link sets to something other than the saved
+// settings, so reloading your own link shows no notice
+function getLinkChanges(query) {
+  var link  = new URLSearchParams(query);
+  var saved = new URLSearchParams(storageGet(STORAGE_KEY_CONFIG) || '');
+  return LINK_CHECKED_FIELDS.filter(function(field) {
+    var value = link.get(field.key);
+    return value && value !== saved.get(field.key);
+  }).map(function(field) {
+    return { label: field.label, value: link.get(field.key) };
+  });
+}
+
+function showLinkNotice(changes) {
+  var list = document.getElementById('rcb-link-notice-list');
+  if (list) {
+    list.textContent = '';
+    changes.forEach(function(change) {
+      var dt = document.createElement('dt');
+      dt.textContent = change.label;
+      var dd = document.createElement('dd');
+      dd.textContent = change.value;
+      list.appendChild(dt);
+      list.appendChild(dd);
+    });
+  }
+  _linkNoticeOpen = true;
+  var notice = document.getElementById('rcb-link-notice');
+  if (notice) notice.hidden = false;
+}
+
+function hideLinkNotice() {
+  _linkNoticeOpen = false;
+  var notice = document.getElementById('rcb-link-notice');
+  if (notice) notice.hidden = true;
+}
+
+// Applies settings from a link without saving them
+function openLinkConfig(query) {
+  applyConfig(query);
+  var changes = getLinkChanges(query);
+  if (changes.length) showLinkNotice(changes);
+  else hideLinkNotice();
+  renderCode();
+  writeHash(serializeConfig());
+}
+
+window.rcbKeepLinkConfig = function() {
+  hideLinkNotice();
+  saveConfig();
+  reloadPreview();
+};
+
+window.rcbDiscardLinkConfig = function() {
+  hideLinkNotice();
+  applyConfig(storageGet(STORAGE_KEY_CONFIG) || '');
+  renderCode();
+  saveConfig();
+  reloadPreview();
+};
+
+// A config link opened in this page, such as one pasted into the address bar
+window.addEventListener('hashchange', function() {
+  var query = getHashConfig();
+  if (!query || query === _savedConfig) return;
+  openLinkConfig(query);
+  clearTimeout(_debounce);
+  reloadPreview();
+});
+
+window.rcbReset = function() {
+  var hasTabs = typeof _tb !== 'undefined' && _tb.tabs.length > 0;
+  var message = hasTabs
+    ? 'Reset all settings to their defaults and remove your custom tabs?'
+    : 'Reset all settings to their defaults?';
+  if (!confirm(message)) return;
+  storageSet(STORAGE_KEY_CONFIG, '');
+  storageSet(STORAGE_KEY_TABS, '');
+  history.replaceState(history.state, '', location.pathname + location.search);
+  location.reload();
+};
+
 // ── Init ──────────────────────────────────────────────────────
 document.querySelectorAll('.rcb-ch-closed').forEach(function(ch) {
   ch.style.transform = 'rotate(-90deg)';
 });
 
-renderCode();
+var linkConfig = getHashConfig();
+var storedConfig = storageGet(STORAGE_KEY_CONFIG);
+if (linkConfig) {
+  openLinkConfig(linkConfig);
+} else if (storedConfig) {
+  applyConfig(storedConfig);
+  renderCode();
+  writeHash(serializeConfig());
+} else {
+  rcbApplyVersion();
+  renderCode();
+}
+reloadPreview();
 
 // ═══════════════════════════════════════════════════════════════
 //  TAB BUILDER
@@ -3429,27 +3878,90 @@ function tbBuildPage(tab) {
 // ── Push to live widget ───────────────────────────────────────
 // forceRefresh: navigate away then back so the widget re-renders
 // the tab content even when the path hasn't changed (needed after reorder)
-function tbPush(forceRefresh) {
-  var frame = document.getElementById('rcb-frame');
-  if (!frame||!frame.contentWindow) return;
+function tbRegister() {
+  var appWindow = getAppWindow();
+  if (!appWindow) return;
   _tb.tabs.forEach(function(tab) {
-    frame.contentWindow.postMessage({
+    appWindow.postMessage({
       type: 'rc-adapter-register-customized-page',
       page: tbBuildPage(tab)
-    }, '*');
+    }, APP_ORIGIN);
   });
+}
+
+function tbSave() {
+  storageSet(STORAGE_KEY_TABS, _tb.tabs.length ? JSON.stringify({ tabs: _tb.tabs, sel: _tb.sel }) : '');
+}
+
+// Saved tabs are rendered into HTML, so only well-formed values are restored
+var TB_ID_PATTERN = /^[a-z0-9]{1,16}$/;
+var TB_CHOICES = {
+  button:  { field: 'variant',  values: ['contained', 'outlined', 'text', 'plain'] },
+  message: { field: 'variant',  values: ['title1', 'title2', 'subheading1', 'body1', 'body2', 'caption1'] },
+  alert:   { field: 'severity', values: ['info', 'warning', 'error', 'success'] },
+};
+
+function tbString(value) {
+  return typeof value === 'string' ? value : '';
+}
+
+function tbCleanEl(el) {
+  if (!el || !TB_ID_PATTERN.test(el.key)) return null;
+  var known = _tbTypes.some(function(t) { return t.type === el.type; });
+  if (!known) return null;
+  var clean = tbDefaultEl(el.type);
+  clean.key = el.key;
+  ['label', 'placeholder', 'text'].forEach(function(field) {
+    if (field in clean) clean[field] = tbString(el[field]);
+  });
+  var choice = TB_CHOICES[el.type];
+  if (choice && choice.values.indexOf(el[choice.field]) >= 0) clean[choice.field] = el[choice.field];
+  if (el.type === 'dropdown') {
+    clean.options = (Array.isArray(el.options) ? el.options : []).filter(Boolean).map(function(opt) {
+      return { val: tbString(opt.val), label: tbString(opt.label) };
+    });
+  }
+  return clean;
+}
+
+function tbCleanTab(tab) {
+  if (!tab || !TB_ID_PATTERN.test(tab.id)) return null;
+  var priority = parseInt(tab.priority, 10);
+  return {
+    id: tab.id,
+    title: tbString(tab.title),
+    iconUri: tbString(tab.iconUri),
+    priority: isFinite(priority) ? priority : 31,
+    elements: (Array.isArray(tab.elements) ? tab.elements : []).map(tbCleanEl).filter(Boolean),
+  };
+}
+
+function tbRestore() {
+  var saved;
+  try { saved = JSON.parse(storageGet(STORAGE_KEY_TABS) || 'null'); } catch (e) { return; }
+  if (!saved || !Array.isArray(saved.tabs)) return;
+  var tabs = saved.tabs.map(tbCleanTab).filter(Boolean);
+  if (!tabs.length) return;
+  _tb.tabs = tabs;
+  var hasSel = tabs.some(function(t) { return t.id === saved.sel; });
+  _tb.sel = hasSel ? saved.sel : tabs[0].id;
+}
+
+function tbPush(forceRefresh) {
+  tbSave();
+  var appWindow = getAppWindow();
+  if (!appWindow) return;
+  tbRegister();
   if (!_tb.sel) return;
   var selId = _tb.sel;
   if (forceRefresh) {
-    frame.contentWindow.postMessage({ type: 'rc-adapter-navigate-to', path: '/' }, '*');
+    appWindow.postMessage({ type: 'rc-adapter-navigate-to', path: '/' }, APP_ORIGIN);
     setTimeout(function() {
-      var f = document.getElementById('rcb-frame');
-      if (f && f.contentWindow) {
-        f.contentWindow.postMessage({ type: 'rc-adapter-navigate-to', path: '/customizedTabs/' + selId }, '*');
-      }
+      var w = getAppWindow();
+      if (w) w.postMessage({ type: 'rc-adapter-navigate-to', path: '/customizedTabs/' + selId }, APP_ORIGIN);
     }, 80);
   } else {
-    frame.contentWindow.postMessage({ type: 'rc-adapter-navigate-to', path: '/customizedTabs/' + selId }, '*');
+    appWindow.postMessage({ type: 'rc-adapter-navigate-to', path: '/customizedTabs/' + selId }, APP_ORIGIN);
   }
 }
 
@@ -3505,6 +4017,7 @@ function tbElEditor(el) {
 
 // ── Full render ───────────────────────────────────────────────
 function tbRender() {
+  tbSave();
   var body = document.getElementById('rcb-tb-body');
   if (!body) return;
   var h = '';
@@ -3582,6 +4095,7 @@ function tbRender() {
 }
 
 // Init tab builder
+tbRestore();
 tbRender();
 
 })();
