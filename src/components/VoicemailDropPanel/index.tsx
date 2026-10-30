@@ -27,6 +27,12 @@ const StyledAlert = styled(RcAlert)`
   margin: 16px;
 `;
 
+const CloseButton = styled(RcIconButton)`
+  position: absolute;
+  right: 6px;
+  top: 0;
+`;
+
 const NoMessage = styled(RcTypography)`
   padding: 0 16px;
   margin-top: 16px;
@@ -45,7 +51,7 @@ export const VoicemailDropPanel = ({
   const [dropping, setDropping] = useState(false);
   const mounted = useRef(false);
   const closeButton = showCloseButton ? (
-    <RcIconButton
+    <CloseButton
       symbol={Close}
       onClick={onClose}
       title='Close'
