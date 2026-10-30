@@ -791,4 +791,30 @@ describe('call control flow components', () => {
     fireEvent.click(screen.getByText('ViewBorder'));
     expect(screen.getByText('editor:external-1')).toBeTruthy();
   });
+
+  it('lists external voicemail drop messages when the user has no own messages', () => {
+    render(
+      <VoicemailDropSettingsPanel
+        currentLocale="en-US"
+        externalVoicemailDropMessages={[{
+          id: 'external-1',
+          label: 'External message',
+        }]}
+        noBeepSilenceDuration={4}
+        onBackButtonClick={jest.fn()}
+        onDelete={jest.fn()}
+        onLoadExternalVoicemailDropMessages={jest.fn()}
+        onNoBeepSilenceDurationChange={jest.fn()}
+        onSave={jest.fn()}
+        voicemailMessages={[]}
+      />,
+    );
+
+    expect(screen.getByText('Pre-recorded messages:')).toBeTruthy();
+    expect(screen.getByText('External message')).toBeTruthy();
+    expect(screen.queryByText('Edit')).toBeNull();
+
+    fireEvent.click(screen.getByText('ViewBorder'));
+    expect(screen.getByText('editor:external-1')).toBeTruthy();
+  });
 });

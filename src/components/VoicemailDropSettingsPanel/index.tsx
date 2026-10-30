@@ -78,7 +78,7 @@ export const VoicemailDropSettingsPanel = ({
       currentLocale={currentLocale}
     />
   ) : (
-    voicemailMessages.length > 0 ? (
+    voicemailMessages.length > 0 || externalVoicemailDropMessages.length > 0 ? (
       <>
         <SectionTitle variant="body2">
           Pre-recorded messages:
