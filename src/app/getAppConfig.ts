@@ -11,6 +11,7 @@ import {
   type AvailabilityMonitorOptions,
   Client,
   ConnectivityMonitor,
+  DataFetcher,
   Environment,
   ExtensionInfo,
   ExtensionNumberAreaCode,
@@ -47,6 +48,7 @@ import type {
   BrandConfigOptions,
   BrowserLoggerOptions,
   LocaleOptions,
+  ThemeOptions,
 } from '@ringcentral-integration/micro-core/src/app/services';
 import {
   Brand,
@@ -134,6 +136,7 @@ import { createCallLoggerOptions } from './services/CallLogger/createCallLoggerO
 import type { AdapterOptions } from './services/Adapter/AdapterOptions';
 import { AccountContacts as AccountContactsV2 } from './services/AccountContacts';
 import { CallAction as CallActionV2 } from './services/CallAction';
+import { DataFetcher as DataFetcherV2 } from './services/DataFetcher';
 import { ContactMatcher as ContactMatcherV2 } from './services/ContactMatcher';
 import { SmsOptOut as SmsOptOutV2 } from './services/SmsOptOut';
 import { MeetingView, MeetingInviteView } from './views/MeetingView';
@@ -465,6 +468,10 @@ export const getAppConfig = <T extends typeof createSharedApp>({
       {
         provide: Auth,
         useClass: EmbeddableAuth,
+      },
+      {
+        provide: DataFetcher,
+        useClass: DataFetcherV2,
       },
       Authentication,
       {
@@ -900,6 +907,16 @@ export const getAppConfig = <T extends typeof createSharedApp>({
         useValue: {
           defaultLocale,
         } satisfies LocaleOptions,
+      },
+      {
+        provide: 'ThemeOptions',
+        useValue: {
+          // 3.x only offered the theme setting for the RingCentral brand.
+          supportedThemeTypes:
+            brandConfig.code === 'rc'
+              ? ['followSystem', 'light', 'dark']
+              : ['light'],
+        } satisfies ThemeOptions,
       },
       {
         provide: 'Prefix',

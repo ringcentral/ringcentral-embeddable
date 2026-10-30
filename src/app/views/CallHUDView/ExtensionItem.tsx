@@ -290,7 +290,9 @@ export function ExtensionItem({
   canEdit: boolean;
 }) {
   const { extension, presence } = item;
-  const isDisabled = extension.status !== 'Enabled';
+  // No status means the company contact is not loaded yet, not that the
+  // extension is disabled.
+  const isDisabled = !!extension.status && extension.status !== 'Enabled';
 
   const hoverActions: React.ReactNode[] = [];
 
