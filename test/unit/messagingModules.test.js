@@ -552,6 +552,30 @@ describe('messaging modules', () => {
       expect.any(FormData),
     );
 
+    sender.senderNumbersList = [{
+      extension: { id: '101' },
+      phoneNumber: '+16505550100',
+    }];
+    const threadFile = { file: new Blob(['file']) };
+    deps.platformPost.mockClear();
+    await expect(sender._sendMMS({
+      attachments: [threadFile],
+      fromNumber: '+16505550100',
+      text: 'mms',
+      to: [{ phoneNumber: '+16505550199' }],
+    })).resolves.toEqual({ id: 'thread-mms' });
+    expect(deps.messageThreads.sendMessage).toHaveBeenLastCalledWith({
+      attachments: [threadFile],
+      from: { phoneNumber: '+16505550100' },
+      text: 'mms',
+      to: [{ phoneNumber: '+16505550199' }],
+    });
+    expect(deps.platformPost).not.toHaveBeenCalled();
+    expect(sender._shouldSendAsThread('+16505550100', [
+      { phoneNumber: '+1' },
+      { phoneNumber: '+2' },
+    ])).toBe(false);
+
     const assignedError = new Error('assigned');
     assignedError.response = {
       clone: () => ({

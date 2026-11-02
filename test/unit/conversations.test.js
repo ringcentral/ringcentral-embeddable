@@ -393,6 +393,7 @@ describe('Conversations module', () => {
     expect(conversations._deps.messageThreads.sendMessage).toHaveBeenCalledWith({
       threadId: 'thread-1',
       text: 'hello',
+      attachments: [],
       from: { name: 'Agent', phoneNumber: '+16505550100' },
       to: [{ name: 'Guest User', phoneNumber: '+16505550101' }],
     });
@@ -400,6 +401,12 @@ describe('Conversations module', () => {
       { id: 'new-message' },
     ]);
     expect(conversations._removeInputContent).toHaveBeenCalledWith('thread-1');
+
+    const attachments = [{ name: 'a.png', file: new Blob(['a']) }];
+    await conversations.replyToThread('with file', attachments);
+    expect(conversations._deps.messageThreads.sendMessage).toHaveBeenLastCalledWith(
+      expect.objectContaining({ text: 'with file', attachments }),
+    );
 
     conversations._deps.messageThreads.sendMessage.mockRejectedValueOnce(new Error('send failed'));
     await expect(conversations.replyToThread('fail')).rejects.toThrow('send failed');

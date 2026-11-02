@@ -186,6 +186,19 @@ describe('message thread modules', () => {
     ]);
     expect(afterDelete['thread-1']).toBeUndefined();
 
+    // A deleted entry for a thread with no stored entries must be ignored.
+    let afterUnknownDelete;
+    expect(() => {
+      afterUnknownDelete = entries._mergeIntoStoreData([
+        createEntry({
+          id: 'ghost-entry',
+          threadId: 'unknown-thread',
+          availability: 'Deleted',
+        }),
+      ]);
+    }).not.toThrow();
+    expect(afterUnknownDelete['unknown-thread']).toBeUndefined();
+
     entries.updateReadTimeMap([
       createEntry({
         direction: 'Outbound',
@@ -476,6 +489,44 @@ describe('message thread modules', () => {
     );
     expect(threads.unreadCounts).toBe(2);
 
+    deps.auth.accessToken = 'token%3D1';
+    deps.dataFetcherV2.setData(entrySource, {
+      store: {
+        'thread-1': [
+          createEntry({
+            id: 'mms-1',
+            attachments: [
+              {
+                id: 'att-1',
+                contentUri: 'https://media.example.com/content/att-1',
+                contentType: 'image/png',
+                filename: 'a.png',
+                size: 10,
+              },
+              { id: 'att-2' },
+            ],
+            creationTime: Date.parse('2026-01-01T10:00:00.000Z'),
+            lastModifiedTime: Date.parse('2026-01-01T10:00:00.000Z'),
+          }),
+          createEntry({
+            id: 'plain-1',
+            creationTime: Date.parse('2026-01-01T10:01:00.000Z'),
+            lastModifiedTime: Date.parse('2026-01-01T10:01:00.000Z'),
+          }),
+        ],
+      },
+      syncInfo: {},
+    });
+    const [mms, plain] = threads.threads[0].messages;
+    expect(mms.mmsAttachments).toEqual([{
+      id: 'att-1',
+      uri: 'https://media.example.com/content/att-1?access_token=token=1&shouldCache=true',
+      contentType: 'image/png',
+      fileName: 'a.png',
+      size: 10,
+    }]);
+    expect(plain.mmsAttachments).toEqual([]);
+
     const noPermissionDeps = createBaseDeps();
     noPermissionDeps.grantExtensions.smsRecipients = [];
     const noPermissionEntries = createEntryModule(noPermissionDeps);
@@ -555,6 +606,27 @@ describe('message thread modules', () => {
       id: 'entry-new',
       recordType: 'AliveMessage',
     }));
+
+    deps.platform.post.mockResolvedValueOnce(createResponse({ id: 'entry-mms' }));
+    const file = new File(['img'], 'a.png', { type: 'image/png' });
+    await threads.sendMessage({
+      threadId: 'thread-1',
+      text: 'with file',
+      attachments: [{ file }],
+      from: { phoneNumber: '+16505550100' },
+      to: [{ phoneNumber: '+16505550123' }],
+    });
+    const [mmsUrl, mmsBody] = deps.platform.post.mock.calls.at(-1);
+    expect(mmsUrl).toBe('/restapi/v1.0/account/~/message-threads/messages');
+    expect(mmsBody).toBeInstanceOf(FormData);
+    expect(JSON.parse(await mmsBody.get('metadata').text())).toEqual({
+      text: 'with file',
+      from: { phoneNumber: '+16505550100' },
+      to: [{ phoneNumber: '+16505550123' }],
+      threadId: 'thread-1',
+    });
+    expect(mmsBody.getAll('attachments')).toHaveLength(1);
+    expect(mmsBody.get('attachments').name).toBe('a.png');
 
     deps.platform.get.mockResolvedValueOnce(createResponse(createThread({
       id: 'loaded-thread',

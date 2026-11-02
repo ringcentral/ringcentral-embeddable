@@ -421,7 +421,7 @@ describe('ConversationUI', () => {
     await expect(funcs.replyToReceivers('thread reply', [], null)).resolves.toEqual({
       id: 'thread-message-1',
     });
-    expect(deps.conversations.replyToThread).toHaveBeenCalledWith('thread reply');
+    expect(deps.conversations.replyToThread).toHaveBeenCalledWith('thread reply', []);
     expect(deps.smsTypingTimeTracker.stopTyping).toHaveBeenCalledWith(
       'conversation-1',
       'thread-message-1',

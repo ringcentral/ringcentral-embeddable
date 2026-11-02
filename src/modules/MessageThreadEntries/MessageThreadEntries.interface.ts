@@ -21,6 +21,14 @@ export interface Deps extends DataFetcherV2ConsumerBaseDeps {
   auth: Auth;
 }
 
+export interface MessageThreadAttachment {
+  id: string;
+  contentUri: string;
+  contentType?: string;
+  filename?: string;
+  size?: number;
+}
+
 export interface AliveMessage {
   id: string;
   recordType: 'AliveMessage';
@@ -31,6 +39,7 @@ export interface AliveMessage {
   lastModifiedTime: string;
   messageStatus: 'Queued' | 'Sent' | 'Delivered' | 'DeliveryFailed' | 'SendingFailed' | 'Received';
   text: string;
+  attachments?: MessageThreadAttachment[];
   author?: {
     extensionId: string;
     name: string;

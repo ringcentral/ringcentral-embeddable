@@ -156,6 +156,9 @@ export class MessageThreadEntries extends DataFetcherV2Consumer<
         if (oldIndex !== -1) {
           newStore[threadId].splice(oldIndex, 1);
         }
+        if (!newStore[threadId]) {
+          return;
+        }
         if (newStore[threadId].length === 0) {
           delete newStore[threadId];
         }

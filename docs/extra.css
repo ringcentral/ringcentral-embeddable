@@ -799,6 +799,8 @@
     padding:11px 14px; cursor:pointer; user-select:none;
 }
 .rcb-section-header:hover { background:#fdf9f6; }
+.rcb-reset-btn { font-size:11px; font-weight:600; color:#FF7A00; background:none; border:none; padding:0; cursor:pointer; }
+.rcb-reset-btn:hover { text-decoration:underline; }
 
 .rcb-section-title {
     font-size:11px; font-weight:700; text-transform:uppercase;
@@ -891,21 +893,57 @@
 }
 
 /* ── Preview pane ─────────────────────────────────────────── */
+.rcb-link-notice {
+    background:#FFF8E6; border:0.5px solid #F5C451; border-radius:12px;
+    padding:14px 16px; display:flex; flex-direction:column; gap:8px;
+}
+.rcb-link-notice[hidden] { display:none; }
+.rcb-link-notice-title { font-size:13px; font-weight:700; color:#002755; }
+.rcb-link-notice-text { font-size:12px; color:#4a4a6a; margin:0; }
+.rcb-link-notice-list {
+    display:grid; grid-template-columns:max-content minmax(0,1fr); gap:4px 12px;
+    margin:0; font-size:12px;
+}
+.rcb-link-notice-list dt { color:#4a4a6a; font-weight:600; }
+.rcb-link-notice-list dd {
+    margin:0; color:#2a2a3a; overflow-wrap:anywhere;
+    font-family:ui-monospace,"SF Mono","Fira Code",Consolas,monospace;
+}
+.rcb-link-notice-actions { display:flex; gap:8px; }
+.rcb-link-notice-keep, .rcb-link-notice-discard {
+    font-size:12px; font-weight:600; padding:5px 14px; border-radius:5px; cursor:pointer;
+}
+.rcb-link-notice-keep { background:#fff; color:#2a2a3a; border:0.5px solid rgba(0,39,85,0.25); }
+.rcb-link-notice-keep:hover { background:#f6f7f9; }
+.rcb-link-notice-discard { background:#FF7A00; color:#fff; border:none; }
+.rcb-link-notice-discard:hover { background:#e06900; }
 .rcb-preview { flex:1; min-width:0; background:#f2f3f5; display:flex; flex-direction:column; gap:14px; padding:20px; }
 
-.rcb-preview-row { display:flex; flex-direction:row; align-items:stretch; gap:16px; }
+.rcb-preview-row { display:flex; flex-direction:row; flex-wrap:wrap; align-items:stretch; gap:16px; }
 
 .rcb-widget-wrap {
     background:white; border-radius:12px; border:0.5px solid rgba(0,39,85,0.10);
     padding:20px; flex-shrink:0;
     display:flex; align-items:center; justify-content:center;
 }
-.rcb-widget-wrap iframe { border:none; border-radius:8px; box-shadow:0 2px 14px rgba(0,39,85,0.14); display:block; }
+.rcb-widget-wrap iframe { border:none; border-radius:8px; box-shadow:0 2px 14px rgba(0,39,85,0.14); display:block; transition:width .2s ease-in-out; }
+/* Hosts adapter.js, which draws the widget's own frame and shadow */
+.rcb-widget-wrap iframe.rcb-frame-host { box-shadow:none; background:#f6f7f9; }
+/* The adapter.js preview is a page the widget floats on: it takes nearly all
+   the width beside the code box, so the widget can be dragged. When the page
+   is too wide for both, the code box wraps below, fills that row and fits
+   its content. */
+.rcb-preview-row-host .rcb-widget-wrap { flex:1000 1 0; }
+.rcb-preview-row-host .rcb-code-box {
+    flex:1 0 280px; height:auto;
+    max-height:calc(var(--rcb-frame-h, 500px) + 40px);
+}
 
 .rcb-code-box {
     background:white; border-radius:12px; border:0.5px solid rgba(0,39,85,0.10);
-    overflow:hidden; flex:1; min-width:0; display:flex; flex-direction:column;
-    height:540px; flex-shrink:0;
+    overflow:hidden; flex:1; min-width:280px; display:flex; flex-direction:column;
+    /* Matches the widget wrap: frame height plus its 20px padding */
+    height:calc(var(--rcb-frame-h, 500px) + 40px); flex-shrink:0;
 }
 .rcb-code-tabs-bar { display:flex; border-bottom:0.5px solid rgba(0,39,85,0.08); padding:0 12px; flex-shrink:0; }
 .rcb-code-tab-btn {
