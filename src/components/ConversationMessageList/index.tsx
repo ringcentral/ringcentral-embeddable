@@ -22,8 +22,8 @@ import i18n from '@ringcentral-integration/widgets/components/ConversationMessag
 import { SubjectRender as DefaultRender } from '@ringcentral-integration/widgets/components/ConversationMessageList/SubjectRender';
 
 function getExtFromContentType(contentType: any) {
-  const ext = contentType.split('/');
-  return ext[1].split('+')[0];
+  const ext = (contentType ?? '').split('/');
+  return (ext[1] ?? 'bin').split('+')[0];
 }
 
 const MessageTextWrapper = styled.div<{
@@ -379,7 +379,7 @@ export const Message = ({
     subjectNode = <SubjectComp subject={subject} onLinkClick={onLinkClick} />;
   }
   const imageAttachments = mmsAttachments
-    .filter((m: any) => m.contentType.indexOf('image') > -1)
+    .filter((m: any) => (m.contentType ?? '').indexOf('image') > -1)
     .map((attachment: any) => {
       return (
         <Picture
@@ -390,7 +390,7 @@ export const Message = ({
       );
     });
   const otherAttachments = mmsAttachments
-    .filter((m: any) => m.contentType.indexOf('image') === -1)
+    .filter((m: any) => (m.contentType ?? '').indexOf('image') === -1)
     .map((attachment: any) => {
       const fileName =
         attachment.fileName ||

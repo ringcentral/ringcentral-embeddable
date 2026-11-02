@@ -177,7 +177,7 @@ export class ConversationUI extends BaseConversationUI {
         }
         const conversationId = conversations.currentConversationId;
         if (options.params.type === 'thread') {
-          const newMessage = await conversations.replyToThread(text);
+          const newMessage = await conversations.replyToThread(text, attachments);
           if (newMessage) {
             smsTypingTimeTracker.stopTyping(conversationId, String(newMessage.id));
           }

@@ -119,8 +119,7 @@ export class ComposeTextUI extends ComposeTextUIBase {
                 composeText.toNumbers.length === 0 &&
                 composeText.typingToNumber
               )
-            ) &&
-            attachments.length === 0
+            )
           ) {
             const sender = messageSender.senderNumbersList.find(
               (number) => number.phoneNumber === composeText.senderNumber
@@ -150,7 +149,11 @@ export class ComposeTextUI extends ComposeTextUIBase {
               // Go to thread page, and send
               conversations.loadConversation(thread.id);
               conversations.updateMessageText(text ?? '');
-              // TODO: copy attachments to thread after thread support MMS
+              // Keep attachments in the thread input so they survive the
+              // assigned-to-other early return and send failures.
+              for (const attachment of attachments) {
+                await conversations.addAttachment(attachment);
+              }
               sideDrawerUI.gotoConversation(thread.id, { phoneNumber: thread.guestParty?.phoneNumber ?? '' }, 'thread');
               sideDrawerUI.closeWidget('composeText');
               composeText.clean();
@@ -165,10 +168,10 @@ export class ComposeTextUI extends ComposeTextUIBase {
                 return;
               }
               if (
-                text && text.length > 0
+                (text && text.length > 0) || attachments.length > 0
               ) {
                 // TODO: Save typing time for reply to thread
-                const newMessage = await conversations.replyToThread(text);
+                const newMessage = await conversations.replyToThread(text ?? '', attachments);
                 if (newMessage) {
                   smsTypingTimeTracker.stopTyping(COMPOSE_TYPING_KEY, String(newMessage.id));
                 }

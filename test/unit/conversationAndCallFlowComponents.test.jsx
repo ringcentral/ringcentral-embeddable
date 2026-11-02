@@ -353,9 +353,14 @@ jest.mock('../../src/components/MessageInput', () => ({
     onSend,
     removeAttachment,
     showTypingDuration,
+    supportAttachment,
     value,
   }) => (
-    <section data-sign="message-input" data-testid="message-input">
+    <section
+      data-sign="message-input"
+      data-testid="message-input"
+      data-support-attachment={String(supportAttachment)}
+    >
       <span>{`input:${value}:${String(showTypingDuration)}`}</span>
       <button type="button" onClick={() => onChange('updated text')}>
         change-message
@@ -995,6 +1000,23 @@ describe('conversation and call flow components', () => {
 
     unmount();
     expect(props.unloadConversation).toHaveBeenCalled();
+  });
+
+  it('passes supportAttachment through to the input for shared thread conversations', async () => {
+    const props = createConversationPanelProps({
+      conversation: createConversation({ isAssignedToMe: true, type: 'Thread' }),
+      supportAttachment: true,
+    });
+    const { rerender } = render(<ConversationPanel {...props} />);
+    await waitFor(() => {
+      expect(screen.getByTestId('message-input')).toBeTruthy();
+    });
+    expect(screen.getByTestId('message-input').dataset.supportAttachment).toBe('true');
+
+    rerender(<ConversationPanel {...props} supportAttachment={false} />);
+    await waitFor(() => {
+      expect(screen.getByTestId('message-input').dataset.supportAttachment).toBe('false');
+    });
   });
 
   it('renders restricted and unassigned conversation thread states', async () => {

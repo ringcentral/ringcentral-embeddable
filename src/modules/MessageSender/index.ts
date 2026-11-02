@@ -180,6 +180,21 @@ export class MessageSender extends MessageSenderBase {
     return responses;
   }
 
+  _shouldSendAsThread(
+    fromNumber: string,
+    to: { phoneNumber: string }[],
+  ): boolean {
+    if (!this._deps.messageThreads.hasPermission || to.length !== 1) {
+      return false;
+    }
+    const sender = this.senderNumbersList.find((number) => number.phoneNumber === fromNumber);
+    return !!sender && !!(
+      sender.extension ||
+      sender.usageType === 'MainCompanyNumber' ||
+      sender.usageType === 'CompanyNumber'
+    );
+  }
+
   async _sendSMS({
     fromNumber,
     to,
@@ -189,21 +204,7 @@ export class MessageSender extends MessageSenderBase {
     to: { phoneNumber: string }[];
     text: string;
   }): Promise<GetMessageInfoResponse> {
-    let isThread = false;
-    if (
-      this._deps.messageThreads.hasPermission &&
-      to.length === 1
-    ) {
-      const sender = this.senderNumbersList.find((number) => number.phoneNumber === fromNumber);
-      if (sender && (
-        sender.extension ||
-        sender.usageType === 'MainCompanyNumber' ||
-        sender.usageType === 'CompanyNumber'
-      )) {
-        isThread = true;
-      }
-    }
-    if (isThread) {
+    if (this._shouldSendAsThread(fromNumber, to)) {
       const message = await this._deps.messageThreads.sendMessage({
         text,
         from: { phoneNumber: fromNumber },
@@ -234,6 +235,14 @@ export class MessageSender extends MessageSenderBase {
     text: string;
     attachments?: Attachment[];
   }): Promise<GetMessageInfoResponse> {
+    if (this._shouldSendAsThread(fromNumber, to)) {
+      return this._deps.messageThreads.sendMessage({
+        text,
+        attachments,
+        from: { phoneNumber: fromNumber },
+        to,
+      });
+    }
     const formData = new FormData();
     const body = {
       from: { phoneNumber: fromNumber },

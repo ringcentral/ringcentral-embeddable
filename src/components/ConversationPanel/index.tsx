@@ -857,7 +857,7 @@ export function ConversationPanel({
             createOrUpdateTemplate={createOrUpdateTemplate}
             sortTemplates={sortTemplates}
             disabled={disableLinks}
-            supportAttachment={conversation.type !== 'Thread'}
+            supportAttachment={supportAttachment}
             showTypingDuration={showTypingDuration}
             typingStartTime={typingStartTime}
             accumulatedTypingTime={accumulatedTypingTime}
