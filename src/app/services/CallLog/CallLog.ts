@@ -315,9 +315,13 @@ export class CallLog extends CallLogBase {
     const ownerId = this._auth.ownerId;
     this._setLoadingOlderCalls(true);
     try {
-      await sleep(
-        this._olderCallsRequestedAt + OLDER_CALLS_MIN_INTERVAL - Date.now(),
-      );
+      // `setTimeout` wraps its delay to a 32-bit integer, so a large negative
+      // wait (no request made yet) would turn into a delay of days.
+      const wait =
+        this._olderCallsRequestedAt + OLDER_CALLS_MIN_INTERVAL - Date.now();
+      if (wait > 0) {
+        await sleep(wait);
+      }
       await this._fetchOlderCallsPage(scope, ownerId);
     } catch (error) {
       this._olderCallsFailedAt = Date.now();
