@@ -6,6 +6,7 @@
 const MAX_EVENTS = 30;
 const MAX_TEXT_LENGTH = 160;
 const SNAPSHOT_TIMEOUT_MS = 5000;
+const WORKER_RESUME_INTERVAL_MS = 200;
 
 // React dev warnings and resource errors (already logged as responses) would
 // crowd out the events that explain a failure.
@@ -143,8 +144,18 @@ async function watchSharedWorker(context, target) {
     session.send('Network.enable'),
     session.send('Runtime.enable'),
   ]);
-  // A worker paused for a debugger would stall the app, so let it run.
-  await session.send('Runtime.runIfWaitingForDebugger');
+  // Chrome keeps the worker's target across restarts (such as a page reload),
+  // and while this session stays attached a restarted worker waits for the
+  // debugger before running its script, which leaves the app on a spinner.
+  // Resuming is a no-op for a running worker, so keep sending it until the
+  // session closes.
+  const resume = () =>
+    session.send('Runtime.runIfWaitingForDebugger').catch(() => {
+      clearInterval(resumeTimer);
+    });
+  const resumeTimer = setInterval(resume, WORKER_RESUME_INTERVAL_MS);
+  resumeTimer.unref();
+  await resume();
 }
 
 /**
