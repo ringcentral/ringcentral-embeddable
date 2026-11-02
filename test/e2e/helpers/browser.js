@@ -1,3 +1,5 @@
+const { describeFailure, startDiagnostics } = require('./diagnostics');
+
 const LOGIN_BUTTON = 'button[data-sign="loginButton"]:not([disabled])';
 const WIDGET_FRAME = 'iframe#rc-widget-adapter-frame';
 const ELEMENT_TIMEOUT_MS = 30000;
@@ -25,18 +27,23 @@ async function waitForElement(
       { polling: 100, timeout: ELEMENT_TIMEOUT_MS },
       { selector, visible, hidden },
     )
-    .catch((error) => {
+    .catch(async (error) => {
       if (error.name !== 'TimeoutError') {
         throw error;
       }
       const state = hidden ? 'hidden' : visible ? 'visible' : 'present';
-      throw new Error(`Timed out waiting for ${selector} to become ${state}`, {
-        cause: error,
-      });
+      throw new Error(
+        `Timed out waiting for ${selector} to become ${state}\n${await describeFailure(
+          target,
+          selector,
+        )}`,
+        { cause: error },
+      );
     });
 }
 
 async function visitPage(path = '/') {
+  startDiagnostics(page);
   await page
     .browserContext()
     .overridePermissions(__HOST_URI__, ['notifications', 'microphone']);
@@ -70,12 +77,15 @@ async function clickElement(target, selector) {
       { polling: 100, timeout: ELEMENT_TIMEOUT_MS },
       selector,
     )
-    .catch((error) => {
+    .catch(async (error) => {
       if (error.name !== 'TimeoutError') {
         throw error;
       }
       throw new Error(
-        `Timed out waiting for an unobstructed click target: ${selector}`,
+        `Timed out waiting for an unobstructed click target: ${selector}\n${await describeFailure(
+          target,
+          selector,
+        )}`,
         {
           cause: error,
         },
@@ -87,13 +97,17 @@ async function clickElement(target, selector) {
     .locator(selector)
     .setTimeout(ELEMENT_TIMEOUT_MS)
     .click()
-    .catch((error) => {
+    .catch(async (error) => {
       if (error.name !== 'TimeoutError') {
         throw error;
       }
-      throw new Error(`Timed out preparing to click ${selector}`, {
-        cause: error,
-      });
+      throw new Error(
+        `Timed out preparing to click ${selector}\n${await describeFailure(
+          target,
+          selector,
+        )}`,
+        { cause: error },
+      );
     });
 }
 
