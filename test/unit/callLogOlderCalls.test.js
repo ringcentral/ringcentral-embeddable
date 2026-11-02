@@ -325,6 +325,36 @@ describe('CallLog older calls', () => {
     expect(list).not.toHaveBeenCalled();
   });
 
+  test('requests the first page without waiting', async () => {
+    const { callLog, list } = createCallLog();
+    list.mockResolvedValue({
+      records: [],
+      navigation: { nextPage: { uri: 'next' } },
+    });
+
+    await callLog.fetchOlderCalls();
+
+    // A negative delay would wrap in `setTimeout` and stall paging for days.
+    expect(sleep).not.toHaveBeenCalled();
+    expect(list).toHaveBeenCalledTimes(1);
+    expect(callLog.loadingOlderCalls).toBe(false);
+  });
+
+  test('does not wait once the request interval has passed', async () => {
+    const { callLog, list } = createCallLog();
+    list.mockResolvedValue({
+      records: [],
+      navigation: { nextPage: { uri: 'next' } },
+    });
+
+    await callLog.fetchOlderCalls();
+    Date.now.mockReturnValue(NOW + 60 * 1000);
+    await callLog.fetchOlderCalls();
+
+    expect(sleep).not.toHaveBeenCalled();
+    expect(list).toHaveBeenCalledTimes(2);
+  });
+
   test('spaces requests apart to stay under the call log rate limit', async () => {
     const { callLog, list } = createCallLog();
     list.mockResolvedValue({
