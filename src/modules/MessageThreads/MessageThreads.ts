@@ -14,6 +14,7 @@ import type {
   ThreadHandler,
 } from './MessageThreads.interface';
 import type { AliveMessage } from '../MessageThreadEntries/MessageThreadEntries.interface';
+import { getThreadMmsAttachments } from './getThreadMmsAttachments';
 @Module({
   name: 'MessageThreads',
   deps: [
@@ -234,8 +235,10 @@ export class MessageThreads extends DataFetcherV2Consumer<
     that.data,
     that._deps.messageThreadEntries.store,
     that._deps.messageThreadEntries.lastReadTimeMap,
+    that._deps.auth.accessToken,
   ])
   get threads() {
+    const { accessToken } = this._deps.auth;
     // format threads to similar format as normal SMS conversations
     const list = this.data?.records ?? [];
     const store = this._deps.messageThreadEntries.store;
@@ -287,6 +290,7 @@ export class MessageThreads extends DataFetcherV2Consumer<
             return {
               ...entry,
               subject: entry.text,
+              mmsAttachments: getThreadMmsAttachments(entry.attachments, accessToken),
               direction: entry.direction,
               from: entry.author,
               to: entry.direction === 'Inbound' ?
@@ -412,9 +416,11 @@ export class MessageThreads extends DataFetcherV2Consumer<
     text,
     from,
     to,
+    attachments = [],
   }: {
     threadId?: string;
     text: string;
+    attachments?: { name?: string; file: Blob }[];
     from: {
       phoneNumber: string;
     };
@@ -442,9 +448,24 @@ export class MessageThreads extends DataFetcherV2Consumer<
         body.threadId = thread.id;
       }
     }
+    let payload: typeof body | FormData = body;
+    if (attachments.length > 0) {
+      // Message Threads API multipart layout: message fields in the
+      // `metadata` part and each file in an `attachments` part.
+      const formData = new FormData();
+      formData.append(
+        'metadata',
+        new Blob([JSON.stringify(body)], { type: 'application/json' }),
+      );
+      attachments.forEach((attachment) => {
+        const fileName = (attachment.file as File).name ?? attachment.name;
+        formData.append('attachments', attachment.file, fileName);
+      });
+      payload = formData;
+    }
     const response = await this._deps.client.service
       .platform()
-      .post(`/restapi/v1.0/account/~/message-threads/messages`, body);
+      .post(`/restapi/v1.0/account/~/message-threads/messages`, payload);
     const newEntry = await response.json();
     const newMessage = {
       ...newEntry,

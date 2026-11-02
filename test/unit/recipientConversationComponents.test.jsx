@@ -511,6 +511,18 @@ describe('recipient and conversation component flows', () => {
           subject="Inbound text"
           time="10:00"
         />
+        <Message
+          currentLocale="en-US"
+          direction="Inbound"
+          messageStatus="Received"
+          mmsAttachments={[
+            { id: 'img-2', uri: 'https://example.com/untyped-image' },
+            { id: 'nameless', uri: 'https://example.com/nameless' },
+          ]}
+          onLinkClick={jest.fn()}
+          subject=""
+          time="10:01"
+        />
         <ThreadHintMessage
           assignee={null}
           myExtensionId="101"
@@ -544,11 +556,14 @@ describe('recipient and conversation component flows', () => {
 
     expect(screen.queryByText('Sending failure')).toBeNull();
     expect(screen.getByText('named.txt')).toBeTruthy();
-    fireEvent.click(screen.getByTitle('download'));
+    fireEvent.click(screen.getAllByTitle('download')[0]);
     expect(onAttachmentDownload).toHaveBeenCalledWith(
       'https://example.com/named',
       expect.any(Object),
     );
+    // attachments without contentType render as downloadable files, not crash
+    expect(screen.getByText('img-2.bin')).toBeTruthy();
+    expect(screen.getByText('nameless.bin')).toBeTruthy();
     expect(screen.getByText('Conversation has been created.')).toBeTruthy();
     expect(screen.getByText('This conversation is unassigned.')).toBeTruthy();
     expect(screen.getByText('Conversation has been assigned to Grace.')).toBeTruthy();

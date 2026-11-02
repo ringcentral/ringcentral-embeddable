@@ -368,7 +368,7 @@ export class Conversations extends ConversationsBase {
     this._removeInputContent(this.currentConversationId);
   }
 
-  async replyToThread(text) {
+  async replyToThread(text, attachments = []) {
     const thread = this.currentMessageThread;
     if (!thread) {
       return;
@@ -378,6 +378,7 @@ export class Conversations extends ConversationsBase {
       const newMessage = await this._deps.messageThreads.sendMessage({
         threadId: thread.id,
         text,
+        attachments,
         from: thread.ownerParty,
         to: [thread.guestParty],
       });

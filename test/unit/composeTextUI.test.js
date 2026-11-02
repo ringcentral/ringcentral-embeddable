@@ -86,6 +86,7 @@ function createDeps(overrides = {}) {
       search: jest.fn(),
     },
     conversations: {
+      addAttachment: jest.fn(async () => {}),
       loadConversation: jest.fn(),
       relateCorrespondentEntity: jest.fn(),
       replyToThread: jest.fn(async () => ({ id: 'thread-reply-1' })),
@@ -371,8 +372,14 @@ describe('ComposeTextUI', () => {
       { phoneNumber: '+16505550123' },
       'thread',
     );
-    expect(deps.conversations.replyToThread).toHaveBeenCalledWith('reply in thread');
+    expect(deps.conversations.replyToThread).toHaveBeenCalledWith('reply in thread', []);
     expect(deps.smsTypingTimeTracker.stopTyping).toHaveBeenCalledWith('compose', 'thread-reply-1');
+
+    const attachments = [{ name: 'a.png', file: new Blob(['a']) }];
+    await funcs.send('', attachments);
+    expect(deps.composeText.send).not.toHaveBeenCalled();
+    expect(deps.conversations.addAttachment).toHaveBeenCalledWith(attachments[0]);
+    expect(deps.conversations.replyToThread).toHaveBeenLastCalledWith('', attachments);
 
     deps.messageThreads.threads = [createThread({
       assignee: {
@@ -380,11 +387,18 @@ describe('ComposeTextUI', () => {
       },
       id: 'thread-2',
     })];
-    await funcs.send('blocked thread', []);
+    deps.conversations.addAttachment.mockClear();
+    deps.conversations.replyToThread.mockClear();
+    const blockedAttachments = [{ name: 'b.png', file: new Blob(['b']) }];
+    await funcs.send('blocked thread', blockedAttachments);
     expect(deps.alert.warning).toHaveBeenCalledWith({
       message: 'threadIsAssignedToOtherExtension',
       ttl: 0,
     });
+    // attachments move to the thread input instead of being dropped
+    expect(deps.conversations.loadConversation).toHaveBeenLastCalledWith('thread-2');
+    expect(deps.conversations.addAttachment).toHaveBeenCalledWith(blockedAttachments[0]);
+    expect(deps.conversations.replyToThread).not.toHaveBeenCalled();
 
     deps.messageThreads.threads = [];
     deps.composeText.send.mockRejectedValueOnce(new Error('send failed'));
