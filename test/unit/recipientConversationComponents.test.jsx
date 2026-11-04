@@ -460,7 +460,8 @@ describe('recipient and conversation component flows', () => {
     );
 
     expect(screen.getByText('loading')).toBeTruthy();
-    expect(screen.getByText('Sending')).toBeTruthy();
+    // message-1 is a Queued MMS, which never shows Sending
+    expect(screen.queryByText('Sending')).toBeNull();
     expect(screen.getByText('Delivery failure')).toBeTruthy();
     fireEvent.click(screen.getByText('Outbound text'));
     expect(onLinkClick).toHaveBeenCalled();
@@ -568,6 +569,50 @@ describe('recipient and conversation component flows', () => {
     expect(screen.getByText('This conversation is unassigned.')).toBeTruthy();
     expect(screen.getByText('Conversation has been assigned to Grace.')).toBeTruthy();
     expect(screen.getByText('Conversation has been deleted.')).toBeTruthy();
+  });
+
+  it('does not show Sending for outbound MMS that stays Queued', () => {
+    const mmsAttachments = [{
+      contentType: 'image/png',
+      id: 'mms-img',
+      uri: 'https://example.com/mms-img',
+    }];
+    const { rerender } = render(
+      <Message
+        currentLocale="en-US"
+        direction="Outbound"
+        messageStatus="Queued"
+        mmsAttachments={mmsAttachments}
+        onLinkClick={jest.fn()}
+        subject="MMS text"
+      />,
+    );
+
+    expect(screen.queryByText('Sending')).toBeNull();
+
+    rerender(
+      <Message
+        currentLocale="en-US"
+        direction="Outbound"
+        messageStatus="Queued"
+        mmsAttachments={[]}
+        onLinkClick={jest.fn()}
+        subject="SMS text"
+      />,
+    );
+    expect(screen.getByText('Sending')).toBeTruthy();
+
+    rerender(
+      <Message
+        currentLocale="en-US"
+        direction="Outbound"
+        messageStatus="SendingFailed"
+        mmsAttachments={mmsAttachments}
+        onLinkClick={jest.fn()}
+        subject="MMS text"
+      />,
+    );
+    expect(screen.getByText('Sending failure')).toBeTruthy();
   });
 
   it('hides selective SMS controls and logged icons when granular logging is disabled', () => {

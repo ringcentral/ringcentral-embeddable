@@ -186,11 +186,21 @@ const SendStatus = styled(RcText)`
   clear: both;
 `;
 
-function MessageSendStatus({ direction, status }: { direction: string, status: string }) {
+function MessageSendStatus({
+  direction,
+  status,
+  isMMS = false,
+}: {
+  direction: string;
+  status: string;
+  isMMS?: boolean;
+}) {
   if (direction === 'Inbound') {
     return null;
   }
-  if (status === 'Queued') {
+  // MMS messages keep the Queued status even after the recipient gets them,
+  // so Queued can't be treated as still sending for MMS.
+  if (status === 'Queued' && !isMMS) {
     return (
       <SendStatus variant="caption1" color="neutral.f04">Sending</SendStatus>
     );
@@ -471,7 +481,11 @@ export const Message = ({
       {sender && inbound ? (
         <Sender>{sender}</Sender>
       ) : null}
-      <MessageSendStatus direction={direction} status={messageStatus} />
+      <MessageSendStatus
+        direction={direction}
+        status={messageStatus}
+        isMMS={mmsAttachments.length > 0}
+      />
       {control ? (
         <BubbleRow
           // When selectable, the entire row (bubble + checkbox) is the
