@@ -195,6 +195,26 @@ export class AppFeatures extends AppFeaturesBase {
     );
   }
 
+  get hasMessageThreadCallQueueSupported() {
+    return (
+      !!this.hasMessageThreadsPermission &&
+      this._getMessageThreadsParam('callQueueSupported') === 'true'
+    );
+  }
+
+  get hasMessageThreadSiteSupported() {
+    return (
+      !!this.hasMessageThreadsPermission &&
+      this._getMessageThreadsParam('siteSupported') === 'true'
+    );
+  }
+
+  _getMessageThreadsParam(name: string): string | undefined {
+    const params: { name?: string; value?: string }[] =
+      this._deps.extensionFeatures.features?.MessageThreads?.params ?? [];
+    return params.find((param) => param.name === name)?.value;
+  }
+
   get hasRingCXPermission() {
     return (
       this._deps.extensionFeatures.features?.ContactCenterAccount?.available ?? false
