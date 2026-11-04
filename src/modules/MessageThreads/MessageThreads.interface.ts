@@ -9,6 +9,7 @@ import {
 } from '@ringcentral-integration/commons/modules/WebSocketSubscription';
 import { AppFeatures } from '../AppFeatures';
 import { Auth } from '../Auth';
+import type { MessageThreadEntries } from '../MessageThreadEntries';
 
 export interface MessageThreadsOptions extends DataSourceBaseProps {}
 
@@ -16,6 +17,7 @@ export interface Deps extends DataFetcherV2ConsumerBaseDeps {
   client: any;
   messageThreadsOptions?: MessageThreadsOptions;
   appFeatures: AppFeatures;
+  messageThreadEntries: MessageThreadEntries;
   dataFetcherV2: DataFetcherV2;
   subscription?: Subscription;
   auth: Auth;
