@@ -52,7 +52,7 @@ export class MessageThreadEntries extends DataFetcherV2Consumer<
       ...deps.messageThreadEntriesOptions,
       key: 'messageThreadEntries',
       cleanOnReset: true,
-      permissionCheckFunction: () => this.hasPermission,
+      permissionCheckFunction: () => this.canSync,
       fetchFunction: async () => this._syncData(),
       readyCheckFunction: () => this._deps.appFeatures.ready,
     });
@@ -62,46 +62,58 @@ export class MessageThreadEntries extends DataFetcherV2Consumer<
 
   override onInitOnce() {
     super.onInitOnce();
-    if (this.hasPermission) {
-      return;
-    }
-    // For first time to check if has permission, if not, watch the permission change
+    // Server rejected the sync before, allow syncing again once the permission inputs change
+    watch(
+      this,
+      () => [
+        this._deps.appFeatures.hasMessageThreadsPermission,
+        this._deps.appFeatures.hasReadMessagesPermission,
+        this.messageThreadRecipients.map((item) => item.extension.id).join(','),
+      ],
+      () => {
+        if (this.syncForbidden) {
+          this._setSyncForbidden(false);
+        }
+      },
+      { multiple: true },
+    );
+    // Permission can be granted after init, e.g. grants loaded later
     watch(
       this,
       () => this.hasPermission,
       (hasPermission) => {
-        if (this._stopWatching) {
+        if (!hasPermission) {
           return;
         }
-        if (hasPermission) {
-          this.sync();
-          this._deps.subscription.subscribe([
-            '/restapi/v1.0/account/~/message-threads/entries/sync',
-          ]);
-          this._stopWatching = watch(
-            this,
-            () => this._deps.subscription!.message,
-            (message) => this._handleSubscription(message),
-          );
-        }
-      }
+        this._startListening();
+        // DataFetcherV2 doesn't fetch a source that gets permission after it is ready,
+        // its `getTimestamp(source) === 0` check never matches as `0 || null` returns null
+        this.sync();
+      },
     );
   }
 
   override onInit() {
-    if (!this.hasPermission) {
+    if (this.hasPermission) {
+      this._startListening();
+    }
+  }
+
+  /**
+   * Subscribe to the sync event and handle its messages, at most once until reset.
+   */
+  _startListening() {
+    if (this._stopWatching || !this._deps.subscription) {
       return;
     }
-    if (this._deps.subscription) {
-      this._deps.subscription.subscribe([
-        '/restapi/v1.0/account/~/message-threads/entries/sync',
-      ]);
-      this._stopWatching = watch(
-        this,
-        () => this._deps.subscription!.message,
-        (message) => this._handleSubscription(message),
-      );
-    }
+    this._deps.subscription.subscribe([
+      '/restapi/v1.0/account/~/message-threads/entries/sync',
+    ]);
+    this._stopWatching = watch(
+      this,
+      () => this._deps.subscription!.message,
+      (message) => this._handleSubscription(message),
+    );
   }
 
   _handleSubscription(message: MessageThreadEntriesSubscriptionMessage) {
@@ -226,8 +238,11 @@ export class MessageThreadEntries extends DataFetcherV2Consumer<
           syncInfo: data.syncInfo,
         };
       }
-    } catch (e) {
+    } catch (e: any) {
       if (this._deps.auth.ownerId === ownerId) {
+        if (e.response?.status === 403) {
+          this.markSyncForbidden();
+        }
         console.error(e);
         throw e;
       }
@@ -255,7 +270,7 @@ export class MessageThreadEntries extends DataFetcherV2Consumer<
   }
 
   async _sync() {
-    if (!this.hasPermission) {
+    if (!this.canSync) {
       return;
     }
     if (this._deps.tabManager && !this._deps.tabManager.active) {
@@ -267,6 +282,9 @@ export class MessageThreadEntries extends DataFetcherV2Consumer<
   override onReset() {
     this._stopWatching?.();
     this._stopWatching = null;
+    if (this.syncForbidden) {
+      this._setSyncForbidden(false);
+    }
   }
 
   @computed((that: MessageThreadEntries) => [that.data])
@@ -274,11 +292,61 @@ export class MessageThreadEntries extends DataFetcherV2Consumer<
     return this.data?.store ?? {};
   }
 
+  /**
+   * SMS recipient grants that can be used for message threads.
+   * Call queue grants require `callQueueSupported`, site and company grants require `siteSupported`.
+   */
+  get messageThreadRecipients() {
+    const { appFeatures, grantExtensions } = this._deps;
+    const callQueueSupported = appFeatures.hasMessageThreadCallQueueSupported;
+    const siteSupported = appFeatures.hasMessageThreadSiteSupported;
+    if (!callQueueSupported && !siteSupported) {
+      return [];
+    }
+    return grantExtensions.smsRecipients.filter((item) => {
+      const extensionType = item.extension.type;
+      if (extensionType === 'Department') {
+        return callQueueSupported;
+      }
+      if (extensionType === 'Site' || extensionType === 'CompanyExtension') {
+        return siteSupported;
+      }
+      return false;
+    });
+  }
+
   get hasPermission() {
     return (
       this._deps.appFeatures.hasMessageThreadsPermission &&
-      this._deps.grantExtensions.smsRecipients.length > 0
+      this._deps.appFeatures.hasReadMessagesPermission &&
+      this.messageThreadRecipients.length > 0
     );
+  }
+
+  /**
+   * Whether message thread data can be synced. Unlike `hasPermission`, this also stops
+   * after the server rejects the sync, so UI and message sending are not affected.
+   */
+  get canSync() {
+    return this.hasPermission && !this.syncForbidden;
+  }
+
+  /**
+   * Set when the server rejects message thread sync with 403, so syncing stops
+   * until the permission inputs change instead of retrying forever.
+   */
+  @state
+  syncForbidden = false;
+
+  @action
+  _setSyncForbidden(forbidden: boolean) {
+    this.syncForbidden = forbidden;
+  }
+
+  markSyncForbidden() {
+    if (!this.syncForbidden) {
+      this._setSyncForbidden(true);
+    }
   }
 
   override get data() {

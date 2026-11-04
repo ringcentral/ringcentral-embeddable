@@ -1,7 +1,17 @@
+jest.mock('@ringcentral-integration/core', () => ({
+  ...jest.requireActual('@ringcentral-integration/core'),
+  watch: jest.fn(),
+}));
+
+const { watch } = require('@ringcentral-integration/core');
 const { setStagedState } = require('@ringcentral-integration/core/lib/usm-redux/utils');
 
+const { AppFeatures } = require('../../src/modules/AppFeatures');
 const { MessageThreadEntries } = require('../../src/modules/MessageThreadEntries/MessageThreadEntries');
 const { MessageThreads } = require('../../src/modules/MessageThreads/MessageThreads');
+
+const ENTRIES_SYNC_EVENT = '/restapi/v1.0/account/~/message-threads/entries/sync';
+const THREADS_SYNC_EVENT = '/restapi/v1.0/account/~/message-threads/sync';
 
 function createResponse(data) {
   return {
@@ -84,6 +94,9 @@ function createBaseDeps() {
   return {
     appFeatures: {
       hasMessageThreadsPermission: true,
+      hasReadMessagesPermission: true,
+      hasMessageThreadCallQueueSupported: true,
+      hasMessageThreadSiteSupported: true,
       ready: true,
     },
     auth: {
@@ -96,7 +109,10 @@ function createBaseDeps() {
     },
     dataFetcherV2,
     grantExtensions: {
-      smsRecipients: [{ extensionId: 'owner-id' }],
+      smsRecipients: [{
+        extension: { id: 'queue-id', type: 'Department' },
+        smsRecipient: true,
+      }],
     },
     platform,
     storage: {
@@ -123,6 +139,46 @@ function createEntryModule(deps = createBaseDeps()) {
   return entries;
 }
 
+function createSmsRecipient(id, type) {
+  return {
+    extension: { id, type },
+    smsRecipient: true,
+  };
+}
+
+function createForbiddenError() {
+  return { response: { status: 403 } };
+}
+
+/**
+ * Run `onInitOnce` and return the watchers it registered after the base class one.
+ */
+function initOnceWatchers(module) {
+  const start = watch.mock.calls.length;
+  module.onInitOnce();
+  const [, ...ownCalls] = watch.mock.calls.slice(start);
+  return ownCalls.map(([, selector, callback, options]) => ({
+    selector,
+    callback,
+    options,
+  }));
+}
+
+function createAppFeatures(params, hasMessageThreadsPermission = true) {
+  const appFeatures = Object.create(AppFeatures.prototype);
+  appFeatures._deps = {
+    extensionFeatures: {
+      features: {
+        MessageThreads: { available: true, params },
+      },
+    },
+  };
+  Object.defineProperty(appFeatures, 'hasMessageThreadsPermission', {
+    value: hasMessageThreadsPermission,
+  });
+  return appFeatures;
+}
+
 function createThreadsModule(deps, messageThreadEntries) {
   const threads = new MessageThreads({
     ...deps,
@@ -140,6 +196,8 @@ function createThreadsModule(deps, messageThreadEntries) {
 
 describe('message thread modules', () => {
   beforeEach(() => {
+    watch.mockReset();
+    watch.mockImplementation(() => jest.fn());
     setStagedState({});
     jest.useFakeTimers();
     jest.spyOn(console, 'error').mockImplementation(() => {});
@@ -891,5 +949,223 @@ describe('message thread modules', () => {
       message: 'messageThreadMarkAsUnreadFailed',
     });
     expect(() => threads.onThreadUpdated(null)).not.toThrow();
+  });
+
+  it('reads call queue and site support from MessageThreads feature params', () => {
+    const appFeatures = createAppFeatures([
+      { name: 'callQueueSupported', value: 'true' },
+      { name: 'siteSupported', value: 'false' },
+    ]);
+    expect(appFeatures.hasMessageThreadCallQueueSupported).toBe(true);
+    expect(appFeatures.hasMessageThreadSiteSupported).toBe(false);
+
+    const siteOnly = createAppFeatures([{ name: 'siteSupported', value: 'true' }]);
+    expect(siteOnly.hasMessageThreadCallQueueSupported).toBe(false);
+    expect(siteOnly.hasMessageThreadSiteSupported).toBe(true);
+
+    const noParams = createAppFeatures(undefined);
+    expect(noParams.hasMessageThreadCallQueueSupported).toBe(false);
+    expect(noParams.hasMessageThreadSiteSupported).toBe(false);
+
+    const noPermission = createAppFeatures(
+      [
+        { name: 'callQueueSupported', value: 'true' },
+        { name: 'siteSupported', value: 'true' },
+      ],
+      false,
+    );
+    expect(noPermission.hasMessageThreadCallQueueSupported).toBe(false);
+    expect(noPermission.hasMessageThreadSiteSupported).toBe(false);
+  });
+
+  it('only grants message thread permission for supported SMS recipient grants', () => {
+    const deps = createBaseDeps();
+    const entries = createEntryModule(deps);
+    const threads = createThreadsModule(deps, entries);
+    deps.grantExtensions.smsRecipients = [
+      createSmsRecipient('queue-id', 'Department'),
+      createSmsRecipient('site-id', 'Site'),
+      createSmsRecipient('company-id', 'CompanyExtension'),
+      createSmsRecipient('user-id', 'User'),
+    ];
+    expect(entries.messageThreadRecipients.map((item) => item.extension.id)).toEqual([
+      'queue-id',
+      'site-id',
+      'company-id',
+    ]);
+    expect(entries.hasPermission).toBe(true);
+    expect(threads.hasPermission).toBe(true);
+
+    deps.appFeatures.hasMessageThreadSiteSupported = false;
+    expect(entries.messageThreadRecipients.map((item) => item.extension.id)).toEqual([
+      'queue-id',
+    ]);
+
+    deps.appFeatures.hasMessageThreadCallQueueSupported = false;
+    deps.appFeatures.hasMessageThreadSiteSupported = true;
+    expect(entries.messageThreadRecipients.map((item) => item.extension.id)).toEqual([
+      'site-id',
+      'company-id',
+    ]);
+
+    deps.grantExtensions.smsRecipients = [
+      createSmsRecipient('queue-id', 'Department'),
+      createSmsRecipient('user-id', 'User'),
+    ];
+    expect(entries.messageThreadRecipients).toEqual([]);
+    expect(entries.hasPermission).toBe(false);
+    expect(threads.hasPermission).toBe(false);
+
+    deps.grantExtensions.smsRecipients = [createSmsRecipient('site-id', 'Site')];
+    deps.appFeatures.hasMessageThreadSiteSupported = false;
+    expect(entries.messageThreadRecipients).toEqual([]);
+    expect(entries.hasPermission).toBe(false);
+
+    deps.appFeatures.hasMessageThreadSiteSupported = true;
+    expect(entries.hasPermission).toBe(true);
+    deps.appFeatures.hasReadMessagesPermission = false;
+    expect(entries.hasPermission).toBe(false);
+    deps.appFeatures.hasReadMessagesPermission = true;
+    deps.appFeatures.hasMessageThreadsPermission = false;
+    expect(entries.hasPermission).toBe(false);
+  });
+
+  it('stops entry sync after a 403 without falling back or changing permission', async () => {
+    const deps = createBaseDeps();
+    const entries = createEntryModule(deps);
+    const threads = createThreadsModule(deps, entries);
+    const entrySource = deps.dataFetcherV2.register.mock.calls[0][0];
+    const threadSource = deps.dataFetcherV2.register.mock.calls[1][0];
+    deps.dataFetcherV2.setData(entrySource, {
+      store: {},
+      syncInfo: { syncToken: 'entry-token' },
+    });
+    expect(entrySource.permissionCheckFunction()).toBe(true);
+
+    deps.platform.get.mockRejectedValueOnce(createForbiddenError());
+    await expect(entries._syncData()).rejects.toEqual(createForbiddenError());
+
+    // A 403 on ISync must not retry with FSync, which would be rejected the same way
+    expect(deps.platform.get).toHaveBeenCalledTimes(1);
+    expect(deps.platform.get).toHaveBeenCalledWith(
+      ENTRIES_SYNC_EVENT,
+      { syncType: 'ISync', syncToken: 'entry-token' },
+    );
+    expect(entries.syncForbidden).toBe(true);
+    expect(entries.canSync).toBe(false);
+    expect(threads.canSync).toBe(false);
+    expect(entrySource.permissionCheckFunction()).toBe(false);
+    expect(threadSource.permissionCheckFunction()).toBe(false);
+    // UI and message sending keep relying on the permission rule
+    expect(entries.hasPermission).toBe(true);
+    expect(threads.hasPermission).toBe(true);
+
+    await entries._sync();
+    await threads._sync();
+    expect(deps.platform.get).toHaveBeenCalledTimes(1);
+
+    entries.onReset();
+    expect(entries.syncForbidden).toBe(false);
+    expect(entries.canSync).toBe(true);
+  });
+
+  it('marks sync as forbidden when the thread sync gets a 403', async () => {
+    const deps = createBaseDeps();
+    const entries = createEntryModule(deps);
+    const threads = createThreadsModule(deps, entries);
+
+    deps.platform.get.mockRejectedValueOnce(createForbiddenError());
+    await expect(threads._syncData()).rejects.toEqual(createForbiddenError());
+    expect(deps.platform.get).toHaveBeenCalledWith(THREADS_SYNC_EVENT, { syncType: 'FSync' });
+    expect(entries.syncForbidden).toBe(true);
+    expect(threads.canSync).toBe(false);
+
+    // Other failures, or failures for a previous owner, keep syncing enabled
+    const otherDeps = createBaseDeps();
+    const otherEntries = createEntryModule(otherDeps);
+    const otherThreads = createThreadsModule(otherDeps, otherEntries);
+    otherDeps.platform.get.mockRejectedValueOnce({ response: { status: 500 } });
+    await expect(otherThreads._syncData()).rejects.toEqual({ response: { status: 500 } });
+    otherDeps.platform.get.mockImplementationOnce(async () => {
+      otherDeps.auth.ownerId = 'next-owner';
+      throw createForbiddenError();
+    });
+    await expect(otherThreads._syncData()).resolves.toBeUndefined();
+    expect(otherEntries.syncForbidden).toBe(false);
+  });
+
+  it('allows sync again once the permission inputs change', () => {
+    const deps = createBaseDeps();
+    const entries = createEntryModule(deps);
+    const [resetWatcher] = initOnceWatchers(entries);
+    expect(resetWatcher.options).toEqual({ multiple: true });
+    expect(resetWatcher.selector()).toEqual([true, true, 'queue-id']);
+
+    deps.grantExtensions.smsRecipients = [
+      createSmsRecipient('queue-id', 'Department'),
+      createSmsRecipient('site-id', 'Site'),
+    ];
+    expect(resetWatcher.selector()).toEqual([true, true, 'queue-id,site-id']);
+
+    entries.markSyncForbidden();
+    expect(entries.canSync).toBe(false);
+    resetWatcher.callback();
+    expect(entries.syncForbidden).toBe(false);
+    expect(entries.canSync).toBe(true);
+  });
+
+  it.each([
+    ['entries', createEntryModule, ENTRIES_SYNC_EVENT],
+    [
+      'threads',
+      (deps) => createThreadsModule(deps, createEntryModule(deps)),
+      THREADS_SYNC_EVENT,
+    ],
+  ])('starts the %s listener once and syncs when permission is granted late', (
+    _name,
+    createModule,
+    event,
+  ) => {
+    const deps = createBaseDeps();
+    const module = createModule(deps);
+    module.sync = jest.fn();
+    const permissionWatcher = initOnceWatchers(module).at(-1);
+    expect(permissionWatcher.selector()).toBe(true);
+
+    permissionWatcher.callback(false);
+    expect(deps.subscription.subscribe).not.toHaveBeenCalled();
+    expect(module.sync).not.toHaveBeenCalled();
+
+    // DataFetcherV2 does not fetch a source that gets permission after it is ready
+    permissionWatcher.callback(true);
+    expect(module.sync).toHaveBeenCalledTimes(1);
+    expect(deps.subscription.subscribe).toHaveBeenCalledTimes(1);
+    expect(deps.subscription.subscribe).toHaveBeenCalledWith([event]);
+
+    // onInit after the watcher already started listening must not add another listener
+    const messageWatchCount = watch.mock.calls.length;
+    module.onInit();
+    permissionWatcher.callback(true);
+    expect(deps.subscription.subscribe).toHaveBeenCalledTimes(1);
+    expect(watch.mock.calls.length).toBe(messageWatchCount);
+
+    // The next login starts listening again
+    const stopWatching = module._stopWatching;
+    module.onReset();
+    expect(stopWatching).toHaveBeenCalled();
+    module.onInit();
+    expect(deps.subscription.subscribe).toHaveBeenCalledTimes(2);
+  });
+
+  it('handles sync events through the message listener', () => {
+    const deps = createBaseDeps();
+    const entries = createEntryModule(deps);
+    entries.sync = jest.fn();
+    entries.onInit();
+    const [, selector, callback] = watch.mock.calls.at(-1);
+    deps.subscription.message = { event: ENTRIES_SYNC_EVENT };
+    expect(selector()).toBe(deps.subscription.message);
+    callback(deps.subscription.message);
+    expect(entries.sync).toHaveBeenCalledTimes(1);
   });
 });
