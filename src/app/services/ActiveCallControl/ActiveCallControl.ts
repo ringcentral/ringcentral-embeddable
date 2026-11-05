@@ -68,6 +68,7 @@ import { sessionStatus } from '../WebphoneV2/sessionStatus';
 import type { Webphone as WebphoneV2 } from '../WebphoneV2';
 import { RingCX } from '../RingCX';
 import { findConferenceParticipants } from './find-conference-participants';
+import { isCxAgentLegSession } from './is-cx-agent-leg-session';
 import { isCxRcExtExBridgeCall } from './is-cx-rc-ext-ex-bridge-call';
 
 type WebphoneWithCxOffhook = {
@@ -634,9 +635,12 @@ export class ActiveCallControl extends ActiveCallControlBase {
   }
 
   private _listMatchingCxExBridgeTelephonySessionIds(): string[] {
+    const cxAgentLegIds = this.data.sessions
+      .filter((session) => isCxAgentLegSession(session))
+      .map((session) => session.telephonySessionId ?? session.id);
     const hints = this._ringCX?.exBridgeHints ?? [];
     if (hints.length === 0) {
-      return [];
+      return cxAgentLegIds;
     }
     const sessionIds = this.data.sessions
       .filter((session) => isCxRcExtExBridgeCall({ call: session, hints }))
@@ -647,7 +651,7 @@ export class ActiveCallControl extends ActiveCallControlBase {
       .filter((telephonySessionId): telephonySessionId is string =>
         Boolean(telephonySessionId),
       );
-    return [...sessionIds, ...presenceIds];
+    return [...cxAgentLegIds, ...sessionIds, ...presenceIds];
   }
 
   private _listExistingExTelephonySessionIds(): Set<string> {
