@@ -66,7 +66,11 @@ describe('SideWidgetPanel', () => {
 
   test('renders available apps with names, fallbacks, and selection handlers', () => {
     const props = createProps({
-      apps: [{ id: 'crm', name: 'CRM', iconUri: 'crm.svg' }, { id: 'tasks' }],
+      apps: [
+        { id: 'crm', name: 'CRM', iconUri: 'crm.svg' },
+        { id: 'tasks' },
+        { id: 'history', name: 'Contact history' },
+      ],
     });
     render(<SideWidgetPanel {...props} />);
 
@@ -76,10 +80,35 @@ describe('SideWidgetPanel', () => {
     expect(screen.getByText('CRM')).toBeInTheDocument();
     expect(screen.getByText('tasks')).toBeInTheDocument();
     expect(screen.getByLabelText('CRM')).toHaveAttribute('data-src', 'crm.svg');
+    // Apps without an icon show initials, so apps sharing a first letter stay
+    // apart.
+    expect(screen.getByLabelText('tasks')).toHaveTextContent('T');
+    expect(screen.getByLabelText('Contact history')).toHaveTextContent('CH');
     fireEvent.click(screen.getByRole('button', { name: 'Open CRM' }));
     fireEvent.click(screen.getByRole('button', { name: 'Open tasks' }));
     expect(props.onSelectApp).toHaveBeenNthCalledWith(1, 'crm');
     expect(props.onSelectApp).toHaveBeenNthCalledWith(2, 'tasks');
+  });
+
+  test('hides the Available apps header while the tab bar names the page', () => {
+    const props = createProps({
+      apps: [{ id: 'crm', name: 'CRM' }],
+      tabs: [
+        { id: 'side-widget-app-crm', appId: 'crm', name: 'CRM' },
+        { id: 'side-widget-apps', name: 'Apps' },
+      ],
+    });
+    render(<SideWidgetPanel {...props} />);
+
+    expect(
+      screen.getByRole('list', { name: 'Available apps' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByTestId('sideWidgetAvailableAppsHeader'),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Close apps' }),
+    ).not.toBeInTheDocument();
   });
 
   test('forwards tab context changes as strings', () => {

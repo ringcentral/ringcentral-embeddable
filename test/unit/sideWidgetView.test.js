@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
+import { Subject } from 'rxjs';
 
 import { SideWidgetView } from '../../src/app/views/SideWidgetView/SideWidget.view';
 import { SideWidgetPanel } from '../../src/app/views/SideWidgetView/SideWidgetPanel';
@@ -614,6 +615,113 @@ describe('SideWidgetView', () => {
     view.onCallInit({ to: '+16505550101', toUserName: 'Callee' });
     expect(view.currentTabId).toBe('side-widget-apps');
     expect(view.tabs.some(({ id }) => id === 'script')).toBe(true);
+  });
+
+  describe('opening an app on host request', () => {
+    test('opens the app for the current call and switches to it', () => {
+      const { dependencies, expandedHandle, view } = createSideWidget();
+      const contact = { id: 'contact', phoneNumber: '+16505550100' };
+      view.openApps(contact);
+      dependencies.expandedView.open.mockClear();
+
+      view.openAppById('tasks');
+
+      expect(view.currentTabId).toBe('side-widget-app-tasks');
+      expect(view.tabs.map(({ id }) => id)).toEqual([
+        'side-widget-app-tasks',
+        'side-widget-apps',
+      ]);
+      expect(view.currentContact).toBe(contact);
+      expect(dependencies.expandedView.open).toHaveBeenCalledWith(
+        expandedHandle,
+      );
+    });
+
+    test('adds the app tab without switching to it when asked', () => {
+      const { view } = createSideWidget();
+      view.openApps({ id: 'contact' });
+
+      view.openAppById('crm', { activate: false });
+
+      expect(view.currentTabId).toBe('side-widget-apps');
+      expect(view.tabs.some(({ id }) => id === 'side-widget-app-crm')).toBe(
+        true,
+      );
+    });
+
+    test('reuses an open app tab', () => {
+      const { view } = createSideWidget();
+      view.openApps({ id: 'contact' });
+      view.openAppById('crm', { activate: false });
+
+      view.openAppById('crm');
+
+      expect(view.currentTabId).toBe('side-widget-app-crm');
+      expect(
+        view.tabs.filter(({ id }) => id === 'side-widget-app-crm'),
+      ).toHaveLength(1);
+    });
+
+    test('ignores the request without a call, an app, or side widgets', () => {
+      const { dependencies, view } = createSideWidget();
+
+      // No call shows in the side widget yet.
+      view.openAppById('crm');
+      expect(view.tabs).toEqual([]);
+      expect(dependencies.expandedView.open).not.toHaveBeenCalled();
+
+      view.openApps({ id: 'contact' });
+      view.openAppById('missing');
+      expect(view.tabs.map(({ id }) => id)).toEqual(['side-widget-apps']);
+
+      const disabled = createSideWidget({
+        options: { enableSideWidget: false },
+      });
+      disabled.view.currentContact = { id: 'contact' };
+      disabled.view.openAppById('crm');
+      expect(disabled.view.tabs).toEqual([]);
+    });
+
+    test('opens the app behind a tab that keeps focus', () => {
+      const { view } = createSideWidget();
+      const script = view.createContent({
+        id: 'script',
+        name: 'Script',
+        scope: 'global',
+        keepActiveOnCallApps: true,
+        view: () => null,
+      });
+      view.openContent(script);
+      view.onCallRing({ from: '+16505550100', fromUserName: 'Caller' });
+
+      view.openAppById('crm');
+
+      expect(view.currentTabId).toBe('script');
+      expect(view.tabs.some(({ id }) => id === 'side-widget-app-crm')).toBe(
+        true,
+      );
+    });
+
+    test('follows host requests from sign-in until the session resets', () => {
+      const openAppRequest$ = new Subject();
+      const { dependencies, view } = createSideWidget();
+      dependencies.thirdParty.openAppRequest$ = openAppRequest$;
+      view.onInit();
+      view.openApps({ id: 'contact' });
+
+      openAppRequest$.next({ appId: 'crm', activate: false });
+      expect(view.currentTabId).toBe('side-widget-apps');
+      expect(view.tabs.some(({ id }) => id === 'side-widget-app-crm')).toBe(
+        true,
+      );
+
+      view.onReset();
+      view.openApps({ id: 'contact' });
+      openAppRequest$.next({ appId: 'tasks' });
+      expect(view.tabs.some(({ id }) => id === 'side-widget-app-tasks')).toBe(
+        false,
+      );
+    });
   });
 
   test('preserves same-contact pages and atomically replaces different-contact pages', () => {
