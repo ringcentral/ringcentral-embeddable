@@ -202,8 +202,9 @@ function startDiagnostics(page) {
 }
 
 /**
- * Records the clicks a frame receives and its route changes, so a failure
- * shows whether a click arrived and where the router went afterwards.
+ * Records the clicks a frame receives, its view transitions and its route
+ * changes, so a failure shows whether a click arrived and where the router
+ * went afterwards.
  */
 async function trackFrame(frame) {
   await frame.evaluate((maxEntries) => {
@@ -233,6 +234,18 @@ async function trackFrame(frame) {
       },
       true,
     );
+    // While a view transition runs, Chrome hit-tests its pseudo-elements, so
+    // clicks land on the document element instead of the app.
+    const startViewTransition = document.startViewTransition?.bind(document);
+    if (startViewTransition) {
+      document.startViewTransition = (...args) => {
+        window.__e2eMark('[frame] view transition start');
+        const transition = startViewTransition(...args);
+        const markEnd = () => window.__e2eMark('[frame] view transition end');
+        transition.finished.then(markEnd, markEnd);
+        return transition;
+      };
+    }
     let lastRoute;
     setInterval(() => {
       const app = globalThis.app;
