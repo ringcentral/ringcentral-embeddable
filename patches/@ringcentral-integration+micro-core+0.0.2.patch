@@ -1,0 +1,11 @@
+diff --git a/node_modules/@ringcentral-integration/micro-core/src/app/plugins/SpringThemePlugin/SpringTheme.plugin.js b/node_modules/@ringcentral-integration/micro-core/src/app/plugins/SpringThemePlugin/SpringTheme.plugin.js
+--- a/node_modules/@ringcentral-integration/micro-core/src/app/plugins/SpringThemePlugin/SpringTheme.plugin.js
++++ b/node_modules/@ringcentral-integration/micro-core/src/app/plugins/SpringThemePlugin/SpringTheme.plugin.js
+@@ -53,4 +53,6 @@
++// the public npm build of `@ringcentral/spring-theme` does not ship `suiJunoDark`,
++// fallback to `suiDark` like next-builder themeMap does
+ var sprintDefaultThemeMap = {
+-  dark: _springTheme.suiJunoDark,
++  dark: _springTheme.suiJunoDark || _springTheme.suiDark,
+   contrast: _springTheme.suiHighContrast
+ };

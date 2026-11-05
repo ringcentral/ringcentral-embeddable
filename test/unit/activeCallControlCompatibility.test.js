@@ -356,6 +356,75 @@ describe("ActiveCallControl compatibility routing", () => {
     expect(fetchData).toHaveBeenCalledTimes(1);
   });
 
+  describe("RingCX agent legs", () => {
+    const cxAgentLegSession = {
+      id: "s-cx-agent-leg",
+      telephonySessionId: "s-cx-agent-leg",
+      party: {
+        direction: "Outbound",
+        meta: [{ category: "System", values: [{ id: "rcx-ids" }] }],
+      },
+    };
+    const exSession = {
+      id: "s-ex-call",
+      telephonySessionId: "s-ex-call",
+      party: { direction: "Outbound" },
+    };
+
+    test("hides a RingCX agent leg without a directory dial hint", () => {
+      const control = {
+        data: { sessions: [cxAgentLegSession, exSession] },
+        _ringCX: { exBridgeHints: [] },
+        _presence: { calls: [] },
+      };
+
+      expect(
+        ActiveCallControl.prototype._listMatchingCxExBridgeTelephonySessionIds.call(
+          control
+        )
+      ).toEqual(["s-cx-agent-leg"]);
+    });
+
+    test("hides a RingCX agent leg next to directory dial hint matches", () => {
+      const control = {
+        data: { sessions: [cxAgentLegSession, exSession] },
+        _ringCX: {
+          exBridgeHints: [
+            { extensionId: "2651623027", name: "", mainNumber: "" },
+          ],
+        },
+        _presence: {
+          calls: [
+            {
+              telephonySessionId: "s-directory-dial",
+              direction: "Outbound",
+              to: { extensionId: "2651623027" },
+            },
+          ],
+        },
+      };
+
+      expect(
+        ActiveCallControl.prototype._listMatchingCxExBridgeTelephonySessionIds.call(
+          control
+        )
+      ).toEqual(["s-cx-agent-leg", "s-directory-dial"]);
+    });
+
+    test("hides RingCX agent legs when RingCX is not injected", () => {
+      const control = {
+        data: { sessions: [cxAgentLegSession] },
+        _presence: { calls: [] },
+      };
+
+      expect(
+        ActiveCallControl.prototype._listMatchingCxExBridgeTelephonySessionIds.call(
+          control
+        )
+      ).toEqual(["s-cx-agent-leg"]);
+    });
+  });
+
   test("does not reload a presence call represented by Webphone", async () => {
     const fetchData = jest.fn(async () => {});
     const control = {
