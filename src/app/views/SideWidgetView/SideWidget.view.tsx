@@ -18,6 +18,7 @@ import {
   watch,
 } from '@ringcentral-integration/next-core';
 import React, { useRef } from 'react';
+import type { Subscription } from 'rxjs';
 
 import {
   ThirdParty,
@@ -628,11 +629,7 @@ export class SideWidgetView extends RcViewModule {
     contact: ThirdPartyWidgetContact,
     openPinnedApps = false,
   ): void {
-    const activate = !this.tabs.some(({ id }) => {
-      const keepActive =
-        this._contentHandles.get(id)?.options.keepActiveOnCallApps;
-      return typeof keepActive === 'function' ? keepActive() : !!keepActive;
-    });
+    const activate = !this._hasKeepActiveTab();
     this.openApps(contact, { activate });
     if (!openPinnedApps) {
       return;
@@ -642,6 +639,38 @@ export class SideWidgetView extends RcViewModule {
       if (app) {
         this.openAppTab(app, contact, { activate });
       }
+    });
+  }
+
+  /**
+   * Opens a registered app in its own tab for the call the side widget shows,
+   * as the host asks with `rc-adapter-open-widget-app`. Without a call, such
+   * as before it starts or after every tab closed, the request is ignored.
+   *
+   * Like the apps a call opens, the app opens behind an open
+   * `keepActiveOnCallApps` tab.
+   */
+  openAppById(
+    appId: string,
+    { activate = true }: SideWidgetOpenAppsOptions = {},
+  ): void {
+    if (!this.enabled || !this.currentContact) {
+      return;
+    }
+    const app = this._thirdParty.apps.find(({ id }) => id === appId);
+    if (!app) {
+      return;
+    }
+    this.openAppTab(app, this.currentContact, {
+      activate: activate && !this._hasKeepActiveTab(),
+    });
+  }
+
+  private _hasKeepActiveTab(): boolean {
+    return this.tabs.some(({ id }) => {
+      const keepActive =
+        this._contentHandles.get(id)?.options.keepActiveOnCallApps;
+      return typeof keepActive === 'function' ? keepActive() : !!keepActive;
     });
   }
 
@@ -767,7 +796,12 @@ export class SideWidgetView extends RcViewModule {
 
   private _stopWatchingExpand: (() => void) | null = null;
 
+  private _openAppRequestSubscription: Subscription | null = null;
+
   override onInit(): void {
+    this._openAppRequestSubscription = this._thirdParty.openAppRequest$.subscribe(
+      ({ appId, activate }) => this.openAppById(appId, { activate }),
+    );
     this._stopWatchingExpand = watch(
       this,
       () => Boolean(this._root?.expanded),
@@ -798,6 +832,8 @@ export class SideWidgetView extends RcViewModule {
   }
 
   override onReset(): void {
+    this._openAppRequestSubscription?.unsubscribe();
+    this._openAppRequestSubscription = null;
     this._stopWatchingLayout?.();
     this._stopWatchingLayout = null;
     this._stopWatchingExpand?.();

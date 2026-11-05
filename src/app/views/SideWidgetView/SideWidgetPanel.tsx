@@ -18,7 +18,10 @@ import type {
 } from '../../services/ThirdParty';
 
 import type { SideWidgetBlankInfo } from './getSideWidgetBlankInfo';
-import { SIDE_WIDGET_APPS_TAB_ID } from './SideWidget.helper';
+import {
+  getSideWidgetAppInitials,
+  SIDE_WIDGET_APPS_TAB_ID,
+} from './SideWidget.helper';
 import type { SideWidgetTab } from './SideWidget.view.interface';
 import { SideWidgetAppPanel } from './SideWidgetAppPanel';
 import { SideWidgetBlankView } from './SideWidgetBlankView';
@@ -29,29 +32,35 @@ function AvailableApps({
   apps,
   onClose,
   onSelectApp,
-  showCloseButton,
+  showHeader,
 }: {
   apps: ThirdPartyApp[];
   onClose: () => void;
   onSelectApp: (appId: string) => void;
-  showCloseButton: boolean;
+  /**
+   * Shows the title and close button. Hidden while the tab bar names the page
+   * and closes it.
+   */
+  showHeader: boolean;
 }) {
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      <SideWidgetPageHeader
-        title={t('availableApps')}
-        onClose={showCloseButton ? onClose : undefined}
-        closeLabel={t('closeApps')}
-        data-sign="sideWidgetAvailableAppsHeader"
-        closeDataSign="sideWidgetClose"
-      />
+      {showHeader ? (
+        <SideWidgetPageHeader
+          title={t('availableApps')}
+          onClose={onClose}
+          closeLabel={t('closeApps')}
+          data-sign="sideWidgetAvailableAppsHeader"
+          closeDataSign="sideWidgetClose"
+        />
+      ) : null}
       {apps.length === 0 ? (
         <div className="flex flex-auto items-center justify-center">
           <EmptyState icon={AppsMd} title={t('noAvailableApps')} />
         </div>
       ) : (
         <ul
-          className="grid flex-auto grid-cols-3 content-start gap-3 overflow-y-auto p-4"
+          className="grid flex-auto grid-cols-3 content-start gap-x-1 gap-y-3 overflow-y-auto p-4"
           aria-label={t('availableApps')}
         >
           {apps.map((app) => {
@@ -60,7 +69,7 @@ function AvailableApps({
               <li key={app.id} className="min-w-0">
                 <button
                   type="button"
-                  className="flex h-20 w-full min-w-0 flex-col items-center justify-center gap-2 rounded-sm border-0 bg-transparent p-2 text-neutral-b0 hover:bg-neutral-b5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cobranding"
+                  className="flex min-h-20 w-full min-w-0 flex-col items-center justify-start gap-2 rounded-sm border-0 bg-transparent px-1 py-2 text-neutral-b0 hover:bg-neutral-b5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cobranding"
                   aria-label={t('openApp', { name: appName })}
                   data-sign={`sideWidgetApp-${app.id}`}
                   onClick={() => onSelectApp(app.id)}
@@ -71,14 +80,12 @@ function AvailableApps({
                     size="large"
                     variant="squircle"
                   >
-                    {appName.slice(0, 1)}
+                    {getSideWidgetAppInitials(appName)}
                   </Avatar>
                   <Text
                     component="span"
-                    className="typography-descriptor w-full truncate text-center text-neutral-b0"
+                    className="typography-descriptor line-clamp-2 w-full break-words text-center text-neutral-b0"
                     title={appName}
-                    titleWhenOverflow={500}
-                    noWrap
                   >
                     {appName}
                   </Text>
@@ -236,7 +243,7 @@ export function SideWidgetPanel({
             ) : (
               <AvailableApps
                 apps={apps}
-                showCloseButton={!showTabs}
+                showHeader={!showTabs}
                 onClose={() => onCloseTab(SIDE_WIDGET_APPS_TAB_ID)}
                 onSelectApp={onSelectApp}
               />

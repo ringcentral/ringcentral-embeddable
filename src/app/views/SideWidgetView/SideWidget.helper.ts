@@ -14,6 +14,20 @@ import type {
 export const SIDE_WIDGET_APPS_TAB_ID = 'side-widget-apps';
 export const SIDE_WIDGET_APP_TAB_PREFIX = 'side-widget-app-';
 
+/**
+ * The fallback icon text of an app without an icon: the first letters of its
+ * first and last words, so apps with the same first letter stay apart.
+ */
+export function getSideWidgetAppInitials(name: string): string {
+  const words = name.trim().split(/[\s_-]+/).filter(Boolean);
+  if (words.length === 0) {
+    return '';
+  }
+  const first = words[0].charAt(0);
+  const last = words.length > 1 ? words[words.length - 1].charAt(0) : '';
+  return `${first}${last}`.toUpperCase();
+}
+
 export function getSideWidgetAppTabId(appId: string): string {
   return `${SIDE_WIDGET_APP_TAB_PREFIX}${appId}`;
 }

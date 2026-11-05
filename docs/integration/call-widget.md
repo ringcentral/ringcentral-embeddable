@@ -404,6 +404,64 @@ window.addEventListener('message', function (e) {
 });
 ```
 
+## Open a widget automatically
+
+<!-- md:version 3.1.0 -->
+
+By default, when a call starts, users see the list of registered widgets and click a widget to open it. To open your widget from your own code, for example only when your CRM finds a record for the caller, send `rc-adapter-open-widget-app`:
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-open-widget-app',
+  appId: 'support-cases', // (1)!
+  activate: true, // (2)!
+}, '*');
+```
+
+1. The `id` of a registered widget
+2. Optional, `true` by default. Set it to `false` to add the widget tab without switching to it.
+
+Embeddable opens the widget in its own tab for the current call and requests its page from `pagePath`, the same as when the user clicks the widget. If the widget is already open, Embeddable reuses its tab.
+
+### Open the widget for a call
+
+Send the message after a [web phone call event](events.md#web-phone-call-event), so the widget panel already shows the call:
+
+```js
+window.addEventListener('message', async function (e) {
+  var data = e.data;
+  if (!data) {
+    return;
+  }
+  if (data.type === 'rc-call-init-notify' || data.type === 'rc-call-start-notify') {
+    const call = data.call;
+    const phoneNumber = call.direction === 'Inbound' ? call.from : call.to;
+    // TODO: look up the caller in your CRM
+    const hasCases = await findCases(phoneNumber);
+    if (!hasCases) {
+      return;
+    }
+    document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+      type: 'rc-adapter-open-widget-app',
+      appId: 'support-cases',
+    }, '*');
+  }
+});
+```
+
+!!! tip "Incoming calls"
+    For incoming calls, we recommend opening the widget on `rc-call-start-notify`, after the user accepts the call, so your page doesn't load for calls the user doesn't answer. You can also open it on `rc-call-ring-notify`, after the widget panel shows the list of widgets for the ringing call.
+
+### When the message is ignored
+
+Embeddable ignores `rc-adapter-open-widget-app` when:
+
+* `enableSideWidget=1` is not set
+* No widget with this `appId` is registered
+* The widget panel doesn't show a call, for example before the call starts or after the user closes every widget tab
+
+If another tab that must stay in front is open, such as the RingCX agent script, Embeddable opens your widget behind it, even when `activate` is `true`.
+
 ## Example implementation
 
 ### Contact notes widget
