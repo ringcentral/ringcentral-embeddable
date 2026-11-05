@@ -99,13 +99,16 @@ function AvailableApps({
   );
 }
 
+/**
+ * Spring `moreMenu` tabs re-render a tab picked from the more menu with its
+ * cached element, so the label must not change with the active state. The
+ * close button is always rendered and shown by the selected `group` tab.
+ */
 function SideWidgetTabLabel({
-  isActive,
   name,
   onClose,
   tabId,
 }: {
-  isActive: boolean;
   name: string;
   onClose: (event: React.SyntheticEvent) => void;
   tabId: string;
@@ -114,27 +117,25 @@ function SideWidgetTabLabel({
   return (
     <span className="flex min-w-0 items-center gap-1">
       <span className="min-w-0 truncate">{name}</span>
-      {isActive ? (
-        <span
-          aria-label={closeLabel}
-          className="flex size-5 shrink-0 items-center justify-center rounded-full text-neutral-b2 hover:bg-neutral-b0-t10 hover:text-neutral-b0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cobranding"
-          data-sign={`sideWidgetCloseTab-${tabId}`}
-          role="button"
-          tabIndex={0}
-          title={closeLabel}
-          onClick={onClose}
-          onKeyDown={(event) => {
-            if (event.key !== 'Enter' && event.key !== ' ') {
-              return;
-            }
-            event.preventDefault();
-            onClose(event);
-          }}
-          onMouseDown={(event) => event.stopPropagation()}
-        >
-          <Icon symbol={Xmd} size="small" />
-        </span>
-      ) : null}
+      <span
+        aria-label={closeLabel}
+        className="hidden size-5 shrink-0 items-center justify-center rounded-full text-neutral-b2 hover:bg-neutral-b0-t10 hover:text-neutral-b0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cobranding group-aria-selected:flex"
+        data-sign={`sideWidgetCloseTab-${tabId}`}
+        role="button"
+        tabIndex={0}
+        title={closeLabel}
+        onClick={onClose}
+        onKeyDown={(event) => {
+          if (event.key !== 'Enter' && event.key !== ' ') {
+            return;
+          }
+          event.preventDefault();
+          onClose(event);
+        }}
+        onMouseDown={(event) => event.stopPropagation()}
+      >
+        <Icon symbol={Xmd} size="small" />
+      </span>
     </span>
   );
 }
@@ -176,6 +177,7 @@ export function SideWidgetPanel({
     ? apps.find(({ id }) => id === selectedAppId)
     : undefined;
   const showTabs = tabs.length > 1;
+  const tabsKey = JSON.stringify(tabs.map(({ id, name }) => [id, name]));
   // The Apps tab only exists when it was opened for a call or by the user. It
   // must not appear as a fallback: a drawer that stays open after its last
   // routed tab closed shows the blank view rather than opening Apps on its own.
@@ -197,6 +199,10 @@ export function SideWidgetPanel({
       <div className="flex h-full flex-col overflow-hidden bg-neutral-base">
         {showTabs ? (
           <Tabs
+            // Spring `moreMenu` tabs drop their cache refresh when the tab set
+            // and the selected tab change together (closing the active tab),
+            // leaving closed tabs in the more menu. Remount on tab set changes.
+            key={tabsKey}
             variant="moreMenu"
             className="h-9 flex-none px-1"
             data-sign="sideWidgetTabs"
@@ -208,7 +214,6 @@ export function SideWidgetPanel({
                 value={tab.id}
                 label={
                   <SideWidgetTabLabel
-                    isActive={currentTabId === tab.id}
                     name={tab.name}
                     tabId={tab.id}
                     onClose={(event) => {
@@ -218,7 +223,7 @@ export function SideWidgetPanel({
                   />
                 }
                 title={tab.name}
-                className="flex h-9 flex-1 items-center p-0 pl-2 pr-2"
+                className="group flex h-9 flex-1 items-center p-0 pl-2 pr-2"
               />
             ))}
           </Tabs>
