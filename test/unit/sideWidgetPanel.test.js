@@ -66,7 +66,11 @@ describe('SideWidgetPanel', () => {
 
   test('renders available apps with names, fallbacks, and selection handlers', () => {
     const props = createProps({
-      apps: [{ id: 'crm', name: 'CRM', iconUri: 'crm.svg' }, { id: 'tasks' }],
+      apps: [
+        { id: 'crm', name: 'CRM', iconUri: 'crm.svg' },
+        { id: 'tasks' },
+        { id: 'history', name: 'Contact history' },
+      ],
     });
     render(<SideWidgetPanel {...props} />);
 
@@ -76,10 +80,35 @@ describe('SideWidgetPanel', () => {
     expect(screen.getByText('CRM')).toBeInTheDocument();
     expect(screen.getByText('tasks')).toBeInTheDocument();
     expect(screen.getByLabelText('CRM')).toHaveAttribute('data-src', 'crm.svg');
+    // Apps without an icon show initials, so apps sharing a first letter stay
+    // apart.
+    expect(screen.getByLabelText('tasks')).toHaveTextContent('T');
+    expect(screen.getByLabelText('Contact history')).toHaveTextContent('CH');
     fireEvent.click(screen.getByRole('button', { name: 'Open CRM' }));
     fireEvent.click(screen.getByRole('button', { name: 'Open tasks' }));
     expect(props.onSelectApp).toHaveBeenNthCalledWith(1, 'crm');
     expect(props.onSelectApp).toHaveBeenNthCalledWith(2, 'tasks');
+  });
+
+  test('hides the Available apps header while the tab bar names the page', () => {
+    const props = createProps({
+      apps: [{ id: 'crm', name: 'CRM' }],
+      tabs: [
+        { id: 'side-widget-app-crm', appId: 'crm', name: 'CRM' },
+        { id: 'side-widget-apps', name: 'Apps' },
+      ],
+    });
+    render(<SideWidgetPanel {...props} />);
+
+    expect(
+      screen.getByRole('list', { name: 'Available apps' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByTestId('sideWidgetAvailableAppsHeader'),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Close apps' }),
+    ).not.toBeInTheDocument();
   });
 
   test('forwards tab context changes as strings', () => {
@@ -149,7 +178,12 @@ describe('SideWidgetPanel', () => {
       'pl-2',
       'pr-2',
     );
-    expect(screen.queryByRole('button', { name: 'Close Apps tab' })).toBeNull();
+    expect(screen.getByTitle('CRM')).toHaveClass('group');
+    // Every tab renders its close button; CSS shows it on the selected tab.
+    expect(screen.getByRole('button', { name: 'Close Apps tab' })).toHaveClass(
+      'hidden',
+      'group-aria-selected:flex',
+    );
     fireEvent.click(screen.getByRole('button', { name: 'Close CRM tab' }));
     const appProps = SideWidgetAppPanel.mock.calls[0][0];
     expect(appProps).toEqual(
@@ -218,7 +252,9 @@ describe('SideWidgetPanel', () => {
     expect(props.renderContent).toHaveBeenCalledWith('voicemail-drop', false);
   });
 
-  test('updates the active tab controls when selection changes externally', () => {
+  test('keeps tab labels the same when selection changes externally', () => {
+    // Spring moreMenu tabs re-render a tab picked from the more menu with a
+    // cached element, so labels must not depend on the selected tab.
     const props = createProps({
       tabs: [
         { id: 'smart-notes', name: 'AI Assistant' },
@@ -227,24 +263,60 @@ describe('SideWidgetPanel', () => {
       currentTabId: 'smart-notes',
     });
     const rendered = render(<SideWidgetPanel {...props} />);
-
-    expect(
-      screen.getByRole('button', { name: 'Close AI Assistant tab' }),
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByRole('button', { name: 'Close Call details tab' }),
-    ).toBeNull();
+    const labels = () =>
+      ['AI Assistant', 'Call details'].map(
+        (name) => screen.getByTitle(name).innerHTML,
+      );
+    const before = labels();
 
     rendered.rerender(
       <SideWidgetPanel {...props} currentTabId="call-details" />,
     );
 
-    expect(
-      screen.queryByRole('button', { name: 'Close AI Assistant tab' }),
-    ).toBeNull();
-    expect(
+    expect(labels()).toEqual(before);
+    fireEvent.click(
       screen.getByRole('button', { name: 'Close Call details tab' }),
-    ).toBeInTheDocument();
+    );
+    expect(props.onCloseTab).toHaveBeenCalledWith('call-details');
+    expect(props.onTabChange).not.toHaveBeenCalled();
+  });
+
+  test('rebuilds the tab bar when the tab set changes, not on selection', () => {
+    // Closing the active tab changes tabs and selection together, which leaves
+    // the closed tab in the Spring more menu unless the tab bar remounts.
+    const tabs = [
+      { id: 'side-widget-app-crm', appId: 'crm', name: 'CRM' },
+      { id: 'side-widget-app-tasks', appId: 'tasks', name: 'Tasks' },
+      { id: 'side-widget-apps', name: 'Apps' },
+    ];
+    const props = createProps({ tabs, currentTabId: 'side-widget-app-crm' });
+    const rendered = render(<SideWidgetPanel {...props} />);
+    const tabBar = screen.getByTestId('sideWidgetTabs');
+
+    rendered.rerender(
+      <SideWidgetPanel {...props} currentTabId="side-widget-apps" />,
+    );
+    expect(screen.getByTestId('sideWidgetTabs')).toBe(tabBar);
+
+    rendered.rerender(
+      <SideWidgetPanel
+        {...props}
+        tabs={tabs.slice(1)}
+        currentTabId="side-widget-app-tasks"
+      />,
+    );
+    const nextTabBar = screen.getByTestId('sideWidgetTabs');
+    expect(nextTabBar).not.toBe(tabBar);
+    expect(screen.queryByTitle('CRM')).toBeNull();
+
+    rendered.rerender(
+      <SideWidgetPanel
+        {...props}
+        tabs={[{ ...tabs[1], name: 'My tasks' }, tabs[2]]}
+        currentTabId="side-widget-app-tasks"
+      />,
+    );
+    expect(screen.getByTestId('sideWidgetTabs')).not.toBe(nextTabBar);
   });
 
   test('lets a single custom content page render its own close button', () => {

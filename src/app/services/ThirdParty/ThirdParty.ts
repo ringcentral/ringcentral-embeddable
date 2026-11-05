@@ -30,6 +30,7 @@ import {
   StoragePlugin,
   watch,
 } from '@ringcentral-integration/next-core';
+import { Subject } from 'rxjs';
 
 import requestWithPostMessage from '../../../lib/requestWithPostMessage';
 
@@ -68,6 +69,7 @@ import type {
   ThirdPartyMessage,
   ThirdPartyMessageData,
   ThirdPartyMessageLogState,
+  ThirdPartyOpenAppRequest,
   ThirdPartyOptions,
   ThirdPartyPage,
   ThirdPartyRecording,
@@ -335,6 +337,12 @@ export class ThirdParty extends RcModule {
   @storage
   @state
   pinAppIds: string[] = [];
+
+  /**
+   * Emits each `rc-adapter-open-widget-app` request, on the server port, for
+   * the side widget to open the app.
+   */
+  readonly openAppRequest$ = new Subject<ThirdPartyOpenAppRequest>();
 
   @state
   customizedBanner: ThirdPartyBanner | null = null;
@@ -717,6 +725,9 @@ export class ThirdParty extends RcModule {
         break;
       case 'rc-adapter-unregister-widget-app':
         this._onUnregisterApp(data);
+        break;
+      case 'rc-adapter-open-widget-app':
+        this._onOpenApp(data);
         break;
       case 'rc-adapter-update-customized-banner':
         this._setCustomizedBanner(data.banner);
@@ -2279,6 +2290,16 @@ export class ThirdParty extends RcModule {
     if (typeof data.appId === 'string') {
       this.removeApp(data.appId);
     }
+  }
+
+  private _onOpenApp(data: ThirdPartyMessageData): void {
+    if (typeof data.appId !== 'string') {
+      return;
+    }
+    this.openAppRequest$.next({
+      appId: data.appId,
+      activate: typeof data.activate === 'boolean' ? data.activate : undefined,
+    });
   }
 
   @delegate('mainClient')

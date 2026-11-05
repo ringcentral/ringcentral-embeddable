@@ -87,15 +87,9 @@ describe('SideWidgetAppPanel', () => {
       }),
       {},
     );
-    expect(screen.getByTestId('sideWidgetAppHeader')).toHaveAttribute(
-      'variant',
-      'detached',
-    );
-    expect(screen.getByTestId('sideWidgetAppHeader')).toHaveStyle({
-      paddingRight: 'var(--sui-spacing-24)',
-    });
+    expect(screen.getByTestId('sideWidgetAppHeader').tagName).toBe('HEADER');
     expect(screen.getByTestId('sideWidgetAppHeaderCenter')).toContainElement(
-      screen.getByText('CRM'),
+      screen.getByRole('heading', { name: 'CRM' }),
     );
     expect(screen.getByLabelText('CRM')).toHaveAttribute('data-src', 'crm.svg');
   });

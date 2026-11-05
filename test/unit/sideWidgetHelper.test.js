@@ -1,4 +1,5 @@
 import {
+  getSideWidgetAppInitials,
   getSideWidgetAppTabId,
   getSideWidgetContact,
   getSideWidgetPageInfo,
@@ -8,6 +9,15 @@ import {
 describe('SideWidget helper', () => {
   test('creates a stable app tab id', () => {
     expect(getSideWidgetAppTabId('crm')).toBe('side-widget-app-crm');
+  });
+
+  test('builds app initials from the first and last words', () => {
+    expect(getSideWidgetAppInitials('Contact history')).toBe('CH');
+    expect(getSideWidgetAppInitials('  my  CRM   notes ')).toBe('MN');
+    expect(getSideWidgetAppInitials('contact-notes')).toBe('CN');
+    expect(getSideWidgetAppInitials('support_cases')).toBe('SC');
+    expect(getSideWidgetAppInitials('Stickies')).toBe('S');
+    expect(getSideWidgetAppInitials('   ')).toBe('');
   });
 
   test('parses a wrapped JSON schema page and valid actions', () => {

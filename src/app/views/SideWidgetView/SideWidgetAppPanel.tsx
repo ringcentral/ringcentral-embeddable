@@ -16,13 +16,9 @@ import {
   Menu,
   MenuItem,
   MenuItemText,
-  PageHeader,
-  PageHeaderCenter,
-  PageHeaderLeft,
-  PageHeaderRight,
-  PageHeaderTitle,
   Text,
 } from '@ringcentral/spring-ui';
+import clsx from 'clsx';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 
 import type {
@@ -161,144 +157,139 @@ export function SideWidgetAppPanel({
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      <PageHeader
-        variant="detached"
-        className="flex-none border-b border-neutral-b4"
-        style={{ paddingRight: 'var(--sui-spacing-24)' }}
+      <header
+        className={clsx(
+          'flex h-10 flex-none items-center gap-1 border-b border-neutral-b4 bg-neutral-base pr-2',
+          showBack ? 'pl-1' : 'pl-4',
+        )}
         data-sign="sideWidgetAppHeader"
       >
-        <PageHeaderLeft>
-          {showBack ? (
-            <IconButton
-              variant="icon"
-              color="secondary"
-              size="medium"
-              symbol={ArrowLeftMd}
-              data-sign="sideWidgetBack"
-              TooltipProps={{ title: t('backToApps') }}
-              onClick={onBack}
-            />
-          ) : null}
-        </PageHeaderLeft>
-        <PageHeaderCenter
-          className="min-w-0"
+        {showBack ? (
+          <IconButton
+            variant="icon"
+            color="secondary"
+            size="medium"
+            symbol={ArrowLeftMd}
+            data-sign="sideWidgetBack"
+            TooltipProps={{ title: t('backToApps') }}
+            onClick={onBack}
+          />
+        ) : null}
+        <div
+          className="flex min-w-0 flex-auto items-center gap-2"
           data-sign="sideWidgetAppHeaderCenter"
         >
-          <PageHeaderTitle className="flex min-w-0 items-center justify-center gap-2">
-            <Avatar
-              alt={appName}
-              src={app.iconUri}
-              size="xsmall"
-              variant="squircle"
-            >
-              {appName.slice(0, 1)}
-            </Avatar>
-            <Text
-              component="span"
-              className="typography-subtitleMiniSemiBold min-w-0 truncate text-neutral-b0"
-              title={appName}
-              titleWhenOverflow={500}
-              noWrap
-            >
-              {appName}
-            </Text>
-          </PageHeaderTitle>
-        </PageHeaderCenter>
-        <PageHeaderRight>
-          <div className="flex items-center gap-1">
-            <IconButton
-              variant="icon"
-              color="secondary"
-              size="small"
-              symbol={RefreshMd}
-              disabled={refreshing}
-              data-sign="sideWidgetRefresh"
-              TooltipProps={{ title: t('reloadApp') }}
-              onClick={async () => {
-                setRefreshing(true);
-                await requestPage({
-                  app,
-                  contact: contact ?? undefined,
-                  formData,
-                  type: 'refresh',
-                });
-                if (mountedRef.current) {
-                  setRefreshing(false);
-                }
-              }}
-            />
-            <IconButton
-              variant="icon"
-              color={isPinned ? 'primary' : 'secondary'}
-              size="small"
-              symbol={isPinned ? PushPinFilledMd : PushPinMd}
-              data-sign="sideWidgetPin"
-              TooltipProps={{
-                title: isPinned
-                  ? t('unpinApp')
-                  : t('pinApp'),
-              }}
-              onClick={onTogglePin}
-            />
-            {pageInfo.actions.length > 0 ? (
-              <>
-                <IconButton
-                  ref={menuAnchorRef}
-                  variant="icon"
-                  color="secondary"
-                  size="small"
-                  symbol={OverflowVerticalMd}
-                  data-sign="sideWidgetMore"
-                  TooltipProps={{ title: t('moreActions') }}
-                  onClick={() => setMenuOpen(true)}
-                />
-                <Menu
-                  open={menuOpen}
-                  anchorEl={menuAnchorRef.current}
-                  onClose={() => setMenuOpen(false)}
-                >
-                  {showCloseButton ? (
-                    <MenuItem
-                      onClick={() => {
-                        setMenuOpen(false);
-                        onClose();
-                      }}
-                    >
-                      <MenuItemText primary={t('close')} />
-                    </MenuItem>
-                  ) : null}
-                  {pageInfo.actions.map((action) => (
-                    <MenuItem
-                      key={action.id}
-                      onClick={() => {
-                        setMenuOpen(false);
-                        void runPageAction(action.id);
-                      }}
-                    >
-                      <MenuItemText
-                        primary={action.label}
-                        classes={{
-                          primaryText: getActionTextClass(action.color),
-                        }}
-                      />
-                    </MenuItem>
-                  ))}
-                </Menu>
-              </>
-            ) : showCloseButton ? (
+          <Avatar
+            alt={appName}
+            src={app.iconUri}
+            size="xsmall"
+            variant="squircle"
+          >
+            {appName.slice(0, 1)}
+          </Avatar>
+          <Text
+            component="h2"
+            className="typography-subtitle min-w-0 truncate text-neutral-b0"
+            title={appName}
+            titleWhenOverflow={500}
+            noWrap
+          >
+            {appName}
+          </Text>
+        </div>
+        <div className="flex flex-none items-center gap-1">
+          <IconButton
+            variant="icon"
+            color="secondary"
+            size="small"
+            symbol={RefreshMd}
+            disabled={refreshing}
+            data-sign="sideWidgetRefresh"
+            TooltipProps={{ title: t('reloadApp') }}
+            onClick={async () => {
+              setRefreshing(true);
+              await requestPage({
+                app,
+                contact: contact ?? undefined,
+                formData,
+                type: 'refresh',
+              });
+              if (mountedRef.current) {
+                setRefreshing(false);
+              }
+            }}
+          />
+          <IconButton
+            variant="icon"
+            color={isPinned ? 'primary' : 'secondary'}
+            size="small"
+            symbol={isPinned ? PushPinFilledMd : PushPinMd}
+            data-sign="sideWidgetPin"
+            TooltipProps={{
+              title: isPinned
+                ? t('unpinApp')
+                : t('pinApp'),
+            }}
+            onClick={onTogglePin}
+          />
+          {pageInfo.actions.length > 0 ? (
+            <>
               <IconButton
+                ref={menuAnchorRef}
                 variant="icon"
                 color="secondary"
                 size="small"
-                symbol={Xmd}
-                data-sign="sideWidgetCloseApp"
-                TooltipProps={{ title: t('closeAppTab') }}
-                onClick={onClose}
+                symbol={OverflowVerticalMd}
+                data-sign="sideWidgetMore"
+                TooltipProps={{ title: t('moreActions') }}
+                onClick={() => setMenuOpen(true)}
               />
-            ) : null}
-          </div>
-        </PageHeaderRight>
-      </PageHeader>
+              <Menu
+                open={menuOpen}
+                anchorEl={menuAnchorRef.current}
+                onClose={() => setMenuOpen(false)}
+              >
+                {showCloseButton ? (
+                  <MenuItem
+                    onClick={() => {
+                      setMenuOpen(false);
+                      onClose();
+                    }}
+                  >
+                    <MenuItemText primary={t('close')} />
+                  </MenuItem>
+                ) : null}
+                {pageInfo.actions.map((action) => (
+                  <MenuItem
+                    key={action.id}
+                    onClick={() => {
+                      setMenuOpen(false);
+                      void runPageAction(action.id);
+                    }}
+                  >
+                    <MenuItemText
+                      primary={action.label}
+                      classes={{
+                        primaryText: getActionTextClass(action.color),
+                      }}
+                    />
+                  </MenuItem>
+                ))}
+              </Menu>
+            </>
+          ) : showCloseButton ? (
+            <IconButton
+              variant="icon"
+              color="secondary"
+              size="small"
+              symbol={Xmd}
+              data-sign="sideWidgetCloseApp"
+              TooltipProps={{ title: t('closeAppTab') }}
+              onClick={onClose}
+            />
+          ) : null}
+        </div>
+      </header>
       <div
         className="flex-auto overflow-y-auto px-4 py-3"
         onKeyDown={(event) => {

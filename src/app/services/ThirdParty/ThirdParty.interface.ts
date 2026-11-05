@@ -254,8 +254,16 @@ export type ThirdPartyMessageData = {
   page?: ThirdPartyPage;
   app?: ThirdPartyApp;
   appId?: string;
+  activate?: boolean;
   banner?: ThirdPartyBanner;
   [key: string]: unknown;
+};
+
+/** A host request to open a registered widget app for the current call. */
+export type ThirdPartyOpenAppRequest = {
+  appId: string;
+  /** Switches to the app tab. @default true */
+  activate?: boolean;
 };
 
 export type SearchContactEntity = {

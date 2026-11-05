@@ -365,6 +365,7 @@ describe('ThirdParty service', () => {
     const page = jest.spyOn(service, '_onRegisterCustomizedPage');
     const app = jest.spyOn(service, '_onRegisterApp');
     const removeApp = jest.spyOn(service, '_onUnregisterApp');
+    const openApp = jest.spyOn(service, '_onOpenApp');
     const banner = jest.spyOn(service, '_setCustomizedBanner');
 
     const messages = [
@@ -380,6 +381,7 @@ describe('ThirdParty service', () => {
       { type: 'rc-adapter-register-customized-page', page: { id: 'page' } },
       { type: 'rc-adapter-register-widget-app', app: { id: 'app' } },
       { type: 'rc-adapter-unregister-widget-app', appId: 'app' },
+      { type: 'rc-adapter-open-widget-app', appId: 'app' },
       { type: 'rc-adapter-update-customized-banner', banner: { id: 'banner' } },
       { type: 'unknown-message' },
     ];
@@ -399,7 +401,34 @@ describe('ThirdParty service', () => {
     expect(page).toHaveBeenCalled();
     expect(app).toHaveBeenCalled();
     expect(removeApp).toHaveBeenCalled();
+    expect(openApp).toHaveBeenCalled();
     expect(banner).toHaveBeenCalledWith({ id: 'banner' });
+  });
+
+  test('forwards valid open widget app requests to the side widget', async () => {
+    const { service } = createThirdParty();
+    const requests = [];
+    const subscription = service.openAppRequest$.subscribe((request) =>
+      requests.push(request),
+    );
+
+    const messages = [
+      { type: 'rc-adapter-open-widget-app', appId: 'crm' },
+      { type: 'rc-adapter-open-widget-app', appId: 'crm', activate: false },
+      { type: 'rc-adapter-open-widget-app', appId: 'crm', activate: 'no' },
+      { type: 'rc-adapter-open-widget-app' },
+      { type: 'rc-adapter-open-widget-app', appId: 1 },
+    ];
+    for (const message of messages) {
+      await service._handleWindowMessage(message);
+    }
+    subscription.unsubscribe();
+
+    expect(requests).toEqual([
+      { appId: 'crm', activate: undefined },
+      { appId: 'crm', activate: false },
+      { appId: 'crm', activate: undefined },
+    ]);
   });
 
   test('ignores malformed window messages and forwards valid ones', async () => {
