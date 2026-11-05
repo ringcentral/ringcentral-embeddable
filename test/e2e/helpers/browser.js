@@ -1,4 +1,9 @@
-const { describeFailure, startDiagnostics } = require('./diagnostics');
+const {
+  describeFailure,
+  markStep,
+  startDiagnostics,
+  trackFrame,
+} = require('./diagnostics');
 
 const LOGIN_BUTTON = 'button[data-sign="loginButton"]:not([disabled])';
 const WIDGET_FRAME = 'iframe#rc-widget-adapter-frame';
@@ -93,6 +98,7 @@ async function clickElement(target, selector) {
     });
   await readyTarget.dispose();
   await scrollTarget.dispose();
+  await markStep(target, `click ${selector}`);
   await target
     .locator(selector)
     .setTimeout(ELEMENT_TIMEOUT_MS)
@@ -119,6 +125,7 @@ async function getWidgetFrame() {
     throw new Error('The widget iframe has no browsing context.');
   }
   await waitForElement(frame, LOGIN_BUTTON);
+  await trackFrame(frame);
   return frame;
 }
 
