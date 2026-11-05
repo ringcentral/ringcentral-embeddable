@@ -4,6 +4,7 @@
  * redacted text; page content, query strings and headers are never logged.
  */
 const MAX_EVENTS = 30;
+const MAX_TIMELINE_ENTRIES = 40;
 const MAX_TEXT_LENGTH = 160;
 const SNAPSHOT_TIMEOUT_MS = 5000;
 const WORKER_RESUME_INTERVAL_MS = 200;
@@ -13,6 +14,7 @@ const WORKER_RESUME_INTERVAL_MS = 200;
 const IGNORED_CONSOLE_ERROR = /^(Warning:|Failed to load resource)/;
 
 const eventsByContext = new WeakMap();
+const workerSessionsByContext = new WeakMap();
 
 function redact(text) {
   return String(text)
@@ -26,16 +28,20 @@ function redact(text) {
     .slice(0, MAX_TEXT_LENGTH);
 }
 
+/** Masks ids in a route or URL path. */
+function redactPath(pathname) {
+  return pathname
+    .split('/')
+    .map((segment) =>
+      /\d{3,}/.test(segment) || segment.length > 24 ? ':id' : segment,
+    )
+    .join('/');
+}
+
 /** Keeps the path only, with ids masked, so hosts and query values stay out. */
 function redactUrl(url) {
   try {
-    const { pathname } = new URL(url);
-    return pathname
-      .split('/')
-      .map((segment) =>
-        /\d{3,}/.test(segment) || segment.length > 24 ? ':id' : segment,
-      )
-      .join('/');
+    return redactPath(new URL(url).pathname);
   } catch {
     return '<invalid url>';
   }
@@ -50,12 +56,26 @@ function getEvents(context) {
   return events;
 }
 
+/**
+ * Records an event once; a repeat moves it to the end with a count, so a
+ * retry loop does not push the other events out.
+ */
 function record(context, source, message) {
   const events = getEvents(context);
-  events.push(`${new Date().toISOString()} [${source}] ${message}`);
+  const text = `[${source}] ${message}`;
+  const index = events.findIndex((event) => event.text === text);
+  const count = index === -1 ? 1 : events[index].count + 1;
+  if (index !== -1) {
+    events.splice(index, 1);
+  }
+  events.push({ time: new Date().toISOString(), text, count });
   if (events.length > MAX_EVENTS) {
     events.shift();
   }
+}
+
+function formatEvent({ time, text, count }) {
+  return `${time} ${text}${count > 1 ? ` (x${count})` : ''}`;
 }
 
 function watchPage(context, page) {
@@ -95,6 +115,7 @@ function watchPage(context, page) {
 /** API traffic runs in the app's SharedWorker, which page events do not see. */
 async function watchSharedWorker(context, target) {
   const session = await target.createCDPSession();
+  workerSessionsByContext.set(context, session);
   const requests = new Map();
   session.on('Network.requestWillBeSent', ({ requestId, request }) => {
     requests.set(requestId, `${request.method} ${redactUrl(request.url)}`);
@@ -180,6 +201,89 @@ function startDiagnostics(page) {
   context.on('targetcreated', onTarget);
 }
 
+/**
+ * Records the clicks a frame receives and its route changes, so a failure
+ * shows whether a click arrived and where the router went afterwards.
+ */
+async function trackFrame(frame) {
+  await frame.evaluate((maxEntries) => {
+    if (window.__e2eTimeline) {
+      return;
+    }
+    const timeline = [];
+    window.__e2eTimeline = timeline;
+    window.__e2eMark = (entry) => {
+      timeline.push(`${new Date().toISOString()} ${entry}`);
+      if (timeline.length > maxEntries) {
+        timeline.shift();
+      }
+    };
+    document.addEventListener(
+      'click',
+      (event) => {
+        const node =
+          event.target instanceof Element
+            ? event.target.closest('[data-sign]')
+            : null;
+        window.__e2eMark(
+          `[frame] click ${node?.dataset.sign ?? event.target?.nodeName}${
+            event.isTrusted ? '' : ' (synthetic)'
+          }`,
+        );
+      },
+      true,
+    );
+    let lastRoute;
+    setInterval(() => {
+      const app = globalThis.app;
+      const route =
+        app && typeof app.then !== 'function'
+          ? app.store?.getState?.()?.router?.location?.pathname
+          : undefined;
+      if (route !== lastRoute) {
+        lastRoute = route;
+        window.__e2eMark(`[frame] route ${route}`);
+      }
+    }, 50);
+  }, MAX_TIMELINE_ENTRIES);
+}
+
+/** Adds a test step to a tracked frame's timeline. */
+async function markStep(target, step) {
+  await target
+    .evaluate((step) => window.__e2eMark?.(`[test] ${step}`), step)
+    .catch(() => undefined);
+}
+
+/** Reads the route the SharedWorker's router is on, which owns navigation. */
+async function readWorkerRoute(context) {
+  const session = workerSessionsByContext.get(context);
+  if (!session) {
+    return 'no worker session';
+  }
+  const { result, exceptionDetails } = await session.send('Runtime.evaluate', {
+    expression:
+      'globalThis.app?.store?.getState?.()?.router?.location?.pathname ?? null',
+    returnByValue: true,
+  });
+  if (exceptionDetails) {
+    return `unreadable: ${redact(exceptionDetails.text)}`;
+  }
+  return result.value === null ? 'null' : redactPath(String(result.value));
+}
+
+function withTimeout(promise, label) {
+  return Promise.race([
+    promise,
+    new Promise((_, reject) =>
+      setTimeout(
+        () => reject(new Error(`${label} timed out`)),
+        SNAPSHOT_TIMEOUT_MS,
+      ),
+    ),
+  ]);
+}
+
 /** Reads the route, navigation and visible structure of a page or frame. */
 function snapshotTarget(target, selector) {
   return target.evaluate((selector) => {
@@ -232,8 +336,17 @@ function snapshotTarget(target, selector) {
         .map((node) => node.textContent?.trim() ?? '')
         .filter(Boolean),
       documentState: document.visibilityState,
+      timeline: window.__e2eTimeline ?? [],
     };
   }, selector);
+}
+
+/** Timeline routes may carry ids; everything else in an entry is structural. */
+function redactTimelineEntry(entry) {
+  return entry.replace(
+    / route (\S+)$/,
+    (_, route) => ` route ${redactPath(route)}`,
+  );
 }
 
 /**
@@ -241,38 +354,50 @@ function snapshotTarget(target, selector) {
  */
 async function describeFailure(target, selector) {
   const page = typeof target.page === 'function' ? target.page() : target;
+  const context = page.browserContext();
   const lines = [];
   try {
-    const snapshot = await Promise.race([
+    const snapshot = await withTimeout(
       snapshotTarget(target, selector),
-      new Promise((_, reject) =>
-        setTimeout(
-          () => reject(new Error('snapshot timed out')),
-          SNAPSHOT_TIMEOUT_MS,
-        ),
-      ),
-    ]);
+      'snapshot',
+    );
+    const workerRoute = await withTimeout(
+      readWorkerRoute(context),
+      'worker route',
+    ).catch((error) => redact(error.message));
     lines.push(
-      `route: ${snapshot.route} (app created: ${snapshot.appCreated}, document: ${snapshot.documentState})`,
+      `route: ${
+        snapshot.route === null ? null : redactPath(snapshot.route)
+      } (worker: ${workerRoute}, app created: ${
+        snapshot.appCreated
+      }, document: ${snapshot.documentState})`,
       `selector: ${JSON.stringify(snapshot.selector)}`,
       `navigation: ${snapshot.navigation.join(', ') || '<none>'}`,
       `visible data-signs: ${snapshot.visibleSigns.join(', ') || '<none>'}`,
       `alerts: ${snapshot.alerts.map(redact).join(' | ') || '<none>'}`,
+      `timeline (${snapshot.timeline.length}):`,
+      ...(snapshot.timeline.length
+        ? snapshot.timeline.map((entry) => `  ${redactTimelineEntry(entry)}`)
+        : ['  <none>']),
     );
   } catch (error) {
     lines.push(`snapshot unavailable: ${redact(error.message)}`);
   }
-  const events = eventsByContext.get(page.browserContext()) ?? [];
+  const events = eventsByContext.get(context) ?? [];
   lines.push(
     `recent errors (${events.length}):`,
-    ...(events.length ? events.map((event) => `  ${event}`) : ['  <none>']),
+    ...(events.length
+      ? events.map((event) => `  ${formatEvent(event)}`)
+      : ['  <none>']),
   );
   return lines.join('\n');
 }
 
 module.exports = {
   describeFailure,
+  markStep,
   redact,
   redactUrl,
   startDiagnostics,
+  trackFrame,
 };

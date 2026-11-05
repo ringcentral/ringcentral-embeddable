@@ -2,6 +2,7 @@ import type { SDKConfig } from "@ringcentral-integration/commons/lib/createSdkCo
 import {
   Environment,
   type Auth,
+  type ExtensionDevice,
   type ExtensionInfo,
   type IAdditionalTrackProps,
 } from "@ringcentral-integration/micro-auth/src/app/services";
@@ -15,8 +16,10 @@ import {
   RcModule,
 } from "@ringcentral-integration/next-core";
 
+import type { AppFeatures } from "../AppFeatures";
 import { LEGACY_ANALYTICS } from "./Analytics.constants";
 import type {
+  AnalyticsUserType,
   EmbeddableAnalyticsOptions,
   LegacyAnalyticsIdentity,
 } from "./Analytics.interface";
@@ -36,6 +39,12 @@ class AdditionalTrackProps extends RcModule implements IAdditionalTrackProps {
 
   @dynamic("ExtensionInfo")
   private _extensionInfo?: ExtensionInfo;
+
+  @dynamic("AppFeatures")
+  private _appFeatures?: AppFeatures;
+
+  @dynamic("ExtensionDevice")
+  private _extensionDevice?: ExtensionDevice;
 
   constructor(
     private _brand: Brand,
@@ -76,6 +85,27 @@ class AdditionalTrackProps extends RcModule implements IAdditionalTrackProps {
   }
 
   /**
+   * Products the user is licensed for: RingEX when the extension has a
+   * digital line, RingCX when it is a contact center account. `null` until
+   * either is known.
+   */
+  @computed((that: AdditionalTrackProps) => [
+    that._extensionDevice?.devices,
+    that._appFeatures?.hasRingCXPermission,
+  ])
+  get userType(): AnalyticsUserType | null {
+    const hasRingEX = (this._extensionDevice?.devices.length ?? 0) > 0;
+    const hasRingCX = this._appFeatures?.hasRingCXPermission ?? false;
+    if (hasRingEX && hasRingCX) {
+      return "EX+CX";
+    }
+    if (hasRingEX) {
+      return "EX";
+    }
+    return hasRingCX ? "CX" : null;
+  }
+
+  /**
    * Current legacy Mixpanel identity.
    */
   get identity(): LegacyAnalyticsIdentity {
@@ -83,6 +113,7 @@ class AdditionalTrackProps extends RcModule implements IAdditionalTrackProps {
       hashedUserId: this.hashedUserId,
       hashedAccountId: this.hashedAccountId,
       environment: this.environmentName,
+      userType: this.userType,
     };
   }
 
@@ -99,6 +130,7 @@ class AdditionalTrackProps extends RcModule implements IAdditionalTrackProps {
       externalClientId: this._analyticsOptions.externalClientId,
       rcAccountId: this.hashedAccountId,
       environment: this.environmentName,
+      userType: this.userType,
     };
   }
 }

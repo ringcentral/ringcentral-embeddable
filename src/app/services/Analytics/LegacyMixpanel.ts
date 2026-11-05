@@ -26,12 +26,14 @@ export class LegacyMixpanel {
 
   /**
    * Identifies the hashed user and links the hashed account group once per
-   * user, account and environment.
+   * user, account, environment and user type. The user type is set on the
+   * profile only once it is known.
    */
   syncIdentity({
     hashedUserId,
     hashedAccountId,
     environment,
+    userType,
   }: LegacyAnalyticsIdentity): void {
     if (!hashedUserId) {
       return;
@@ -39,12 +41,16 @@ export class LegacyMixpanel {
     if (this._mixpanel.get_distinct_id() !== hashedUserId) {
       this._mixpanel.identify(hashedUserId);
     }
-    const profileKey = `${hashedUserId}:${hashedAccountId}:${environment}`;
+    const profileKey = `${hashedUserId}:${hashedAccountId}:${environment}:${userType}`;
     if (!hashedAccountId || profileKey === this._profileKey) {
       return;
     }
     this._profileKey = profileKey;
-    this._mixpanel.people.set({ rcAccountId: hashedAccountId, environment });
+    this._mixpanel.people.set({
+      rcAccountId: hashedAccountId,
+      environment,
+      ...(userType ? { userType } : {}),
+    });
     this._mixpanel.add_group(LEGACY_ANALYTICS.accountGroupKey, hashedAccountId);
     this._mixpanel.set_group(LEGACY_ANALYTICS.accountGroupKey, hashedAccountId);
   }

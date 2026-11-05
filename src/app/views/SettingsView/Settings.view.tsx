@@ -38,6 +38,7 @@ import {
   type UIProps,
 } from '@ringcentral-integration/next-core';
 
+import type { AppFeatures as EmbeddableAppFeatures } from '../../services/AppFeatures';
 import { ThirdParty } from '../../services/ThirdParty';
 
 const REGION_SETTINGS_PATH = '/settings/region';
@@ -56,6 +57,9 @@ type EmbeddableSettingsViewPanelProps = SettingsViewPanelProps & {
   autoLogSMSDescription?: string;
   autoLogSMSReadOnlyReason?: string;
   autoLogWarning?: string;
+  ringSenseLicensed?: boolean;
+  ringCXLicensed?: boolean;
+  isAdmin?: boolean;
 };
 
 /**
@@ -141,7 +145,14 @@ export class SettingsView extends SettingsViewBase {
       disableAutoLogSMSEnabled:
         this._thirdParty.messageLoggerAutoSettingReadOnly,
       showFeedback: this._thirdParty.showFeedback,
+      ringSenseLicensed: this._embeddableAppFeatures.hasRingSensePermission,
+      ringCXLicensed: this._embeddableAppFeatures.hasRingCXPermission,
+      isAdmin: Boolean(this._extensionInfo.info?.permissions?.admin?.enabled),
     };
+  }
+
+  private get _embeddableAppFeatures(): EmbeddableAppFeatures {
+    return this._appFeatures as EmbeddableAppFeatures;
   }
 
   override getUIFunctions(

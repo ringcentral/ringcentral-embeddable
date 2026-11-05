@@ -665,4 +665,48 @@ describe('SettingsPanel', () => {
       ).toBeTruthy();
     });
   });
+
+  test('shows license badges with tooltips above the logout button', () => {
+    const { Panel } = createPanel();
+    render(<Panel {...baseProps} ringSenseLicensed ringCXLicensed isAdmin />);
+
+    const badgeRow = screen.getByTestId('accountLicenseBadges');
+    expect(
+      within(badgeRow)
+        .getAllByText(/./, { selector: '[data-tag]' })
+        .map((badge) => badge.textContent),
+    ).toEqual(['ACE', 'RingCX', 'admin']);
+    expect(screen.getByTestId('aceLicenseBadge').parentElement).toHaveAttribute(
+      'title',
+      'aiConversationExpertLicensed',
+    );
+    expect(
+      screen.getByTestId('ringCXLicenseBadge').parentElement,
+    ).toHaveAttribute('title', 'ringCxAccount');
+    expect(
+      screen.getByTestId('adminLicenseBadge').parentElement,
+    ).toHaveAttribute('title', 'adminUser');
+    expect(
+      badgeRow.compareDocumentPosition(screen.getByTestId('logoutButton')) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
+    expect(within(badgeRow).queryByText('100')).not.toBeInTheDocument();
+  });
+
+  test('shows only the licenses the user has', () => {
+    const { Panel } = createPanel();
+    render(<Panel {...baseProps} ringCXLicensed />);
+
+    expect(screen.getByTestId('ringCXLicenseBadge')).toBeInTheDocument();
+    expect(screen.queryByTestId('aceLicenseBadge')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('adminLicenseBadge')).not.toBeInTheDocument();
+  });
+
+  test('hides the license badge row when the user has no licenses', () => {
+    const { Panel } = createPanel();
+    render(<Panel {...baseProps} />);
+
+    expect(screen.queryByTestId('accountLicenseBadges')).not.toBeInTheDocument();
+    expect(screen.getByTestId('logoutButton')).toBeInTheDocument();
+  });
 });

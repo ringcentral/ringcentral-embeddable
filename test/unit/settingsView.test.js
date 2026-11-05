@@ -32,9 +32,19 @@ jest.mock('@ringcentral-integration/micro-setting/src/app/services', () => ({
 }));
 
 describe('SettingsView', () => {
-  function createView({ callQueueEnabled = true } = {}) {
+  function createView({
+    callQueueEnabled = true,
+    appFeatures = {},
+    extensionInfo = {},
+  } = {}) {
     const router = { push: jest.fn().mockResolvedValue(undefined) };
     const view = Object.create(SettingsView.prototype);
+    view._appFeatures = {
+      hasRingCXPermission: false,
+      hasRingSensePermission: false,
+      ...appFeatures,
+    };
+    view._extensionInfo = { info: null, ...extensionInfo };
     view._callQueueEnabled = callQueueEnabled;
     view._router = router;
     view._settingsViewOptions = undefined;
@@ -164,5 +174,49 @@ describe('SettingsView', () => {
       showAutoLog: false,
       showAutoLogSMS: false,
     });
+  });
+
+  test('exposes the current user license badges', () => {
+    const { view } = createView({
+      appFeatures: {
+        hasRingCXPermission: true,
+        hasRingSensePermission: true,
+      },
+      extensionInfo: {
+        info: { permissions: { admin: { enabled: true } } },
+      },
+    });
+    view._callLogger = { autoLog: false, ready: false };
+    view._conversationLogger = { autoLog: false };
+
+    expect(view.getUIProps({})).toMatchObject({
+      isAdmin: true,
+      ringCXLicensed: true,
+      ringSenseLicensed: true,
+    });
+  });
+
+  test('hides license badges the user does not have', () => {
+    const { view } = createView({
+      extensionInfo: {
+        info: { permissions: { admin: { enabled: false } } },
+      },
+    });
+    view._callLogger = { autoLog: false, ready: false };
+    view._conversationLogger = { autoLog: false };
+
+    expect(view.getUIProps({})).toMatchObject({
+      isAdmin: false,
+      ringCXLicensed: false,
+      ringSenseLicensed: false,
+    });
+  });
+
+  test('does not mark the user as admin before extension info loads', () => {
+    const { view } = createView();
+    view._callLogger = { autoLog: false, ready: false };
+    view._conversationLogger = { autoLog: false };
+
+    expect(view.getUIProps({}).isAdmin).toBe(false);
   });
 });

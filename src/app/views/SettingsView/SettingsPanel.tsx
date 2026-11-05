@@ -32,6 +32,7 @@ import { noop } from 'rxjs';
 import { ThirdPartySettings } from '../../components/ThirdPartySettings/ThirdPartySettings';
 import type { ThirdPartySetting } from '../../services/ThirdParty';
 
+import { AccountLicenseBadges } from './AccountLicenseBadges';
 import appI18n from './i18n';
 import { SettingsGroup } from './SettingsGroup';
 
@@ -79,6 +80,12 @@ interface EmbeddableSettingsPanelProps extends SettingsViewPanelProps {
     setting: ThirdPartySetting,
     value: unknown,
   ) => void;
+  /** Shows the ACE badge above the logout button. */
+  ringSenseLicensed?: boolean;
+  /** Shows the RingCX badge above the logout button. */
+  ringCXLicensed?: boolean;
+  /** Shows the Admin badge above the logout button. */
+  isAdmin?: boolean;
 }
 
 function hasRenderableContent(node: ReactNode): boolean {
@@ -275,6 +282,9 @@ export const SettingsPanel: FunctionComponent<EmbeddableSettingsPanelProps> = ({
   onThirdPartyButtonClick = noop,
   onThirdPartySectionClick = noop,
   onThirdPartySettingChange = noop,
+  ringSenseLicensed = false,
+  ringCXLicensed = false,
+  isAdmin = false,
 }) => {
   const { t } = useLocale(i18n);
   const { t: appT } = useLocale(appI18n);
@@ -810,7 +820,12 @@ export const SettingsPanel: FunctionComponent<EmbeddableSettingsPanelProps> = ({
             )}
           </Section>
         </div>
-        <div className="p-3 flex justify-center">
+        <div className="p-3 flex flex-col items-center gap-2">
+          <AccountLicenseBadges
+            ringSenseLicensed={ringSenseLicensed}
+            ringCXLicensed={ringCXLicensed}
+            isAdmin={isAdmin}
+          />
           <Button
             data-sign="logoutButton"
             color="primary"

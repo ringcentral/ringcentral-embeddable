@@ -23,4 +23,13 @@ export interface LegacyAnalyticsIdentity {
   hashedUserId: string | null;
   hashedAccountId: string | null;
   environment: string;
+  /**
+   * Licensed products, `null` until known.
+   */
+  userType: AnalyticsUserType | null;
 }
+
+/**
+ * RingCentral products the user is licensed for, sent as `userType`.
+ */
+export type AnalyticsUserType = "EX" | "CX" | "EX+CX";
