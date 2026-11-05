@@ -77,13 +77,15 @@ class Analytics extends AnalyticsBase {
         this._additionalTrackProps?.hashedUserId ?? null,
         this._additionalTrackProps?.hashedAccountId ?? null,
         this._additionalTrackProps?.environmentName ?? "",
+        this._additionalTrackProps?.userType ?? null,
       ] as const,
       { multiple: true }
     ).pipe(
-      map(([hashedUserId, hashedAccountId, environment]) => ({
+      map(([hashedUserId, hashedAccountId, environment, userType]) => ({
         hashedUserId,
         hashedAccountId,
         environment,
+        userType,
       }))
     );
 
