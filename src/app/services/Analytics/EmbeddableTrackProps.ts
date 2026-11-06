@@ -28,7 +28,7 @@ import { hashAnalyticsId } from "./hashAnalyticsId";
 /**
  * Provides the legacy Embeddable super properties for every analytics event
  * through the upstream `AdditionalTrackProps` extension point, plus the
- * hashed Mixpanel identity.
+ * Mixpanel identity.
  */
 @injectable({
   name: "AdditionalTrackProps",
@@ -73,6 +73,15 @@ class AdditionalTrackProps extends RcModule implements IAdditionalTrackProps {
   }
 
   /**
+   * Raw account id, used as the Mixpanel `accountId` profile property and
+   * group. Events get it from the upstream `accountId` track prop.
+   */
+  get accountId(): string | null {
+    const accountId = this._extensionInfo?.accountId;
+    return accountId ? String(accountId) : null;
+  }
+
+  /**
    * Legacy environment name, based on the effective RingCentral server.
    */
   get environmentName(): string {
@@ -112,6 +121,7 @@ class AdditionalTrackProps extends RcModule implements IAdditionalTrackProps {
     return {
       hashedUserId: this.hashedUserId,
       hashedAccountId: this.hashedAccountId,
+      accountId: this.accountId,
       environment: this.environmentName,
       userType: this.userType,
     };

@@ -7,10 +7,13 @@ type Mixpanel = typeof mixpanel;
 
 /**
  * Mixpanel transport that keeps the legacy Embeddable identity and URL
- * handling: hashed distinct id, `rcAccountId` group, `localStorage`
- * persistence, and no app URL query string in event properties.
+ * handling: hashed distinct id, hashed `rcAccountId` and raw `accountId`
+ * groups, `localStorage` persistence, and no app URL query string in event
+ * properties.
  */
 export class LegacyMixpanel {
+  private _identifiedUserId: string | null = null;
+
   private _profileKey: string | null = null;
 
   private constructor(private readonly _mixpanel: Mixpanel) {}
@@ -25,44 +28,53 @@ export class LegacyMixpanel {
   }
 
   /**
-   * Identifies the hashed user and links the hashed account group once per
-   * user, account, environment and user type. The user type is set on the
-   * profile only once it is known.
+   * Identifies the hashed user and links the hashed and raw account groups
+   * once per user, account, environment and user type. The user type is set
+   * on the profile only once it is known.
    */
   syncIdentity({
     hashedUserId,
     hashedAccountId,
+    accountId,
     environment,
     userType,
   }: LegacyAnalyticsIdentity): void {
     if (!hashedUserId) {
       return;
     }
-    if (this._mixpanel.get_distinct_id() !== hashedUserId) {
+    // identify once per page load even when the persisted distinct id already
+    // matches: Mixpanel only sends profile updates after `identify` was called
+    // in the current page, and queues them otherwise
+    if (hashedUserId !== this._identifiedUserId) {
+      this._identifiedUserId = hashedUserId;
       this._mixpanel.identify(hashedUserId);
     }
-    const profileKey = `${hashedUserId}:${hashedAccountId}:${environment}:${userType}`;
-    if (!hashedAccountId || profileKey === this._profileKey) {
+    const profileKey = `${hashedUserId}:${accountId}:${environment}:${userType}`;
+    if (!hashedAccountId || !accountId || profileKey === this._profileKey) {
       return;
     }
     this._profileKey = profileKey;
     this._mixpanel.people.set({
       rcAccountId: hashedAccountId,
+      accountId,
       environment,
       ...(userType ? { userType } : {}),
     });
-    this._mixpanel.add_group(LEGACY_ANALYTICS.accountGroupKey, hashedAccountId);
-    this._mixpanel.set_group(LEGACY_ANALYTICS.accountGroupKey, hashedAccountId);
+    this._linkGroup(LEGACY_ANALYTICS.accountGroupKey, hashedAccountId);
+    this._linkGroup(LEGACY_ANALYTICS.rawAccountGroupKey, accountId);
+  }
+
+  private _linkGroup(groupKey: string, groupId: string): void {
+    this._mixpanel.add_group(groupKey, groupId);
+    this._mixpanel.set_group(groupKey, groupId);
   }
 
   /**
    * Sends one event. The legacy page view is sent as a Mixpanel page view.
    */
   track(event: string, properties: Readonly<Record<string, unknown>>): void {
-    // the raw account id must not be sent, `rcAccountId` carries the hashed one
-    const { accountId: _accountId, ...trackProps } = properties;
     const eventProps = {
-      ...trackProps,
+      ...properties,
       $current_url: `${window.location.origin}${window.location.pathname}`,
       current_url_search: "",
     };

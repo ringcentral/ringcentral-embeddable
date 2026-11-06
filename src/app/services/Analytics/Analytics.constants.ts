@@ -8,6 +8,7 @@ export const LEGACY_ANALYTICS = {
   appName: "RingCentral Embeddable",
   pageViewEvent: "Viewed page",
   accountGroupKey: "rcAccountId",
+  rawAccountGroupKey: "accountId",
   navigationClickPrefix: "Navigation: Click/",
   navigationLingerPrefix: "Navigation: Linger/",
   sandboxServerKeyword: "devtest",

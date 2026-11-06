@@ -50,7 +50,8 @@ const MIXPANEL_LOAD_RETRY_DELAY = 500;
 /**
  * Keeps the legacy Embeddable analytics contract on top of the upstream
  * analytics flow: legacy event names and page views, the host-visible
- * analytics event, and a Mixpanel transport with hashed legacy identities.
+ * analytics event, and a Mixpanel transport with hashed legacy identities
+ * plus the raw account id.
  *
  * The upstream Mixpanel transport is disabled because it identifies users by
  * raw owner id. The upstream flow still collects the track props and emits
@@ -73,20 +74,31 @@ class Analytics extends AnalyticsBase {
   private readonly _legacyIdentity$: Observable<LegacyAnalyticsIdentity> =
     fromWatchValue(
       this,
-      () => [
-        this._additionalTrackProps?.hashedUserId ?? null,
-        this._additionalTrackProps?.hashedAccountId ?? null,
-        this._additionalTrackProps?.environmentName ?? "",
-        this._additionalTrackProps?.userType ?? null,
-      ] as const,
+      () =>
+        [
+          this._additionalTrackProps?.hashedUserId ?? null,
+          this._additionalTrackProps?.hashedAccountId ?? null,
+          this._additionalTrackProps?.accountId ?? null,
+          this._additionalTrackProps?.environmentName ?? "",
+          this._additionalTrackProps?.userType ?? null,
+        ] as const,
       { multiple: true }
     ).pipe(
-      map(([hashedUserId, hashedAccountId, environment, userType]) => ({
-        hashedUserId,
-        hashedAccountId,
-        environment,
-        userType,
-      }))
+      map(
+        ([
+          hashedUserId,
+          hashedAccountId,
+          accountId,
+          environment,
+          userType,
+        ]) => ({
+          hashedUserId,
+          hashedAccountId,
+          accountId,
+          environment,
+          userType,
+        })
+      )
     );
 
   constructor(
