@@ -1253,10 +1253,12 @@ export const getAppConfig = <T extends typeof createSharedApp>({
             // The popup window is resizable. Folded, the main column fills
             // it; expanded, the main column keeps a phone-like width and the
             // side widget takes the rest, rather than splitting the window in
-            // half. The column is still followed by the expanded content in
-            // `SpringAppRootView` while `Root.expanded` is on.
+            // half. The expanded check looks for the expanded column anywhere
+            // in the document rather than as a sibling, because the incoming
+            // call card (`IncomingCallView` `miniContainer`) reuses this class
+            // on a fixed overlay outside the column row.
             expandedLayoutMainClass: fromPopup
-              ? 'min-w-[300px] flex-auto [&:has(~[data-sign=expandedContent])]:flex-none [&:has(~[data-sign=expandedContent])]:w-[clamp(300px,32%,400px)]'
+              ? 'min-w-[300px] flex-auto [:root:has([data-sign=expandedContent])_&]:flex-none [:root:has([data-sign=expandedContent])_&]:w-[clamp(300px,32%,400px)]'
               : 'w-[300px] min-w-[300px] max-w-[300px] flex-none',
           } satisfies RootOptions),
       },
