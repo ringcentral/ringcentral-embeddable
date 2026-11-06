@@ -8,6 +8,7 @@ const {
 const LOGIN_BUTTON = 'button[data-sign="loginButton"]:not([disabled])';
 const WIDGET_FRAME = 'iframe#rc-widget-adapter-frame';
 const ELEMENT_TIMEOUT_MS = 30000;
+const MAX_CLICK_ATTEMPTS = 3;
 
 async function waitForElement(
   target,
@@ -58,7 +59,39 @@ async function visitPage(path = '/') {
   });
 }
 
-async function clickElement(target, selector) {
+/** Starts recording whether the next clicks land on `selector`. */
+async function armClickProbe(target, selector) {
+  await target.evaluate((selector) => {
+    const probe = { reached: false };
+    const onClick = (event) => {
+      if (event.target instanceof Element && event.target.closest(selector)) {
+        probe.reached = true;
+      }
+    };
+    document.addEventListener('click', onClick, true);
+    window.__e2eClickProbe = {
+      probe,
+      dispose: () => document.removeEventListener('click', onClick, true),
+    };
+  }, selector);
+}
+
+/**
+ * Reads and removes the click probe. A click that navigated the document away
+ * takes the probe with it, so a missing probe counts as reached.
+ */
+async function readClickProbe(target) {
+  return target
+    .evaluate(() => {
+      const clickProbe = window.__e2eClickProbe;
+      delete window.__e2eClickProbe;
+      clickProbe?.dispose();
+      return clickProbe ? clickProbe.probe.reached : true;
+    })
+    .catch(() => true);
+}
+
+async function waitForClickTarget(target, selector) {
   await waitForElement(target, selector, { visible: true });
   const scrollTarget = await target.$(selector);
   // Reveal clipped links before checking whether another element covers them.
@@ -98,23 +131,55 @@ async function clickElement(target, selector) {
     });
   await readyTarget.dispose();
   await scrollTarget.dispose();
-  await markStep(target, `click ${selector}`);
-  await target
-    .locator(selector)
-    .setTimeout(ELEMENT_TIMEOUT_MS)
-    .click()
-    .catch(async (error) => {
-      if (error.name !== 'TimeoutError') {
-        throw error;
-      }
+}
+
+/**
+ * Clicks `selector` and retries when the click did not reach it. A view
+ * transition can start between the hit test and the click, such as the one
+ * the toast panel runs when the nav bar mounts after login, and while it runs
+ * Chrome delivers clicks to the document element instead of the app.
+ */
+async function clickElement(target, selector) {
+  for (let attempt = 1; ; attempt += 1) {
+    await waitForClickTarget(target, selector);
+    await markStep(
+      target,
+      `click ${selector}${attempt > 1 ? ` (attempt ${attempt})` : ''}`,
+    );
+    await armClickProbe(target, selector);
+    let reached = false;
+    try {
+      await target
+        .locator(selector)
+        .setTimeout(ELEMENT_TIMEOUT_MS)
+        .click()
+        .catch(async (error) => {
+          if (error.name !== 'TimeoutError') {
+            throw error;
+          }
+          throw new Error(
+            `Timed out preparing to click ${selector}\n${await describeFailure(
+              target,
+              selector,
+            )}`,
+            { cause: error },
+          );
+        });
+    } finally {
+      reached = await readClickProbe(target);
+    }
+    if (reached) {
+      return;
+    }
+    if (attempt === MAX_CLICK_ATTEMPTS) {
       throw new Error(
-        `Timed out preparing to click ${selector}\n${await describeFailure(
+        `Clicks on ${selector} did not reach it after ${MAX_CLICK_ATTEMPTS} attempts\n${await describeFailure(
           target,
           selector,
         )}`,
-        { cause: error },
       );
-    });
+    }
+  }
 }
 
 async function getWidgetFrame() {
