@@ -75,6 +75,8 @@ function formatEvent(event, props) {
   };
 }
 
+type AnalyticsUserType = 'EX' | 'CX' | 'EX+CX';
+
 function getHashId(id) {
   if (!id) {
     return null;
@@ -89,7 +91,9 @@ function getHashId(id) {
   name: 'Analytics',
   deps: [
     'Environment',
-    { dep: 'AnalyticsOptions', optional: true }
+    { dep: 'AnalyticsOptions', optional: true },
+    { dep: 'ExtensionDevice', optional: true },
+    { dep: 'AppFeatures', optional: true },
   ]
 })
 export class Analytics extends AnalyticsBase {
@@ -97,15 +101,23 @@ export class Analytics extends AnalyticsBase {
   protected _enableExternalAnalytics: boolean;
   protected _segment: AnalyticsBrowser;
   protected _hashedAccountId: string | null;
+  protected _accountId: string | null;
+  protected _identified: boolean;
 
   constructor(deps) {
     super(deps);
+    // only read for the user type, which updates when they load, so
+    // analytics and its dependents (Adapter...) do not wait for login data
+    this._ignoreModuleReadiness(deps.extensionDevice);
+    this._ignoreModuleReadiness(deps.appFeatures);
     if (deps.analyticsOptions.analyticsKey) {
       this._segment = new AnalyticsBrowser(deps.analyticsOptions.analyticsKey);
     }
     this._trackRouters = trackRouters;
     this._enableExternalAnalytics = !!deps.analyticsOptions.enableExternalAnalytics;
     this._hashedAccountId = null;
+    this._accountId = null;
+    this._identified = false;
   }
 
   override onInitOnce() {
@@ -123,18 +135,34 @@ export class Analytics extends AnalyticsBase {
         },
       );
     }
+    // devices and features can load after identify, update the profile then
+    watch(
+      this,
+      () => this.userType,
+      (userType) => {
+        if (this._identified && userType) {
+          this.analytics?.setUserProperties({ userType });
+        }
+      },
+    );
   }
 
   identify(options) {
     const hashedAccountId = getHashId(options.accountId);
+    const accountId = options.accountId ? String(options.accountId) : null;
     this._identify({
       userId: options.userId,
       rcAccountId: hashedAccountId,
+      accountId,
       environment: this._deps.environment.environmentName,
+      ...(this.userType ? { userType: this.userType } : {}),
     });
-    if (options.accountId) {
+    this._identified = true;
+    if (accountId) {
       this._hashedAccountId = hashedAccountId;
-      this.analytics?.group(hashedAccountId);
+      this._accountId = accountId;
+      this.analytics?.group('rcAccountId', hashedAccountId);
+      this.analytics?.group('accountId', accountId);
     }
   }
 
@@ -223,8 +251,27 @@ export class Analytics extends AnalyticsBase {
       externalAppName: this._deps.analyticsOptions.externalAppName,
       externalClientId: this._deps.analyticsOptions.externalClientId,
       rcAccountId: this._hashedAccountId,
+      accountId: this._accountId,
       environment: this._deps.environment.environmentName,
+      userType: this.userType,
     };
+  }
+
+  /**
+   * Products the user is licensed for: RingEX when the extension has a
+   * digital line, RingCX when it is a contact center account. `null` until
+   * either is known.
+   */
+  get userType(): AnalyticsUserType | null {
+    const hasRingEX = (this._deps.extensionDevice?.devices.length ?? 0) > 0;
+    const hasRingCX = this._deps.appFeatures?.hasRingCXPermission ?? false;
+    if (hasRingEX && hasRingCX) {
+      return 'EX+CX';
+    }
+    if (hasRingEX) {
+      return 'EX';
+    }
+    return hasRingCX ? 'CX' : null;
   }
 
   get analytics() {
