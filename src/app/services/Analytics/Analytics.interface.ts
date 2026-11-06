@@ -17,11 +17,12 @@ export interface EmbeddableAnalyticsOptions extends AnalyticsOptions {
 }
 
 /**
- * Legacy Mixpanel identity, with ids already hashed.
+ * Legacy Mixpanel identity: hashed user id, plus hashed and raw account ids.
  */
 export interface LegacyAnalyticsIdentity {
   hashedUserId: string | null;
   hashedAccountId: string | null;
+  accountId: string | null;
   environment: string;
   /**
    * Licensed products, `null` until known.

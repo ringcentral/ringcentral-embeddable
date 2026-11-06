@@ -71,6 +71,7 @@ describe("analytics user type profile", () => {
   const identity = {
     hashedUserId: "hashed-user",
     hashedAccountId: "hashed-account",
+    accountId: "372332026",
     environment: "Production",
   };
 
@@ -85,6 +86,7 @@ describe("analytics user type profile", () => {
 
     expect(mockMixpanel.people.set).toHaveBeenCalledWith({
       rcAccountId: "hashed-account",
+      accountId: "372332026",
       environment: "Production",
     });
   });
@@ -100,6 +102,7 @@ describe("analytics user type profile", () => {
     expect(mockMixpanel.people.set).toHaveBeenCalledTimes(3);
     expect(mockMixpanel.people.set).toHaveBeenLastCalledWith({
       rcAccountId: "hashed-account",
+      accountId: "372332026",
       environment: "Production",
       userType: "EX+CX",
     });
