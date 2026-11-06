@@ -746,6 +746,7 @@ describe('service modules', () => {
     expect(analytics.analytics.group).toBeDefined();
     expect(mixpanel.identify).toHaveBeenCalledWith(expect.any(String));
     expect(mixpanel.add_group).toHaveBeenCalledWith('rcAccountId', expect.any(String));
+    expect(mixpanel.add_group).toHaveBeenCalledWith('accountId', 'account-1');
 
     analytics.track('Call Control: Mute/Call HUD', { foo: 'bar' });
     expect(window.parent.postMessage).toHaveBeenCalledWith({
@@ -785,12 +786,13 @@ describe('service modules', () => {
       appName: 'RingCentral Embeddable',
       externalAppName: 'CRM',
       rcAccountId: expect.any(String),
+      accountId: 'account-1',
     });
 
     const browser = new AnalyticsBrowser('token');
     browser.load();
     browser.track('Browser Event', { value: 1 });
-    browser.group('account-1');
+    browser.group('rcAccountId', 'account-1');
     browser.page('settings', { router: '/settings' });
     expect(mixpanel._$$track).toHaveBeenCalledWith(
       'Browser Event',
@@ -802,7 +804,7 @@ describe('service modules', () => {
     );
     browser._mixpanel = null;
     browser.track('ignored');
-    browser.group('ignored');
+    browser.group('rcAccountId', 'ignored');
     browser.page('ignored');
   });
 

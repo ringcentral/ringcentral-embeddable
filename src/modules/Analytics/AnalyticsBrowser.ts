@@ -31,6 +31,13 @@ export class AnalyticsBrowser {
     mixpanel.people.set(props);
   }
 
+  setUserProperties(props) {
+    if (!this._mixpanel) {
+      return;
+    }
+    this._mixpanel.people.set(props);
+  }
+
   track(event, props) {
     if (!this._mixpanel) {
       return;
@@ -38,12 +45,12 @@ export class AnalyticsBrowser {
     this._mixpanel.track(event, props);
   }
 
-  group(accountId) {
+  group(groupKey, groupId) {
     if (!this._mixpanel) {
       return;
     }
-    this._mixpanel.add_group('rcAccountId', accountId);
-    this._mixpanel.set_group('rcAccountId', accountId);
+    this._mixpanel.add_group(groupKey, groupId);
+    this._mixpanel.set_group(groupKey, groupId);
   }
 
   page(name = '', data = {}) {
