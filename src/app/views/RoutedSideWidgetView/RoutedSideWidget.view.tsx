@@ -1019,9 +1019,10 @@ export class RoutedSideWidgetView extends RcViewModule {
     // A contact change, such as a new call opening its apps, is not the user
     // leaving the page: the router stays where it is, or goes where the call
     // sends it. Routing to the page's background from the port that closed
-    // the tab would land after, and undo, the call page navigation.
+    // the tab would land after, and undo, the call page navigation. Logout
+    // likewise routes to the login page by itself.
     const decision: RouteCloseDecision =
-      reason === 'contactChange'
+      reason === 'contactChange' || reason === 'logout'
         ? { type: 'stay' }
         : decideRouteClose({
             currentPath: this._router.currentPath,

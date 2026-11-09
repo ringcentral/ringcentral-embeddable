@@ -23,7 +23,7 @@ export type SideWidgetTabScope = 'contact' | 'global';
 type SideWidgetLifecycleResult = void | Promise<void>;
 
 /** Why a content tab closed, when it was not closed directly. */
-export type SideWidgetCloseReason = 'contactChange';
+export type SideWidgetCloseReason = 'contactChange' | 'logout';
 
 export interface SideWidgetContentOptions {
   id: string;
@@ -62,6 +62,8 @@ export interface SideWidgetContentOptions {
   /**
    * `reason` is `'contactChange'` when the tab closes because a new contact,
    * such as a new call's, took over the drawer; the user did not leave it.
+   * It is `'logout'` when the session ended, and the app leaves for the
+   * login page by itself.
    */
   onClose?: (
     nextTabId: string | null,

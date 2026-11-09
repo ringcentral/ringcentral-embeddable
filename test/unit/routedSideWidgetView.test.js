@@ -211,6 +211,26 @@ describe('RoutedSideWidgetView', () => {
     expect(router.currentPath).toBe('/history/call');
   });
 
+  test('closes a routed tab on logout without routing to its background', async () => {
+    const { handles, router, view } = createRoutedSideWidget(
+      '/conversations/first',
+    );
+    view.open({
+      config: conversationConfig,
+      detailComponent: () => null,
+      detailProps: {},
+      path: '/conversations/first',
+      routePath: '/conversations/:conversationId',
+    });
+    const handle = handles.get('conversation');
+
+    await handle.options.onClose(null, 'logout');
+    await handle.options.onCloseComplete();
+
+    expect(router.push).not.toHaveBeenCalled();
+    expect(router.replace).not.toHaveBeenCalled();
+  });
+
   test('does not recreate a closed routed tab before its route changes', async () => {
     const { handles, router, sideWidgetView, view } =
       createRoutedSideWidget('/history/call');

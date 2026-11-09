@@ -10,6 +10,12 @@ jest.mock(
 jest.mock("../../src/app/views/SideWidgetView", () => ({
   SideWidgetView: class SideWidgetView {},
 }));
+jest.mock("../../src/app/views/CustomizedPageView", () => ({
+  CustomizedPageView: class CustomizedPageView {},
+}));
+jest.mock("../../src/app/views/LogCallView/LogCall.view", () => ({
+  LogCallView: class LogCallView {},
+}));
 jest.mock("../../src/app/services/SmartNotes", () => ({
   SmartNotes: class SmartNotes {},
 }));
@@ -356,6 +362,62 @@ describe("Adapter navigation compatibility", () => {
       "/log/messages/c-1"
     );
     expect(adapter._router.push).toHaveBeenCalledWith("/log/messages/c-1");
+  });
+
+  test("lets the customized page view open a host page, so a call page stays open", async () => {
+    const adapter = createAdapter({
+      _router: { currentPath: "/calling", push: jest.fn(async () => {}) },
+      _logCallView: { openLogCallPage: jest.fn(async () => false) },
+      _customizedPageView: {
+        openCustomizedPage: jest.fn(async () => true),
+      },
+    });
+
+    await Adapter.prototype._navigateTo.call(adapter, "/customized/crm");
+
+    expect(
+      adapter._customizedPageView.openCustomizedPage
+    ).toHaveBeenCalledWith("/customized/crm");
+    expect(adapter._router.push).not.toHaveBeenCalled();
+  });
+
+  test("routes other pages when the customized page view does not take them", async () => {
+    const adapter = createAdapter({
+      _customizedPageView: {
+        openCustomizedPage: jest.fn(async () => false),
+      },
+    });
+
+    await Adapter.prototype._navigateTo.call(adapter, "/settings");
+
+    expect(adapter._router.push).toHaveBeenCalledWith("/settings");
+  });
+
+  test("closes a host page over the call page instead of going back", async () => {
+    const adapter = createAdapter({
+      _customizedPageView: {
+        closeCallPageCustomizedPage: jest.fn(async () => true),
+      },
+    });
+
+    await Adapter.prototype._navigateTo.call(adapter, "goBack");
+
+    expect(
+      adapter._customizedPageView.closeCallPageCustomizedPage
+    ).toHaveBeenCalled();
+    expect(adapter._router.goBack).not.toHaveBeenCalled();
+  });
+
+  test("goes back in the router when no host page is open over the call page", async () => {
+    const adapter = createAdapter({
+      _customizedPageView: {
+        closeCallPageCustomizedPage: jest.fn(async () => false),
+      },
+    });
+
+    await Adapter.prototype._navigateTo.call(adapter, "goBack");
+
+    expect(adapter._router.goBack).toHaveBeenCalled();
   });
 
   test.each([
