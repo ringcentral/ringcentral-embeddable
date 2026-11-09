@@ -221,7 +221,14 @@ export const ThirdPartyAuthSettings: FunctionComponent<
         }
       />
       {authorizationAction && !authorized && showAuthRedDot ? (
-        <Badge type="dot" color="danger" overlap="rectangular">
+        // The dot sits half outside the button, and the row has no right
+        // padding, so leave room for it or the panel edge clips it.
+        <Badge
+          className="mr-1 flex-none"
+          type="dot"
+          color="danger"
+          overlap="rectangular"
+        >
           {authorizationAction}
         </Badge>
       ) : (

@@ -86,7 +86,8 @@ import { runOnAllPorts } from '../../../lib/runOnAllPorts';
 import type { RingCXCommandBridge } from './RingCXCommandBridge';
 import { parseUri } from '../../../lib/Adapter/parseUri';
 import { isDuplicated } from '../../../lib/isDuplicated';
-import type { LogCallView } from '../../views/LogCallView/LogCall.view';
+import { CustomizedPageView } from '../../views/CustomizedPageView';
+import { LogCallView } from '../../views/LogCallView/LogCall.view';
 import {
   getSideWidgetCallContact,
   SideWidgetView,
@@ -422,7 +423,8 @@ export class Adapter extends RcModule {
     @optional() protected _ringCX?: RingCX,
     @optional() protected _phoneNumberFormat?: PhoneNumberFormat,
     @optional() protected _numberFormatter?: NumberFormatter,
-    @optional('LogCallView') protected _logCallView?: LogCallView,
+    @optional() protected _logCallView?: LogCallView,
+    @optional() protected _customizedPageView?: CustomizedPageView,
   ) {
     super();
     if (this._smartNotes) {
@@ -2739,6 +2741,9 @@ export class Adapter extends RcModule {
     const intent = resolveLegacyAdapterPath(path);
     switch (intent.kind) {
       case 'back':
+        if (await this._customizedPageView?.closeCallPageCustomizedPage()) {
+          return;
+        }
         this._router.goBack();
         return;
       case 'activeCall':
@@ -2767,6 +2772,9 @@ export class Adapter extends RcModule {
           return;
         }
         if (await this._logCallView?.openLogCallPage(intent.path)) {
+          return;
+        }
+        if (await this._customizedPageView?.openCustomizedPage(intent.path)) {
           return;
         }
         if (this._router.currentPath !== intent.path) {

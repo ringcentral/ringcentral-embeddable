@@ -1,4 +1,5 @@
 import type { NormalizedSession } from '@ringcentral-integration/commons/interfaces/Webphone.interface';
+import { Auth } from '@ringcentral-integration/micro-auth/src/app/services';
 import { AppProvider } from '@ringcentral-integration/micro-core/src/app/components';
 import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
 import { Theme } from '@ringcentral-integration/micro-core/src/app/services';
@@ -75,8 +76,14 @@ export class SideWidgetView extends RcViewModule {
     private _root?: Root,
     @optional()
     private _syncTabView?: SyncTabView,
+    @optional() private _auth?: Auth,
   ) {
     super();
+    if (this._auth) {
+      // Logout is watched below; the drawer does not wait for or reset with
+      // the auth module.
+      this._ignoreModuleReadiness(this._auth);
+    }
   }
 
   @state
@@ -798,7 +805,21 @@ export class SideWidgetView extends RcViewModule {
 
   private _openAppRequestSubscription: Subscription | null = null;
 
+  private _stopWatchingLogin: (() => void) | null = null;
+
   override onInit(): void {
+    // Tabs belong to the signed-in session, such as a host page or a global
+    // HUD tab. Logout does not reset this module, whose dependencies stay
+    // ready, so it closes them here.
+    this._stopWatchingLogin = watch(
+      this,
+      () => this._auth?.loggedIn ?? true,
+      (loggedIn) => {
+        if (!loggedIn) {
+          this._closeSessionTabs();
+        }
+      },
+    );
     this._openAppRequestSubscription = this._thirdParty.openAppRequest$.subscribe(
       ({ appId, activate }) => this.openAppById(appId, { activate }),
     );
@@ -838,10 +859,41 @@ export class SideWidgetView extends RcViewModule {
     this._stopWatchingLayout = null;
     this._stopWatchingExpand?.();
     this._stopWatchingExpand = null;
+    this._stopWatchingLogin?.();
+    this._stopWatchingLogin = null;
     // Tabs belong to the signed-in session, such as a global HUD tab, so the
     // next one starts without them.
-    void this.close();
+    this._closeSessionTabs();
+  }
+
+  /**
+   * Closes every tab and the drawer when the session ends. Routed pages close
+   * without routing to their background: the app is leaving for the login
+   * page.
+   */
+  private _closeSessionTabs(): void {
+    const contentHandles = this.tabs.reduce<SideWidgetContentHandle[]>(
+      (handles, { id }) => {
+        const handle = this._contentHandles.get(id);
+        if (handle) {
+          handles.push(handle);
+        }
+        return handles;
+      },
+      [],
+    );
     this._resetTabs();
+    this._pendingTabsClose = Promise.all(
+      contentHandles.map(async ({ options }) => {
+        try {
+          await options.onClose?.(null, 'logout');
+          await options.onCloseComplete?.();
+        } catch (error: unknown) {
+          this.logger.error('[SideWidget] failed to close tab on logout', error);
+        }
+      }),
+    );
+    void this.close();
   }
 
   component() {

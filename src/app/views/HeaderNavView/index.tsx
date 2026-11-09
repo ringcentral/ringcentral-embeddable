@@ -219,6 +219,23 @@ export class HeaderNavViewSpring extends HeaderNavViewSpringBase {
     };
   }
 
+  /**
+   * Flags a pending third-party authorization, as the legacy app did.
+   */
+  @computed
+  override get settingsTab(): NavButtonProps {
+    return {
+      ...defaultTabMap.settings,
+      title: t('settings'),
+      to: '/settings',
+      dataSign: 'settingsTab',
+      BadgeProps: {
+        count: this._thirdParty.showAuthRedDot ? 1 : 0,
+        max: 99,
+      },
+    };
+  }
+
   @computed
   get agentTab(): NavButtonProps {
     return {

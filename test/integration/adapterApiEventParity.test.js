@@ -10,6 +10,12 @@ jest.mock(
 jest.mock('../../src/app/views/SideWidgetView', () => ({
   SideWidgetView: class SideWidgetView {},
 }));
+jest.mock('../../src/app/views/CustomizedPageView', () => ({
+  CustomizedPageView: class CustomizedPageView {},
+}));
+jest.mock('../../src/app/views/LogCallView/LogCall.view', () => ({
+  LogCallView: class LogCallView {},
+}));
 jest.mock('../../src/app/services/SmartNotes', () => ({
   SmartNotes: class SmartNotes {},
 }));

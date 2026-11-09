@@ -74,6 +74,8 @@ function createSideWidget(overrides = {}) {
     dependencies.theme,
     dependencies.options,
     dependencies.root,
+    dependencies.syncTabView,
+    dependencies.auth,
   );
   return {
     dependencies,
@@ -1028,6 +1030,78 @@ describe('SideWidgetView', () => {
       expect(dependencies.expandedView.close).toHaveBeenCalledWith(
         expandedHandle,
       );
+    });
+  });
+
+  describe('logout', () => {
+    function signIn() {
+      const auth = { loggedIn: true };
+      const setup = createSideWidget({ auth });
+      setup.dependencies.thirdParty.openAppRequest$ = new Subject();
+      setup.view.onInit();
+      const { watch } = require('@ringcentral-integration/next-core');
+      const loginWatch = watch.mock.calls.findIndex(
+        ([module, select]) => module === setup.view && select() === true,
+      );
+      const [, selector, onChange] = watch.mock.calls[loginWatch];
+      const stopWatchingLogin = watch.mock.results[loginWatch].value;
+      const setLoggedIn = (loggedIn) => {
+        auth.loggedIn = loggedIn;
+        onChange(selector());
+      };
+      return { ...setup, auth, setLoggedIn, stopWatchingLogin };
+    }
+
+    test('does not wait for or reset with the auth module', () => {
+      const { auth, view } = signIn();
+
+      expect(view.ignoredModules).toContain(auth);
+    });
+
+    test('closes every tab and the drawer when the user logs out', async () => {
+      const { dependencies, expandedHandle, setLoggedIn, view } = signIn();
+      const onClose = jest.fn();
+      const onCloseComplete = jest.fn();
+      const page = view.createContent({
+        id: 'customized-page',
+        name: 'Page',
+        scope: 'global',
+        onClose,
+        onCloseComplete,
+        view: () => null,
+      });
+      view.openApps({ id: 'contact' });
+      view.openContent(page);
+
+      setLoggedIn(false);
+      await Promise.resolve();
+      await Promise.resolve();
+
+      expect(view.tabs).toEqual([]);
+      expect(view.currentContact).toBeNull();
+      expect(dependencies.expandedView.close).toHaveBeenCalledWith(
+        expandedHandle,
+      );
+      expect(onClose).toHaveBeenCalledWith(null, 'logout');
+      expect(onCloseComplete).toHaveBeenCalledTimes(1);
+    });
+
+    test('keeps the tabs while the user stays signed in', () => {
+      const { dependencies, setLoggedIn, view } = signIn();
+      view.openApps({ id: 'contact' });
+
+      setLoggedIn(true);
+
+      expect(view.tabs).not.toEqual([]);
+      expect(dependencies.expandedView.close).not.toHaveBeenCalled();
+    });
+
+    test('stops watching the login when the session resets', () => {
+      const { stopWatchingLogin, view } = signIn();
+
+      view.onReset();
+
+      expect(stopWatchingLogin).toHaveBeenCalled();
     });
   });
 
