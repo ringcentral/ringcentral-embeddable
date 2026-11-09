@@ -101,7 +101,7 @@ describe('customized tabs navigation', () => {
       hasMeetingsPermission: true,
       isContactsEnabled: true,
     };
-    return { routedSideWidgetView, view };
+    return { routedSideWidgetView, thirdParty, view };
   }
 
   test('merges visible custom tabs by priority with badges and active state', () => {
@@ -156,6 +156,23 @@ describe('customized tabs navigation', () => {
 
     fireEvent.error(inactiveImage);
     expect(inactive.container.querySelector('img')).toBeNull();
+  });
+
+  test('badges the settings tab while third-party auth is pending', () => {
+    const { thirdParty, view } = createView();
+    const getSettingsTab = () =>
+      view.tabs.find(({ to }) => to === '/settings');
+
+    expect(getSettingsTab()).toEqual(
+      expect.objectContaining({
+        dataSign: 'settingsTab',
+        BadgeProps: { count: 0, max: 99 },
+      }),
+    );
+
+    thirdParty.showAuthRedDot = true;
+
+    expect(getSettingsTab().BadgeProps).toEqual({ count: 1, max: 99 });
   });
 
   test('keeps routed side-widget content when changing main tabs', () => {
