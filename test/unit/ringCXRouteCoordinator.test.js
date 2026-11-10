@@ -31,6 +31,7 @@ jest.mock('../../src/ringcx/views/CxDialerView', () => ({
 }));
 
 const { CxRouteCoordinator } = require('../../src/ringcx/CxRouteCoordinator');
+const { CxWrapUpLog } = require('../../src/ringcx/services/CxWrapUpLog');
 
 const CALL_ID = 'uii-1$session-1';
 const SESSION = { uii: 'uii-1', sessionId: 'session-1' };
@@ -48,6 +49,7 @@ function createCoordinator({
   homeTabAfterCall = 'dialer',
   progressiveDial,
   cxAuth = {},
+  wrapUpLog = new CxWrapUpLog({ enable: jest.fn() }),
 } = {}) {
   const callbacks = {};
   const router = {
@@ -99,6 +101,7 @@ function createCoordinator({
     { isDisposed: jest.fn(() => isDisposed) },
     cxWorkingState,
     {},
+    wrapUpLog,
     host,
     ringCXBridge,
     progressiveDial,
@@ -111,6 +114,7 @@ function createCoordinator({
     host,
     ringCXBridge,
     router,
+    wrapUpLog,
   };
 }
 
@@ -147,8 +151,8 @@ describe('CxRouteCoordinator', () => {
   });
 
   describe('when a call disposed while it was up ends', () => {
-    test('opens the deferred log page and finishes the call', async () => {
-      const { callbacks, coordinator, cxCall, ringCXBridge } =
+    test('brings its wrap-up page back for the call log and finishes the call', async () => {
+      const { callbacks, coordinator, cxCall, ringCXBridge, wrapUpLog } =
         createCoordinator({
           isDisposed: true,
           bridge: {
@@ -161,13 +165,122 @@ describe('CxRouteCoordinator', () => {
       expect(ringCXBridge.logEndedCall).not.toHaveBeenCalled();
       expect(coordinator.navigationRequest).toEqual(
         expect.objectContaining({
-          path: `/log/call/${CALL_ID}?source=ringcx`,
-          mode: 'push',
+          path: `/agent/calls/${CALL_ID}/disposition`,
+          mode: 'replace',
           showWindow: true,
+        }),
+      );
+      // Named "Log call": only the call log is left.
+      expect(wrapUpLog.get(CALL_ID)).toEqual(
+        expect.objectContaining({
+          hasDispositionStep: false,
+          logStatus: 'pending',
         }),
       );
       expect(cxCall.setDialoutStatus).toHaveBeenCalledWith('idle');
       expect(cxCall.activityCallId).toBe('');
+    });
+
+    test('renames a wrap-up page opened during the call to Log call', async () => {
+      const wrapUpLog = new CxWrapUpLog({ enable: jest.fn() });
+      wrapUpLog.open(CALL_ID, true);
+      const { callbacks } = createCoordinator({
+        isDisposed: true,
+        wrapUpLog,
+        bridge: {
+          shouldOpenLogPageAfterDisposition: jest.fn(() => true),
+        },
+      });
+
+      await callbacks.ended(CALL_WITH_DISPOSITIONS);
+
+      expect(wrapUpLog.get(CALL_ID).hasDispositionStep).toBe(false);
+    });
+
+    test('saves a call log form submitted during the call and goes home', async () => {
+      const wrapUpLog = new CxWrapUpLog({ enable: jest.fn() });
+      const formData = { contact: 'contact-1', note: 'Typed during the call' };
+      wrapUpLog.open(CALL_ID, true);
+      wrapUpLog.update(CALL_ID, { logStatus: 'queued', queuedFormData: formData });
+      const saveLogForm = jest.fn(async () => ({}));
+      const { callbacks, coordinator } = createCoordinator({
+        isDisposed: true,
+        wrapUpLog,
+        bridge: {
+          shouldOpenLogPageAfterDisposition: jest.fn(() => true),
+          saveLogForm,
+        },
+      });
+
+      await callbacks.ended(CALL_WITH_DISPOSITIONS);
+      await Promise.resolve();
+
+      expect(saveLogForm).toHaveBeenCalledWith({ callId: CALL_ID, formData });
+      expect(wrapUpLog.get(CALL_ID)).toEqual(
+        expect.objectContaining({ logStatus: 'saved', queuedFormData: undefined }),
+      );
+      expect(wrapUpLog.isLogOpen(CALL_ID)).toBe(false);
+      expect(coordinator.navigationRequest).toEqual(
+        expect.objectContaining({
+          path: '/agent/home/dialer',
+          mode: 'replace',
+          keepLogPage: true,
+        }),
+      );
+    });
+
+    test('brings the wrap-up page back when the queued call log fails to save', async () => {
+      const wrapUpLog = new CxWrapUpLog({ enable: jest.fn() });
+      const formData = { note: 'Typed during the call' };
+      wrapUpLog.open(CALL_ID, true);
+      wrapUpLog.update(CALL_ID, { logStatus: 'queued', queuedFormData: formData });
+      const { callbacks, coordinator } = createCoordinator({
+        isDisposed: true,
+        wrapUpLog,
+        bridge: {
+          shouldOpenLogPageAfterDisposition: jest.fn(() => true),
+          saveLogForm: jest.fn(async () => ({ error: 'CRM is down' })),
+        },
+      });
+
+      await callbacks.ended(CALL_WITH_DISPOSITIONS);
+      await Promise.resolve();
+
+      // The form is kept for Retry.
+      expect(wrapUpLog.get(CALL_ID)).toEqual(
+        expect.objectContaining({
+          logStatus: 'failed',
+          logError: 'CRM is down',
+          queuedFormData: formData,
+          hasDispositionStep: false,
+        }),
+      );
+      expect(coordinator.navigationRequest).toEqual(
+        expect.objectContaining({
+          path: `/agent/calls/${CALL_ID}/disposition`,
+          mode: 'push',
+          showWindow: true,
+        }),
+      );
+    });
+
+    test('goes home when the call log was already done on the page', async () => {
+      const wrapUpLog = new CxWrapUpLog({ enable: jest.fn() });
+      wrapUpLog.open(CALL_ID, true);
+      wrapUpLog.update(CALL_ID, { logStatus: 'skipped' });
+      const { callbacks, coordinator } = createCoordinator({
+        isDisposed: true,
+        wrapUpLog,
+        bridge: {
+          shouldOpenLogPageAfterDisposition: jest.fn(() => true),
+        },
+      });
+
+      await callbacks.ended(CALL_WITH_DISPOSITIONS);
+
+      expect(coordinator.navigationRequest).toEqual(
+        expect.objectContaining({ path: '/agent/home/dialer' }),
+      );
     });
 
     test('goes to the dialer, keeping a host log page, and finishes the call', async () => {
@@ -223,8 +336,8 @@ describe('CxRouteCoordinator', () => {
     expect(cxCall.activityCallId).toBe('');
   });
 
-  test('opens the host log page for a call without a disposition step when the bridge asks', async () => {
-    const { callbacks, coordinator } = createCoordinator({
+  test('opens a Log call wrap-up page for a call without a disposition step when the bridge asks', async () => {
+    const { callbacks, coordinator, wrapUpLog } = createCoordinator({
       bridge: { logEndedCall: jest.fn(() => true) },
     });
 
@@ -232,19 +345,27 @@ describe('CxRouteCoordinator', () => {
 
     expect(coordinator.navigationRequest).toEqual(
       expect.objectContaining({
-        path: `/log/call/${CALL_ID}?source=ringcx`,
-        mode: 'push',
+        path: `/agent/calls/${CALL_ID}/disposition`,
+        mode: 'replace',
         showWindow: true,
       }),
+    );
+    expect(wrapUpLog.get(CALL_ID)).toEqual(
+      expect.objectContaining({ hasDispositionStep: false, logStatus: 'pending' }),
     );
   });
 
   test.each(['INBOUND', 'OUTBOUND'])('sends an ended %s call with dispositions to its form', async (callType) => {
-    const { callbacks, coordinator, cxCall, ringCXBridge } = createCoordinator();
+    const { callbacks, coordinator, cxCall, ringCXBridge, wrapUpLog } =
+      createCoordinator();
 
     await callbacks.ended({ ...CALL_WITH_DISPOSITIONS, callType });
 
     expect(ringCXBridge.logEndedCall).not.toHaveBeenCalled();
+    expect(wrapUpLog.get(CALL_ID)).toEqual(
+      expect.objectContaining({ hasDispositionStep: true, logStatus: 'pending' }),
+    );
+    expect(wrapUpLog.lastCallId).toBe(CALL_ID);
 
     expect(coordinator.navigationRequest).toEqual(
       expect.objectContaining({

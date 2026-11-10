@@ -81,6 +81,7 @@ jest.mock('../../src/ringcx/views/CxDispositionView/i18n', () => ({
 const {
   CxDispositionView,
 } = require('../../src/ringcx/views/CxDispositionView/CxDispositionView.view');
+const { CxWrapUpLog } = require('../../src/ringcx/services/CxWrapUpLog');
 
 const CALL_ID = 'uii-1$session-1';
 const DISPOSITION_PATH = `/agent/calls/${CALL_ID}/disposition`;
@@ -104,6 +105,7 @@ function createView({
     homeTabAfterCall,
   };
   const cxCallMonitor = { callIds: liveCallIds };
+  const wrapUpLog = new CxWrapUpLog({ enable: jest.fn() });
   const view = new CxDispositionView(
     {},
     {},
@@ -119,6 +121,7 @@ function createView({
     { enable: jest.fn() },
     {},
     {},
+    wrapUpLog,
     undefined,
     undefined,
     undefined,
@@ -127,7 +130,7 @@ function createView({
   view._reset = jest.fn();
   view._setViewCallId = jest.fn();
   view.goBack = jest.fn();
-  return { cxCall, router, view };
+  return { cxCall, router, view, wrapUpLog };
 }
 
 function submitContext(overrides = {}) {
@@ -163,18 +166,21 @@ describe('CxDispositionView submit hand-over', () => {
     expect(cxCall.setActivityCallId).not.toHaveBeenCalled();
   });
 
-  test('opens the log page for a call that ended while the submit was in flight', () => {
-    const { cxCall, router, view } = createView({ liveCallIds: [] });
+  test('stays on the wrap-up page for a call that ended while the submit was in flight', () => {
+    const { router, view, wrapUpLog } = createView({ liveCallIds: [] });
 
     view._finishSubmit(submitContext({ openedLogPage: true }), true);
 
-    expect(router.replace).toHaveBeenCalledWith(
-      `/log/call/${CALL_ID}?source=ringcx`,
+    // Its call log is done on this page; no separate log page opens.
+    expect(router.replace).not.toHaveBeenCalled();
+    expect(view.goBack).not.toHaveBeenCalled();
+    expect(view._reset).toHaveBeenCalled();
+    expect(wrapUpLog.get(CALL_ID)).toEqual(
+      expect.objectContaining({ hasDispositionStep: false, logStatus: 'pending' }),
     );
-    expect(cxCall.activityCallId).toBe('');
   });
 
-  test('opens the log page for a call that was over before the submit', () => {
+  test('goes home for a call that was over before the submit', () => {
     const { cxCall, router, view } = createView({ liveCallIds: [] });
 
     view._finishSubmit(
@@ -182,8 +188,9 @@ describe('CxDispositionView submit hand-over', () => {
       true,
     );
 
-    expect(router.replace).toHaveBeenCalledWith(
-      `/log/call/${CALL_ID}?source=ringcx`,
+    expect(router.replace).toHaveBeenCalledWith('/agent/home/dialer');
+    expect(router.replace).not.toHaveBeenCalledWith(
+      expect.stringContaining('/log/call/'),
     );
     expect(cxCall.setDialoutStatus).toHaveBeenCalledWith('idle');
     expect(cxCall.activityCallId).toBe('');

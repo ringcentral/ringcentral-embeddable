@@ -256,7 +256,9 @@ export class AppView extends RcViewModule {
       exact: true,
       sideWidget: {
         id: 'cx-disposition',
-        name: () => t('disposition'),
+        // "Log call" for a wrap-up page that only logs the call.
+        name: (params) =>
+          t(this._cxAgentTabView.resolveDispositionTabNameKey(params.id)),
         // A pending disposition must survive a contact change in the drawer,
         // for example the Apps tab opening for another call.
         scope: 'global',

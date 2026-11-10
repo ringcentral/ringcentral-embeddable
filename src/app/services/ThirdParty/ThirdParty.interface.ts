@@ -200,6 +200,11 @@ export type ThirdPartyServiceRegistration = {
   callLoggerAutoSettingWarning?: string;
   callLoggerAutoLogOnCallSync?: boolean;
   callLoggerHideEditLogButton?: boolean;
+  /**
+   * The host answers a RingCX `prepareLogForm` request with its call log
+   * form, for the app's wrap-up page. Needs `callLoggerPath`.
+   */
+  callLoggerPrepareLogForm?: boolean;
   recordingWithToken?: boolean;
   callLogEntityMatcherPath?: string;
   leadViewerPath?: string;
@@ -419,4 +424,16 @@ export type LoadAppPageParams = {
   type?: 'init' | 'inputChanged' | 'submit' | 'buttonClick' | 'refresh';
   button?: Pick<ThirdPartyButton, 'id'> | null;
   theme?: string;
+};
+
+/**
+ * The host's answer to a `callLoggerPath` request.
+ */
+export type ThirdPartyCallLoggerResponse = {
+  data?: unknown;
+  /** `prepareLogForm`: the host has no log form for this call, and why. */
+  noLogForm?: string;
+  /** `logForm`: the host could not save the log. */
+  error?: string;
+  [key: string]: unknown;
 };

@@ -120,19 +120,46 @@ window.addEventListener('message', (e) => {
 
 ## Call logging
 
-Disposition and call logging are separate.
+After a RingCX call the agent wraps it up on one page, in the Agent tab's side panel: the RingCX disposition and your call log form, with one **Submit**. The disposition is always sent to RingCX first; the CRM log follows.
 
-- Disposition stays in the Agent tab. It is submitted to RingCX before any CRM log.
-- Call logging uses `callLoggerPath` and the host log page at `/log/call/<id>?source=ringcx`.
+- With both parts, the page shows two pill tabs: **Disposition** and your service's `displayName` (else its `name`).
+- A call without a disposition step shows only your form, in a tab named **Log call**.
+- When only your form is left to save, its button uses your `uiSchema.submitButtonOptions.submitText`, as the log page does, else **Save**.
+- A call with dispositions and no log form shows only the disposition.
 
-When `showLogModal` is false:
+How the page gets your form depends on your registration.
+
+**Recommended: `callLoggerPrepareLogForm: true`** (with `callLoggerPath`). When the wrap-up page opens, during the call or after it ends, the widget sends `callLoggerPath` once with `triggerType: 'prepareLogForm'` and the call (`call.ringcx.notes` holds the notes typed so far).
+
+- Post your form with `rc-adapter-update-call-log-page`, then answer `{ data: 'ok' }`. Do not navigate and do not log.
+- If you have no form for the call, answer `{ data: 'ok', noLogForm: '<short reason>' }`. The page shows the reason instead of the form.
+- On **Submit** the widget sends `triggerType: 'logForm'` with the form data, as the log page does. Answer `{ error: '<message>' }` when the save failed. The disposition stays saved, and the page keeps the input with **Retry** and **Log later**. A missing answer after 15 seconds counts as a failure.
+- You never receive `callDisposition`. `rc-ringcx-call-disposed-notify` is still posted.
+- The form's `note` field follows the disposition **Notes** until the agent edits it; changes reach `callLogPageInputChangedEventPath` with `keys: ['note']`.
+
+```js
+window.postMessage({
+  type: 'rc-adapter-register-third-party-service',
+  service: {
+    name: 'MyCRM',
+    callLoggerPath: '/callLogger',
+    callLogPageInputChangedEventPath: '/callLogger/inputChanged',
+    callLoggerPrepareLogForm: true,
+  },
+}, '*');
+```
+
+**`showLogModal: true`** without the opt-in: your current `$LOG-CALL` form, or the default form, shows on the wrap-up page once the call has ended, and **Submit** sends `logForm`. No `callDisposition` is sent.
+
+**Other hosts with `callLoggerPath`:**
 
 - Submitting a disposition logs the call right away with `triggerType: 'callDisposition'` and `redirect: true`. The widget does not open another page. Your `callLoggerPath` handler decides from its own auto-log setting whether to open the CRM record.
-- A call without a disposition step (only possible with `hideCallNote`) is logged the same way when it ends, but only if auto log is on in the widget settings.
+- A call without a disposition step is logged the same way when it ends, but only if auto log is on in the widget settings.
+- If you open your own log page for the call with `rc-adapter-navigate-to` and `/log/call/<id>?source=ringcx`, your form shows on the call's wrap-up page instead of a separate page.
 
-When `showLogModal` is true and `callLoggerPath` is registered, the host log page opens once the call has ended, and your `$LOG-CALL` schema renders there. If the agent dispositions while the call is still connected, the page opens when the call ends.
+If the agent submits while the call is still connected, the disposition is saved right away and the `logForm` save is sent when the call ends, so the CRM gets the real duration. The wrap-up page comes back only when that save fails, or when the agent submitted before your form was shown.
 
-The log page closes itself once your `callLoggerPath` responds to a `logForm` save, the same as for RingEX calls. To close it or the disposition page from your side, use `rc-adapter-navigate-to` with `path: 'goBack'` or a target path. Going back never reopens a disposition that was already submitted for an ended call; the agent lands on the dialer instead.
+To close the page from your side, use `rc-adapter-navigate-to` with `path: 'goBack'` or a target path. Going back never reopens a disposition that was already submitted for an ended call; the agent lands on the dialer instead.
 
 A failing `callLoggerPath` does not leave the agent in Pending Disposition. The call stays dispositioned and the log can be retried from history. When the widget logs the call itself (after a disposition, at call end, or from a history action), a `callLoggerPath` that does not respond within 15 seconds shows a message in the widget.
 

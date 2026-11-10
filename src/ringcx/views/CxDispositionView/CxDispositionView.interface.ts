@@ -69,6 +69,10 @@ export interface CxDispositionViewUIProps {
   isSummaryEdited: boolean;
   /** Whether the call has a lead the Lead tab can show. */
   hasLeadInfo: boolean;
+  /** The call the page shows, once the route's call is set on the server. */
+  viewCallId: string;
+  /** The call log part of the wrap-up page. */
+  wrapUp: import('./WrapUpPanel.interface').WrapUpUIProps;
 }
 
 /**
@@ -85,6 +89,22 @@ export interface CxDispositionViewUIFunctions {
   onUpdateCallLog: (field: string, value: string) => void;
   onUpdateSummary: (value: string) => void;
   disposeCall: () => Promise<void>;
+  /** One Submit for the disposition and the host's call log form. */
+  submitWrapUp: (
+    input: import('./WrapUpPanel.interface').WrapUpSubmitInput,
+  ) => Promise<void>;
+  /** Leaves the wrap-up page with the call left Unlogged. */
+  logLater: () => Promise<void>;
+  prepareLogForm: (callId: string) => Promise<void>;
+  loadLogCall: (callId: string) => Promise<void>;
+  onLogFormChange: (
+    formData: Record<string, unknown>,
+    keys: string[],
+  ) => Promise<void>;
+  onLogFormButtonClick: (
+    buttonId: string,
+    formData: Record<string, unknown>,
+  ) => Promise<void>;
   /** Opens the call's lead in the Lead side widget tab. */
   onViewLead: () => Promise<void>;
 }

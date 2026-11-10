@@ -20,6 +20,7 @@ import { CxClient } from './services/CxClient';
 import { CxProgressiveDial } from './services/CxProgressiveDial';
 import { CxDialerView } from './views/CxDialerView';
 import { CxWorkingState } from './services/CxWorkingState';
+import { CxWrapUpLog } from './services/CxWrapUpLog';
 import { shouldShowDispositionSubmitStep } from './utils/shouldShowDispositionSubmitStep';
 import { shouldReplaceActivityCallRoute } from './utils/shouldReplaceActivityCallRoute';
 import { dialoutStatuses } from './enums';
@@ -56,6 +57,7 @@ export class CxRouteCoordinator extends RcModule {
     private readonly _cxCallDisposition: CxCallDisposition,
     private readonly _cxWorkingState: CxWorkingState,
     private readonly _cxDialerView: CxDialerView,
+    private readonly _cxWrapUpLog: CxWrapUpLog,
     @inject('CxHostIntegration')
     private readonly _host: CxHostIntegration,
     @optional('RingCXAdapterBridge')
@@ -250,18 +252,30 @@ export class CxRouteCoordinator extends RcModule {
       if (isDisposed || !showDispositionStep) {
         await this._cxWorkingState.setIsPendingDisposition(false);
         this._bridge?.onEndCall(call);
-        // A call disposed while it was still up left its log page for now,
-        // when the call is over.
-        const openedLogPage = showDispositionStep
+        // A call disposed while it was still up left its call log for now,
+        // when the call is over, on its wrap-up page.
+        const logsOnWrapUp = showDispositionStep
           ? (this._bridge?.shouldOpenLogPageAfterDisposition?.() ?? false)
           : (this._bridge?.logEndedCall?.(call) ?? false);
         this._finishActivityCall(id);
-        if (openedLogPage) {
-          this._requestNavigation(
-            `${CALL_LOG_PATH_PREFIX}${id}?source=ringcx`,
-            'push',
-            { showWindow: true },
-          );
+        const wrapUp = this._cxWrapUpLog.get(id);
+        if (logsOnWrapUp && wrapUp?.logStatus === 'queued') {
+          // Submitted during the call: logged now with the final call, and
+          // the page only comes back when that fails.
+          void this._saveQueuedLog(id);
+          this._requestNavigation(cxPath.home(this._homeTab), 'replace', {
+            keepLogPage: true,
+          });
+        } else if (
+          logsOnWrapUp &&
+          (!wrapUp || this._cxWrapUpLog.isLogOpen(id))
+        ) {
+          this._cxWrapUpLog.open(id, false);
+          // Comes back with only the call log to do.
+          this._cxWrapUpLog.update(id, { hasDispositionStep: false });
+          this._requestNavigation(cxPath.disposition(id), 'replace', {
+            showWindow: true,
+          });
         } else {
           this._requestNavigation(cxPath.home(this._homeTab), 'replace', {
             keepLogPage: true,
@@ -272,8 +286,37 @@ export class CxRouteCoordinator extends RcModule {
       // A `replace` also collapses a sub page of the call that just ended, a
       // transfer for example, so going back cannot return to a control page
       // for a call that is over.
+      this._cxWrapUpLog.open(id, true);
       this._requestNavigation(cxPath.disposition(id), 'replace');
       this._bridge?.onEndCall(call);
+    });
+  }
+
+  /**
+   * Saves the call log form submitted during the call. A failed save brings
+   * the wrap-up page back with the form, Retry and Log later.
+   */
+  private async _saveQueuedLog(id: string): Promise<void> {
+    const formData = this._cxWrapUpLog.get(id)?.queuedFormData;
+    if (!formData || !this._bridge?.saveLogForm) {
+      return;
+    }
+    this._cxWrapUpLog.update(id, { logStatus: 'saving', logError: undefined });
+    const { error } = await this._bridge.saveLogForm({ callId: id, formData });
+    if (!error) {
+      this._cxWrapUpLog.update(id, {
+        logStatus: 'saved',
+        queuedFormData: undefined,
+      });
+      return;
+    }
+    this._cxWrapUpLog.update(id, {
+      logStatus: 'failed',
+      logError: error,
+      hasDispositionStep: false,
+    });
+    this._requestNavigation(cxPath.disposition(id), 'push', {
+      showWindow: true,
     });
   }
 

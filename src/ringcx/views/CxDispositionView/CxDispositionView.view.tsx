@@ -43,6 +43,8 @@ import { CxVoicemailDrop } from '../../services/CxVoicemailDrop';
 import { CxClient } from '../../services/CxClient';
 import type { ActivityLog } from '../../services/CxClient/interfaces';
 import { CxCallHistory } from '../../services/CxCallHistory';
+import { CxWrapUpLog } from '../../services/CxWrapUpLog';
+import type { CxWrapUpLogMode } from '../../services/CxWrapUpLog';
 import { parseHistoryCallId } from '../../services/CxCallHistory/formatHistoryCall';
 import { dialoutStatuses } from '../../enums';
 import { cxPath } from '../../routes';
@@ -50,14 +52,16 @@ import { formatPhoneNumber } from '../../lib/FormatPhoneNumber/formatPhoneNumber
 import { getClockByTimestamp } from '../../lib/getClockByTimestamp';
 import type { RingCXAdapterBridge } from '../../interfaces/RingCXAdapterBridge.interface';
 import { getCallAni, getCallDnis } from '../../lib/getCxCallNumbers';
+import { ringCXLogId } from '../../lib/formatRingCXCall';
 import { getCxCallResolvedContact } from '../../lib/getCxCallResolvedContact';
 import { getCxCallSelectionKey } from '../../lib/getCxCallSelectionKey';
 import type {
   CxCallDispositionData,
 } from '../../services/CxCallDisposition/CxCallDisposition.interface';
 
-import { CallInfoHeader } from '../../components/CallInfoHeader';
 import { DispositionForm } from '../../components/DispositionForm';
+import { WrapUpPanel } from './WrapUpPanel';
+import type { WrapUpUIProps } from './WrapUpPanel.interface';
 import { RingCXSideWidgets } from '../../services/RingCXSideWidgets';
 import { getCallInfos } from '../../utils/getCallInfos';
 import { shouldShowCallLogSummary } from '../../utils/shouldShowCallLogSummary';
@@ -65,6 +69,12 @@ import { shouldShowDispositionSubmitStep } from '../../utils/shouldShowDispositi
 import { hasNewCallTakenOver } from '../../utils/hasNewCallTakenOver';
 import { resolveLiveActivityCallId } from '../../utils/resolveLiveActivityCallId';
 import { MatchedContactSelection } from '../../../app/services/MatchedContactSelection';
+import type { CompatibleCall } from '../../../app/services/CallLogger';
+import {
+  callLogSourceRegistry,
+  RINGCX_CALL_LOG_SOURCE,
+} from '../../../app/services/CallLogger/CallLogSourceRegistry';
+import type { UnknownRecord } from '../../../app/services/ThirdParty';
 import { useSideWidgetTabsShown } from '../../../app/views/SideWidgetView';
 import type {
   CxDispositionViewProps,
@@ -112,7 +122,7 @@ interface SubmitNavigationContext {
   readonly callId: string;
   readonly viewCallId: string;
   readonly path: string;
-  /** The host logs the call on its log page once the call is over. */
+  /** The call is logged on its wrap-up page once the call is over. */
   readonly openedLogPage: boolean;
   readonly shouldGoToDialer: boolean;
 }
@@ -147,6 +157,7 @@ class CxDispositionView extends RcViewModule {
     private storagePlugin: StoragePlugin,
     private portManager: PortManager,
     private matchedContactSelection: MatchedContactSelection,
+    private cxWrapUpLog: CxWrapUpLog,
     @optional('CxDispositionViewOptions')
     private dispositionViewOptions?: CxDispositionViewOptions,
     @optional()
@@ -172,7 +183,28 @@ class CxDispositionView extends RcViewModule {
         this._finishSubmit(pending.context, false);
       },
     );
+    // Rule A: a RingCX log page for a call being wrapped up shows its form
+    // on the wrap-up page instead.
+    callLogSourceRegistry.registerLogPageHandler(
+      RINGCX_CALL_LOG_SOURCE,
+      (id) => this._openWrapUpLogPage(id),
+    );
   }
+
+  /**
+   * The call loaded for the wrap-up page's default call log form, which is
+   * built from the call as the log page builds it.
+   */
+  @state
+  wrapUpLogCall: { id: string; call: CompatibleCall | null } | null = null;
+
+  @action
+  private _setWrapUpLogCall(id: string, call: CompatibleCall | null) {
+    this.wrapUpLogCall = { id, call };
+  }
+
+  /** Calls whose `prepareLogForm` request is in flight. */
+  private readonly _preparingLogForms = new Set<string>();
 
   /**
    * The delayed hand-over after a successful submit. It belongs to the
@@ -280,6 +312,16 @@ class CxDispositionView extends RcViewModule {
   @delegate('server')
   async setViewCallId(id: string) {
     this._setViewCallId(id);
+    // The wrap-up starts as the page opens, during the call too, so the
+    // host's call log form can be filled before the call ends.
+    const call = id && !this.isHistoryMode ? this.cxPresence.callsMapping[id] : null;
+    if (call) {
+      this.cxWrapUpLog.open(
+        id,
+        shouldShowDispositionSubmitStep(call) &&
+          !this.cxCallDisposition.isDisposed(id),
+      );
+    }
   }
 
   @action
@@ -717,8 +759,306 @@ class CxDispositionView extends RcViewModule {
     return (
       !!callId &&
       this.cxCallDisposition.isDisposed(callId) &&
-      !this.cxCallMonitor.callIds.includes(callId)
+      !this.cxCallMonitor.callIds.includes(callId) &&
+      !this.isWrapUpLogOpen(callId)
     );
+  }
+
+  /**
+   * Where the wrap-up page of a call gets its call log form. A host that
+   * opened its own log page for the call gets its form shown there too.
+   */
+  getWrapUpLogMode(callId: string): CxWrapUpLogMode {
+    const mode = this.ringCXAdapterBridge?.wrapUpLogMode ?? 'none';
+    if (mode !== 'none') {
+      return mode;
+    }
+    return this.cxWrapUpLog.get(callId)?.hostOpened ? 'page' : 'none';
+  }
+
+  /** The call is left to be logged on its wrap-up page. */
+  isWrapUpLogOpen(callId: string): boolean {
+    return (
+      this.getWrapUpLogMode(callId) !== 'none' &&
+      this.cxWrapUpLog.isLogOpen(callId)
+    );
+  }
+
+  /**
+   * The side widget tab name: Disposition while the page has a disposition
+   * to submit when it opened, Log call when it only logs the call.
+   */
+  getTabNameKey(callId?: string): 'disposition' | 'logCall' {
+    if (!callId) {
+      return 'disposition';
+    }
+    const entry = this.cxWrapUpLog.get(callId);
+    if (entry) {
+      return entry.hasDispositionStep ? 'disposition' : 'logCall';
+    }
+    const call = this.cxPresence.callsMapping[callId];
+    return !call || shouldShowDispositionSubmitStep(call) ? 'disposition' : 'logCall';
+  }
+
+  /**
+   * Rule A: the host navigates to `/log/call/<id>?source=ringcx` for a call
+   * whose wrap-up page is open, or was left with its call log not saved. The
+   * wrap-up page shows the host's form instead of a separate log page, and
+   * opens in a side widget tab when the agent already left it.
+   */
+  private async _openWrapUpLogPage(id: string): Promise<boolean> {
+    const callId = this._findWrapUpCallId(id);
+    if (!callId) {
+      return false;
+    }
+    if ((this.ringCXAdapterBridge?.wrapUpLogMode ?? 'none') === 'none') {
+      this.cxWrapUpLog.update(callId, { hostOpened: true });
+    }
+    // A submit that would leave the page now stays for the call log.
+    if (this._submitNavigation?.context.callId === callId) {
+      this._cancelSubmitNavigation();
+      this.setSaveStatus(SaveStatus.SUBMIT);
+    }
+    const path = cxPath.disposition(callId);
+    if (this.router.currentPath !== path) {
+      await this.router.push(path);
+    }
+    return true;
+  }
+
+  private _findWrapUpCallId(id: string): string | undefined {
+    const logId = ringCXLogId({ id });
+    if (!logId) {
+      return undefined;
+    }
+    const callIds = Object.keys(this.cxWrapUpLog.entries).filter(
+      (callId) =>
+        this.cxWrapUpLog.isLogOpen(callId) &&
+        ringCXLogId({ id: callId }) === logId,
+    );
+    return callIds.includes(this.cxWrapUpLog.lastCallId)
+      ? this.cxWrapUpLog.lastCallId
+      : callIds[callIds.length - 1];
+  }
+
+  /**
+   * Asks an opted-in host for the call log form of a call, once per call,
+   * and again when another call's form replaced it. Sent while the call is
+   * still up too; the form is saved with the final call when it ends.
+   */
+  @delegate('server')
+  async prepareWrapUpLogForm(callId: string): Promise<void> {
+    const entry = this.cxWrapUpLog.get(callId);
+    const bridge = this.ringCXAdapterBridge;
+    if (
+      !entry ||
+      !bridge?.prepareLogForm ||
+      this.getWrapUpLogMode(callId) !== 'prepare' ||
+      !this.cxWrapUpLog.isLogOpen(callId) ||
+      this._preparingLogForms.has(callId)
+    ) {
+      return;
+    }
+    const isCurrentForm =
+      entry.formStatus === 'ready' && bridge.logCallPageOwnerId === callId;
+    if (isCurrentForm || entry.formStatus === 'none') {
+      return;
+    }
+    this._preparingLogForms.add(callId);
+    this.cxWrapUpLog.update(callId, {
+      formStatus: 'loading',
+      noLogFormReason: undefined,
+    });
+    try {
+      const result = await bridge.prepareLogForm(callId);
+      this.cxWrapUpLog.update(callId, {
+        formStatus: result.status === 'ready' ? 'ready' : 'none',
+        noLogFormReason:
+          result.reason ||
+          (result.status === 'failed'
+            ? translate('logFormUnavailable', { host: this.hostName })
+            : undefined),
+      });
+    } finally {
+      this._preparingLogForms.delete(callId);
+    }
+  }
+
+  /** Loads the call a default call log form is built from. */
+  @delegate('server')
+  async loadWrapUpLogCall(callId: string): Promise<void> {
+    const call = (await this.ringCXAdapterBridge?.getCallForLog?.(callId)) ?? null;
+    this._setWrapUpLogCall(callId, call);
+  }
+
+  /** The host's name on the wrap-up page, "Call log" when it has none. */
+  get hostName(): string {
+    return this.ringCXAdapterBridge?.hostName || translate('callLog');
+  }
+
+  @delegate('server')
+  async onWrapUpLogFormChange(
+    formData: UnknownRecord,
+    keys: string[],
+  ): Promise<void> {
+    await this.ringCXAdapterBridge?.onLogFormInputChanged?.({
+      callId: this.callId,
+      formData,
+      keys,
+    });
+  }
+
+  @delegate('server')
+  async onWrapUpLogFormButtonClick(
+    buttonId: string,
+    formData: UnknownRecord,
+  ): Promise<void> {
+    await this.ringCXAdapterBridge?.onLogFormButtonClick?.(buttonId, formData);
+  }
+
+  /**
+   * Leaves the wrap-up page without logging the call, which stays Unlogged
+   * in history.
+   */
+  @delegate('server')
+  async logLater(): Promise<void> {
+    this.cxWrapUpLog.update(this.callId, { logStatus: 'skipped' });
+    this.leaveEndedDisposition();
+  }
+
+  /**
+   * One Submit for the wrap-up page: the disposition first, as today, then
+   * the host's call log form. A failed or slow log never undoes or holds the
+   * disposition; the page stays with Retry and Log later instead.
+   *
+   * @param formData - The call log form to save, or null while it is not
+   * shown.
+   * @param skipLog - Submit without logging, when only the call log form
+   * blocks the submit.
+   */
+  @delegate('server')
+  async submitWrapUp({
+    formData = null,
+    skipLog = false,
+  }: {
+    formData?: UnknownRecord | null;
+    skipLog?: boolean;
+  } = {}): Promise<void> {
+    if (this.isHistoryMode) {
+      await this.disposeCall();
+      return;
+    }
+    if (this.saveStatus === SaveStatus.SAVED) {
+      this.goBack();
+      return;
+    }
+    const callId = this.callId;
+    if (
+      this.saveStatus === SaveStatus.SAVING ||
+      this.cxWrapUpLog.get(callId)?.logStatus === 'saving'
+    ) {
+      return;
+    }
+    const needsDisposition =
+      this.showSubmitStep && !this.cxCallDisposition.isDisposed(callId);
+    if (needsDisposition && !this._validateDisposition()) {
+      return;
+    }
+    const callEndedBefore =
+      this.callStatus === 'callEnd' || !this.hasCurrentCall;
+    const submittedPath = this.router.currentPath;
+    const viewCallId = this.viewCallId;
+    let logsOnWrapUp = this.getWrapUpLogMode(callId) !== 'none';
+    this.setSaveStatus(SaveStatus.SAVING);
+    if (needsDisposition) {
+      try {
+        logsOnWrapUp = await this._saveDisposition();
+      } catch (e) {
+        console.error(e);
+        this.setSaveStatus(SaveStatus.SUBMIT);
+        this.toast.danger({
+          message: translate('callDispositionFailed'),
+          ttl: 0,
+        });
+        return;
+      }
+    }
+    // Read again: the call can end while the disposition is sent, a "Hangup
+    // on Disp" campaign ends it then, and the host can open its own log page
+    // for the call meanwhile, see `_openWrapUpLogPage`.
+    const callEnded = callEndedBefore || !this.cxCallMonitor.callIds.includes(callId);
+    const entry = this.cxWrapUpLog.get(callId);
+    if (
+      !callEnded &&
+      !formData &&
+      !skipLog &&
+      entry?.hostOpened &&
+      entry.logStatus === 'pending'
+    ) {
+      // The host opened its log form for the call: the page stays for it.
+      this.setSaveStatus(SaveStatus.SUBMIT);
+      return;
+    }
+    if (!callEnded && this.isWrapUpLogOpen(callId) && (formData || skipLog)) {
+      // Saved with the final call when it ends, see `CxRouteCoordinator`.
+      this.cxWrapUpLog.update(
+        callId,
+        skipLog
+          ? { logStatus: 'skipped', queuedFormData: undefined }
+          : { logStatus: 'queued', queuedFormData: formData ?? undefined },
+      );
+    } else if (callEnded && this.isWrapUpLogOpen(callId)) {
+      if (skipLog) {
+        this.cxWrapUpLog.update(callId, { logStatus: 'skipped' });
+      } else if (formData) {
+        const saved = await this._saveWrapUpLog(callId, formData);
+        if (!saved) {
+          this.setSaveStatus(SaveStatus.SUBMIT);
+          return;
+        }
+      } else {
+        // The call log form is not shown yet: the page stays for it.
+        this.setSaveStatus(SaveStatus.SUBMIT);
+        return;
+      }
+    } else if (callEnded && this.cxWrapUpLog.get(callId)) {
+      // The host logs the call on its own, after `callDisposition`.
+      this.cxWrapUpLog.update(callId, { logStatus: 'saved' });
+    }
+    this.setSaveStatus(SaveStatus.SAVED);
+    this._scheduleSubmitNavigation({
+      callId,
+      viewCallId,
+      path: submittedPath,
+      openedLogPage: !callEnded && logsOnWrapUp,
+      shouldGoToDialer: callEnded,
+    });
+  }
+
+  private async _saveWrapUpLog(
+    callId: string,
+    formData: UnknownRecord,
+  ): Promise<boolean> {
+    this.cxWrapUpLog.update(callId, {
+      logStatus: 'saving',
+      logError: undefined,
+    });
+    const result = (await this.ringCXAdapterBridge?.saveLogForm?.({
+      callId,
+      formData,
+    })) ?? { error: translate('logFailed', { host: this.hostName }) };
+    if (result.error) {
+      this.cxWrapUpLog.update(callId, {
+        logStatus: 'failed',
+        logError: result.error,
+      });
+      return false;
+    }
+    this.cxWrapUpLog.update(callId, {
+      logStatus: 'saved',
+      queuedFormData: undefined,
+    });
+    return true;
   }
 
   @delegate('server')
@@ -874,11 +1214,7 @@ class CxDispositionView extends RcViewModule {
       return;
     }
     const callId = this.callId;
-    const saveFields = this.cxCallDisposition.getDisposition(callId);
-    this.setValidated({
-      notes: !this.required.notes || (this.required.notes && !!saveFields?.notes),
-    });
-    if (!this.validated.dispositionId || !this.validated.notes) {
+    if (!this._validateDisposition()) {
       return;
     }
     const shouldGoToDialerAfterSubmit = this.callStatus === 'callEnd' || !this.hasCurrentCall;
@@ -886,13 +1222,8 @@ class CxDispositionView extends RcViewModule {
     const viewCallId = this.viewCallId;
     try {
       this.setSaveStatus(SaveStatus.SAVING);
-      const openedLogPage = await this.doDisposeCall();
-      if (!this.isHistoryMode) {
-        void this.cxCallHistory.refresh();
-      }
+      const openedLogPage = await this._saveDisposition();
       this.setSaveStatus(SaveStatus.SAVED);
-      this.toast.success({ message: translate('callDispositionSuccess') });
-      await this.cxWorkingState.setIsPendingDisposition(false);
       this._scheduleSubmitNavigation({
         callId,
         viewCallId,
@@ -909,6 +1240,29 @@ class CxDispositionView extends RcViewModule {
       });
     }
   };
+
+  /** Shows the disposition's errors; returns whether it can be submitted. */
+  private _validateDisposition(): boolean {
+    const saveFields = this.cxCallDisposition.getDisposition(this.callId);
+    this.setValidated({
+      notes: !this.required.notes || (this.required.notes && !!saveFields?.notes),
+    });
+    return this.validated.dispositionId && this.validated.notes;
+  }
+
+  /**
+   * Sends the disposition and its side effects, then leaves Pending
+   * Disposition. Returns whether the call is logged on its wrap-up page.
+   */
+  private async _saveDisposition(): Promise<boolean> {
+    const logsOnWrapUp = await this.doDisposeCall();
+    if (!this.isHistoryMode) {
+      void this.cxCallHistory.refresh();
+    }
+    this.toast.success({ message: translate('callDispositionSuccess') });
+    await this.cxWorkingState.setIsPendingDisposition(false);
+    return logsOnWrapUp;
+  }
 
   private _scheduleSubmitNavigation(context: SubmitNavigationContext): void {
     this._cancelSubmitNavigation();
@@ -971,14 +1325,17 @@ class CxDispositionView extends RcViewModule {
       this._reset();
       return;
     }
+    if (isCallFinished && context.openedLogPage && !context.shouldGoToDialer) {
+      // The call ended while its disposition was sent: the page stays for
+      // its call log.
+      this.cxWrapUpLog.open(context.callId, false);
+      this._reset();
+      return;
+    }
     if (isCallFinished) {
       this.cxCall.setDialoutStatus(dialoutStatuses.idle);
       this._setViewCallId('');
-      this.router.replace(
-        context.openedLogPage
-          ? `/log/call/${context.callId}?source=ringcx`
-          : this.homePath,
-      );
+      this.router.replace(this.homePath);
       this._reset();
       this.cxCall.setActivityCallId('');
       return;
@@ -1031,6 +1388,25 @@ class CxDispositionView extends RcViewModule {
       isSummaryFinal: summaryState?.isFinal || false,
       isSummaryLoading: summaryState?.isLoading || false,
       isSummaryEdited: summaryState?.isEditedAfterFinal || false,
+      viewCallId: this.viewCallId,
+      wrapUp: this.getWrapUpUIProps(callId),
+    };
+  }
+
+  getWrapUpUIProps(callId: string): WrapUpUIProps {
+    const bridge = this.ringCXAdapterBridge;
+    const loaded = this.wrapUpLogCall;
+    return {
+      logMode: this.getWrapUpLogMode(callId),
+      entry: this.cxWrapUpLog.get(callId) ?? null,
+      hostName: this.hostName,
+      logCallPage: bridge?.logCallPage,
+      logCall: loaded?.id === callId ? loaded.call : null,
+      logButtonTitle: bridge?.callLoggerTitle ?? null,
+      logCallPageOwnerId: bridge?.logCallPageOwnerId ?? null,
+      wrapUpStartTime: this.cxWorkingState.isPendingDisposition
+        ? this.cxWorkingState.time
+        : null,
     };
   }
 
@@ -1046,6 +1422,14 @@ class CxDispositionView extends RcViewModule {
       onUpdateCallLog: (field, value) => this.onUpdateCallLog(field, value),
       onUpdateSummary: (value) => this.onUpdateSummary(value),
       disposeCall: () => this.disposeCall(),
+      submitWrapUp: (input) => this.submitWrapUp(input),
+      logLater: () => this.logLater(),
+      prepareLogForm: (callId) => this.prepareWrapUpLogForm(callId),
+      loadLogCall: (callId) => this.loadWrapUpLogCall(callId),
+      onLogFormChange: (formData, keys) =>
+        this.onWrapUpLogFormChange(formData, keys),
+      onLogFormButtonClick: (buttonId, formData) =>
+        this.onWrapUpLogFormButtonClick(buttonId, formData),
       onViewLead: async () => {
         await this.ringCXSideWidgets?.viewLeadInfo({
           type: 'call',
@@ -1092,6 +1476,8 @@ class CxDispositionView extends RcViewModule {
       historyDispositionName,
       hasHistoryCall,
       hasLeadInfo,
+      wrapUp,
+      viewCallId,
     } = uiProps;
 
     // Decided once per call id: the call becomes disposed and over while the
@@ -1275,6 +1661,19 @@ class CxDispositionView extends RcViewModule {
       );
     }
 
+    // The route's call is set on the server just after the page mounts. Until
+    // then the state is another call's, such as a call dispositioned during
+    // the call before, which would start the page on its saved disposition.
+    if (!isHistoryMode && params.id && viewCallId !== params.id) {
+      return (
+        <div className="flex flex-col h-full bg-neutral-base">
+          {header}
+          <div className="flex-1" />
+          <AppFooterNav />
+        </div>
+      );
+    }
+
     if (!currentCall) {
       return (
         <div className="flex flex-col h-full bg-neutral-base">
@@ -1290,83 +1689,40 @@ class CxDispositionView extends RcViewModule {
     return (
       <div className="flex flex-col h-full bg-neutral-base overflow-hidden">
         {header}
-
-        <CallInfoHeader
-          subject={basicInfo?.subject}
+        <WrapUpPanel
+          // Each call's page starts afresh: Disposition first while it is to
+          // be submitted, and no tab or form state from another call.
+          key={params.id || this.callId}
+          callId={params.id || this.callId}
+          basicInfo={basicInfo}
           isInbound={isInbound}
-          status={showCallEnded ? 'callEnd' : 'active'}
-          isRinging={!showCallEnded}
-          followInfos={basicInfo?.followInfos}
-          callInfos={basicInfo?.callInfos}
-          actions={viewLeadButton}
+          callEnded={showCallEnded}
+          viewLeadButton={viewLeadButton}
+          showSubmitStep={showSubmitStep}
+          isDisposed={isDisposed}
+          saveStatus={saveStatus}
+          submitEndsCall={submitEndsCall}
+          submitBlockedByVoicemailDrop={submitBlockedByVoicemailDrop}
+          dispositionPickList={dispositionPickList}
+          dispositionData={dispositionData}
+          validated={validated}
+          required={required}
+          hideCallNote={hideCallNote}
+          showSummary={showSummary}
+          summary={summary}
+          isSummaryFinal={isSummaryFinal}
+          isSummaryLoading={isSummaryLoading}
+          isSummaryEdited={isSummaryEdited}
+          wrapUp={wrapUp}
+          onUpdateCallLog={uiFunctions.onUpdateCallLog}
+          onUpdateSummary={uiFunctions.onUpdateSummary}
+          onSubmit={uiFunctions.submitWrapUp}
+          onLogLater={uiFunctions.logLater}
+          onPrepareLogForm={uiFunctions.prepareLogForm}
+          onLoadLogCall={uiFunctions.loadLogCall}
+          onLogFormChange={uiFunctions.onLogFormChange}
+          onLogFormButtonClick={uiFunctions.onLogFormButtonClick}
         />
-
-        <div className="flex-1 flex flex-col overflow-hidden">
-          {showSubmitStep ? (
-            <div className="flex-1 p-4 overflow-auto">
-              <DispositionForm
-                dispositionPickList={dispositionPickList}
-                dispositionData={dispositionData}
-                validated={validated}
-                required={required}
-                hideCallNote={hideCallNote}
-                showSummary={showSummary}
-                summary={summary}
-                isSummaryFinal={isSummaryFinal}
-                isSummaryLoading={isSummaryLoading}
-                disableDispositionSelect={isDisposed}
-                onFieldChange={uiFunctions.onUpdateCallLog}
-                onSummaryChange={uiFunctions.onUpdateSummary}
-                selectPlaceholder={t('pleaseSelect')}
-                dispositionErrorText={t('dispositionError')}
-                notesErrorText={t('notesRequired')}
-                dispositionLabel={t('disposition')}
-                notesLabel={t('notes')}
-                notesPlaceholder={t('enterNotes')}
-                summaryLabel={isSummaryEdited ? t('summaryEdited') : t('summary')}
-                summaryPlaceholder={t('summaryPlaceholder')}
-                summaryLoadingText={t('summaryLoading')}
-              />
-            </div>
-          ) : (
-            <div className="flex-1" />
-          )}
-        </div>
-
-        {showSubmitStep && (
-          <div className="flex-shrink-0 p-4 border-t border-neutral-b4 shadow-[0_-2px_5px_0_rgba(0,0,0,0.15)]">
-            {submitBlockedByVoicemailDrop ? (
-              <p
-                className="typography-descriptor text-neutral-b2 mb-2"
-                data-sign="submitBlockedByVoicemailDrop"
-              >
-                {t('submitAfterVoicemailDrop')}
-              </p>
-            ) : null}
-            <Button
-              data-sign="submitButton"
-              size="large"
-              fullWidth
-              disabled={
-                submitBlockedByVoicemailDrop ||
-                saveStatus === SaveStatus.SAVING ||
-                (saveStatus === SaveStatus.SUBMIT && (
-                  (dispositionPickList.length > 0 && !dispositionData?.dispositionId) ||
-                  (required.notes && !dispositionData?.notes)
-                ))
-              }
-              loading={saveStatus === SaveStatus.SAVING}
-              onClick={uiFunctions.disposeCall}
-              color={saveStatus === SaveStatus.SAVED ? 'success' : 'primary'}
-            >
-              {saveStatus === SaveStatus.SAVED ? (
-                <Icon symbol={CheckMd} size="medium" />
-              ) : saveStatus === SaveStatus.SAVING ? null : (
-                t(submitEndsCall ? 'submitAndHangUp' : 'submit')
-              )}
-            </Button>
-          </div>
-        )}
         <AppFooterNav />
       </div>
     );
