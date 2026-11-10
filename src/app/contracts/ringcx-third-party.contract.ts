@@ -12,6 +12,7 @@ export const ringCXThirdPartyContract = {
     'callLoggerPath',
     'callLoggerTitle',
     'showLogModal',
+    'callLoggerPrepareLogForm',
     'callLogEntityMatcherPath',
     'activitiesPath',
     'activityPath',
@@ -60,6 +61,7 @@ export const ringCXThirdPartyContract = {
   ],
   triggerTypes: [
     'callDisposition',
+    'prepareLogForm',
     'logForm',
     'createLog',
     'editLog',

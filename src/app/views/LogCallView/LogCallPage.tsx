@@ -1,4 +1,3 @@
-import { JSONSchemaPage } from "@ringcentral-integration/jsonschema-spring-page";
 import { useLocale } from "@ringcentral-integration/micro-core/src/app/hooks";
 import type { HistoryCall } from "@ringcentral-integration/micro-phone/src/app/services";
 import type { CallDetailViewPanelProps } from "@ringcentral-integration/micro-phone/src/app/views/CallDetailView/CallDetail.view.interface";
@@ -7,14 +6,17 @@ import {
   CircularProgressIndicator,
   EmptyState,
 } from "@ringcentral/spring-ui";
-import React, { useMemo, useState } from "react";
+import React, { useMemo } from "react";
 
 import type { CompatibleCall } from "../../services/CallLogger";
 import type { ThirdPartyPage, UnknownRecord } from "../../services/ThirdParty";
 import { CallDetailPage } from "../CallHistoryView/CallDetailPage";
 
+import { allRequiredFieldsAreFilled } from "./callLogForm.helper";
+import { CallLogForm } from "./CallLogForm";
 import i18n from "./i18n";
 import { getLoggedActivity, resolveLogCallPage } from "./LogCallPage.helper";
+import { useCallLogFormData } from "./useCallLogFormData";
 
 const HIDDEN_LOG_CALL_HEADER_ACTIONS = new Set([
   "call",
@@ -37,49 +39,6 @@ interface LogCallPageProps {
   saving: boolean;
   useActionsHandler: CallDetailViewPanelProps["useActionsHandler"];
   useCallHistoryItemInfo: CallDetailViewPanelProps["useCallHistoryItemInfo"];
-}
-
-function normalizeFormData(value: unknown): UnknownRecord {
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
-    return {};
-  }
-  return value as UnknownRecord;
-}
-
-function valuesAreEqual(first: unknown, second: unknown): boolean {
-  if (
-    first &&
-    second &&
-    typeof first === "object" &&
-    typeof second === "object"
-  ) {
-    return JSON.stringify(first) === JSON.stringify(second);
-  }
-  return first === second;
-}
-
-function getChangedKeys(
-  currentFormData: UnknownRecord,
-  nextFormData: UnknownRecord
-): string[] {
-  return Object.keys(nextFormData).filter(
-    (key) => !valuesAreEqual(currentFormData[key], nextFormData[key])
-  );
-}
-
-function allRequiredFieldsAreFilled(
-  formData: UnknownRecord,
-  schema: UnknownRecord
-): boolean {
-  if (!Array.isArray(schema.required)) {
-    return true;
-  }
-  return schema.required
-    .filter((key): key is string => typeof key === "string")
-    .every((key) => {
-      const value = formData[key];
-      return value !== undefined && value !== null && value !== "";
-    });
 }
 
 export function LogCallPage({
@@ -116,22 +75,7 @@ export function LogCallPage({
         : null,
     [call, customizedPage, logButtonTitle, t]
   );
-  const pageFormData = useMemo(
-    () => normalizeFormData(page?.formData),
-    [page?.formData]
-  );
-  const [editedFormData, setEditedFormData] = useState<{
-    base: UnknownRecord;
-    data: UnknownRecord;
-  } | null>(null);
-  // The host can register its page after this route starts rendering, so the
-  // form data has to be derived from the page in the same render as the schema.
-  // Otherwise the form reports the defaults it computes for the new schema as a
-  // user change, and the host overwrites its own form data with it.
-  const formData =
-    editedFormData && valuesAreEqual(editedFormData.base, pageFormData)
-      ? editedFormData.data
-      : pageFormData;
+  const { formData, setFormData } = useCallLogFormData(page);
 
   if (loading) {
     return (
@@ -207,22 +151,15 @@ export function LogCallPage({
       useCallHistoryItemInfo={useLogCallItemInfo}
     >
       <div className="px-4 pb-4 pt-2">
-        <JSONSchemaPage
-          schema={schema}
-          uiSchema={uiSchema}
+        <CallLogForm
+          page={page}
           formData={formData}
-          hiddenSubmitButton
-          onFormDataChange={(value: unknown) => {
-            const nextFormData = normalizeFormData(value);
-            if (valuesAreEqual(formData, nextFormData)) {
-              return;
-            }
-            const changedKeys = getChangedKeys(formData, nextFormData);
-            setEditedFormData({ base: pageFormData, data: nextFormData });
+          onChange={(nextFormData, changedKeys) => {
+            setFormData(nextFormData);
             onFormDataChange(nextFormData, changedKeys);
           }}
-          onButtonClick={(buttonId) => onButtonClick(buttonId, formData)}
-          onSubmit={() => onSubmit(formData)}
+          onButtonClick={onButtonClick}
+          onSubmit={onSubmit}
         />
       </div>
     </CallDetailPage>

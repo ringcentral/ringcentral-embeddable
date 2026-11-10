@@ -64,6 +64,7 @@ import type {
   ThirdPartyBanner,
   ThirdPartyButton,
   ThirdPartyCall,
+  ThirdPartyCallLoggerResponse,
   ThirdPartyContact,
   ThirdPartyConversation,
   ThirdPartyMessage,
@@ -235,6 +236,20 @@ export class ThirdParty extends RcModule {
 
   @state
   callLoggerHideEditLogButton = false;
+
+  /**
+   * The host builds its RingCX call log form on a `prepareLogForm` request,
+   * for the app's own wrap-up page, instead of opening a log page itself.
+   */
+  @state
+  callLoggerPrepareLogForm = false;
+
+  /**
+   * The call the current `$LOG-CALL` form was requested for. A host keeps one
+   * log form at a time, so a form asked for another call replaces it.
+   */
+  @state
+  logCallPageOwnerId: string | null = null;
 
   @state
   callLoggerAutoLogSettingHidden = false;
@@ -1052,6 +1067,7 @@ export class ThirdParty extends RcModule {
       callLoggerAutoSettingWarning: service.callLoggerAutoSettingWarning,
       callLoggerAutoLogOnCallSync: service.callLoggerAutoLogOnCallSync,
       callLoggerHideEditLogButton: service.callLoggerHideEditLogButton,
+      callLoggerPrepareLogForm: service.callLoggerPrepareLogForm,
     });
   }
 
@@ -1720,6 +1736,9 @@ export class ThirdParty extends RcModule {
    * Sends a call to the host `callLoggerPath`. Host errors and timeouts are
    * only logged, unless `throwOnFailure` asks to rethrow them so the caller
    * can tell the user. `throwOnFailure` is not sent to the host.
+   *
+   * @returns The host's answer, or undefined when nothing was sent or the
+   * request failed without `throwOnFailure`.
    */
   @delegate('server')
   async logCall({
@@ -1730,11 +1749,11 @@ export class ThirdParty extends RcModule {
     call: ThirdPartyCall;
     throwOnFailure?: boolean;
     [key: string]: unknown;
-  }): Promise<void> {
+  }): Promise<ThirdPartyCallLoggerResponse | undefined> {
     try {
       const callLoggerPath = this._callLoggerPath;
       if (!callLoggerPath) {
-        return;
+        return undefined;
       }
       if (
         this._smartNotes?.hasPermission &&
@@ -1771,11 +1790,11 @@ export class ThirdParty extends RcModule {
           contentUri: this.getRecordingContentUri(call.recording),
         };
       }
-      const sent = await this._sendCallLog(callLoggerPath, {
+      const result = await this._sendCallLog(callLoggerPath, {
         call: callItem,
         ...options,
       });
-      if (sent !== true) {
+      if (result?.sent !== true) {
         throw new Error(`Call logger did not respond: ${callLoggerPath}`);
       }
       if (this._callLogEntityMatchSourceAdded && call.sessionId) {
@@ -1784,6 +1803,7 @@ export class ThirdParty extends RcModule {
           ignoreCache: true,
         });
       }
+      return result.response;
     } catch (error) {
       console.error(
         'Log call error, please check if call logger responds successfully',
@@ -1792,12 +1812,26 @@ export class ThirdParty extends RcModule {
       if (throwOnFailure) {
         throw error;
       }
+      return undefined;
     }
   }
 
+  @action
+  private _setLogCallPageOwner(id: string | null): void {
+    this.logCallPageOwnerId = id;
+  }
+
   /**
-   * Resolves `true` once the host responds. An error thrown on the main
-   * client does not reach the caller on the server, so a failure is
+   * Records which call the next `$LOG-CALL` form is asked for.
+   */
+  @delegate('server')
+  async setLogCallPageOwner(id: string | null): Promise<void> {
+    this._setLogCallPageOwner(id);
+  }
+
+  /**
+   * Resolves with the host's answer once it responds. An error thrown on the
+   * main client does not reach the caller on the server, so a failure is
    * returned instead.
    */
   @delegate('mainClient')
@@ -1807,13 +1841,19 @@ export class ThirdParty extends RcModule {
       call: ThirdPartyCall;
       [key: string]: unknown;
     }
-  ): Promise<boolean> {
+  ): Promise<{ sent: boolean; response?: ThirdPartyCallLoggerResponse }> {
     try {
-      await requestWithPostMessage(path, data, LOG_TIMEOUT);
-      return true;
+      const response = await requestWithPostMessage(path, data, LOG_TIMEOUT);
+      return {
+        sent: true,
+        response:
+          response && typeof response === 'object'
+            ? (response as ThirdPartyCallLoggerResponse)
+            : undefined,
+      };
     } catch (error) {
       console.error('Call logger request failed', error);
-      return false;
+      return { sent: false };
     }
   }
 
@@ -2531,6 +2571,7 @@ export class ThirdParty extends RcModule {
     callLoggerAutoSettingWarning = '',
     callLoggerAutoLogOnCallSync,
     callLoggerHideEditLogButton = false,
+    callLoggerPrepareLogForm = false,
   }: {
     callLoggerTitle?: string;
     callLoggerAutoSettingLabel?: string;
@@ -2543,6 +2584,7 @@ export class ThirdParty extends RcModule {
     callLoggerAutoSettingWarning?: string;
     callLoggerAutoLogOnCallSync?: boolean;
     callLoggerHideEditLogButton?: boolean;
+    callLoggerPrepareLogForm?: boolean;
   }): void {
     if (callLoggerTitle) {
       this.callLoggerTitle = callLoggerTitle;
@@ -2568,6 +2610,7 @@ export class ThirdParty extends RcModule {
     this.callLoggerRegistered = true;
     this.callLoggerAutoLogOnCallSync = Boolean(callLoggerAutoLogOnCallSync);
     this.callLoggerHideEditLogButton = Boolean(callLoggerHideEditLogButton);
+    this.callLoggerPrepareLogForm = Boolean(callLoggerPrepareLogForm);
     this.callLoggerAutoLogSettingHidden = Boolean(
       callLoggerAutoLogSettingHidden
     );

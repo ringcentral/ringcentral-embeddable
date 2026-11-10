@@ -63,6 +63,12 @@ import type { ProgressiveDialStatus } from '../CxProgressiveDial';
 import { CxWorkingState } from '../CxWorkingState';
 import { shouldShowDispositionSubmitStep } from '../../utils/shouldShowDispositionSubmitStep';
 import type { DispositionStepCall } from '../../utils/shouldShowDispositionSubmitStep';
+import type { CxWrapUpLogMode } from '../CxWrapUpLog';
+import type {
+  ThirdPartyCall,
+  ThirdPartyPage,
+  UnknownRecord,
+} from '../../../app/services/ThirdParty';
 
 type CallLogContact = Parameters<CallLogger['logCall']>[0]['contact'];
 
@@ -81,6 +87,25 @@ interface DisposedExtra {
   dispositionName?: string;
   notes?: string;
   summary?: string;
+}
+
+/**
+ * The host's answer to a wrap-up `prepareLogForm` request: its form was
+ * posted (`ready`), or it has none for the call (`none`, with its reason).
+ * `failed` is no answer at all.
+ */
+export interface PrepareLogFormResult {
+  status: 'ready' | 'none' | 'failed';
+  reason?: string;
+}
+
+interface HostLogInput {
+  call: unknown;
+  contact?: CallLogContact;
+  note?: string;
+  triggerType: string;
+  formData?: UnknownRecord;
+  redirect?: boolean;
 }
 
 const HISTORY_LOG_SOURCE = 'ringcx';
@@ -301,7 +326,8 @@ export class RingCXAdapterBridge
 
   /**
    * Log a call that ended without a disposition step.
-   * Returns true when the caller should open the host log page.
+   * Returns true when the call is logged on its wrap-up page instead, which
+   * the caller opens.
    *
    * With auto log on, the host is sent the `callDisposition` log a submitted
    * disposition would have sent. The request is not awaited: the host answers
@@ -316,7 +342,8 @@ export class RingCXAdapterBridge
     if (!formatted || !this._callLogger.ready) {
       return false;
     }
-    if (this.shouldOpenLogPage) {
+    // The call is logged on its wrap-up page.
+    if (this.wrapUpLogMode !== 'none') {
       return true;
     }
     if (!this._callLogger.autoLog) {
@@ -335,12 +362,12 @@ export class RingCXAdapterBridge
 
   /**
    * Disposition has already succeeded. A log failure must not undo that.
-   * Returns true when the call is to be logged on the host log page, which
-   * the caller opens once the call is over.
+   * Returns true when the call is logged on its wrap-up page, with the host's
+   * call log form, instead of with a `callDisposition` request.
    *
-   * A submitted disposition always sends the host the `callDisposition` log,
-   * whatever the auto log setting, unlike a call that ends without a
-   * disposition step.
+   * Otherwise a submitted disposition always sends the host the
+   * `callDisposition` log, whatever the auto log setting, unlike a call that
+   * ends without a disposition step.
    */
   async logAfterDisposition(input: {
     call: unknown;
@@ -355,7 +382,7 @@ export class RingCXAdapterBridge
     if (!this._callLogger.ready) {
       return false;
     }
-    if (this.shouldOpenLogPage) {
+    if (this.wrapUpLogMode !== 'none') {
       return true;
     }
     await this.logCall({
@@ -369,15 +396,185 @@ export class RingCXAdapterBridge
   }
 
   /**
-   * Whether a call disposed while it was still up opens the host log page
-   * when it ends, as `logAfterDisposition` answered for it.
+   * Whether a call disposed while it was still up comes back to its wrap-up
+   * page when it ends, to be logged there, as `logAfterDisposition` answered
+   * for it.
    */
   shouldOpenLogPageAfterDisposition(): boolean {
-    return this._callLogger.ready && this.shouldOpenLogPage;
+    return this.wrapUpLogMode !== 'none';
   }
 
   get shouldOpenLogPage(): boolean {
     return this._thirdParty.callLoggerRegistered && this._thirdParty.showLogModal;
+  }
+
+  /**
+   * Where the wrap-up page gets its call log form. A host that opted in with
+   * `callLoggerPrepareLogForm` builds it on request; a `showLogModal` host
+   * gets the form its log page shows.
+   */
+  get wrapUpLogMode(): CxWrapUpLogMode {
+    if (!this._callLogger.ready || !this._thirdParty.callLoggerRegistered) {
+      return 'none';
+    }
+    if (this._thirdParty.callLoggerPrepareLogForm) {
+      return 'prepare';
+    }
+    return this._thirdParty.showLogModal ? 'page' : 'none';
+  }
+
+  /** The host's name for the wrap-up page's call log tab. */
+  get hostName(): string {
+    return this._thirdParty.displayName || this._thirdParty.serviceName || '';
+  }
+
+  /**
+   * Asks an opted-in host for its call log form for an ended call. The host
+   * posts the form as `$LOG-CALL` and does not navigate or log.
+   */
+  async prepareLogForm(callId: string): Promise<PrepareLogFormResult> {
+    const raw = this._findRawCall(callId);
+    if (!raw) {
+      return { status: 'failed' };
+    }
+    await this._thirdParty.setLogCallPageOwner(callId);
+    try {
+      const response = await this._requestHostLog({
+        call: raw,
+        note: this._cxCallDisposition.getDisposition(callId)?.notes,
+        triggerType: 'prepareLogForm',
+      });
+      if (response?.noLogForm) {
+        return { status: 'none', reason: String(response.noLogForm) };
+      }
+      return this._thirdParty.customizedLogCallPage
+        ? { status: 'ready' }
+        : { status: 'none' };
+    } catch (error) {
+      this.logger.error('RingCX prepareLogForm failed', error);
+      return { status: 'failed' };
+    }
+  }
+
+  /**
+   * Saves the wrap-up page's call log form, as Save on the log page does.
+   *
+   * @returns The host's error for a failed save, or for no answer.
+   */
+  async saveLogForm({
+    callId,
+    formData,
+  }: {
+    callId: string;
+    formData: UnknownRecord;
+  }): Promise<{ error?: string }> {
+    const raw = this._findRawCall(callId);
+    if (!raw) {
+      return { error: t('callLogFailed') };
+    }
+    try {
+      const response = await this._requestHostLog({
+        call: raw,
+        formData,
+        note: typeof formData.note === 'string' ? formData.note : undefined,
+        redirect: true,
+        triggerType: 'logForm',
+      });
+      return response?.error ? { error: String(response.error) } : {};
+    } catch (error) {
+      this.logger.error('RingCX wrap-up log failed', error);
+      return { error: t('callLogFailed') };
+    }
+  }
+
+  /** The host's current `$LOG-CALL` form. */
+  get logCallPage(): ThirdPartyPage | undefined {
+    return this._thirdParty.customizedLogCallPage;
+  }
+
+  /** The call the host's `$LOG-CALL` form was asked for last. */
+  get logCallPageOwnerId(): string | null {
+    return this._thirdParty.logCallPageOwnerId;
+  }
+
+  /** The host's log page title, for a default log form. */
+  get callLoggerTitle(): string | null {
+    return this._thirdParty.callLoggerTitle;
+  }
+
+  /**
+   * Tells the host about a change on the wrap-up page's call log form, as
+   * the log page does.
+   */
+  async onLogFormInputChanged({
+    callId,
+    formData,
+    keys,
+  }: {
+    callId: string;
+    formData: UnknownRecord;
+    keys: string[];
+  }): Promise<void> {
+    const call = await this.getCallForLog(callId);
+    if (!call) {
+      return;
+    }
+    await this._thirdParty.onCustomizedLogCallPageInputChanged({
+      call: call as unknown as ThirdPartyCall,
+      formData,
+      keys,
+    });
+  }
+
+  async onLogFormButtonClick(
+    buttonId: string,
+    formData: UnknownRecord,
+  ): Promise<void> {
+    await this._thirdParty.onClickButtonInCustomizedPage(
+      buttonId,
+      'button',
+      formData,
+    );
+  }
+
+  /**
+   * Sends a call to the host call logger and returns its answer, which the
+   * call logger chain drops. The call is shaped as the call logger sends it.
+   */
+  private async _requestHostLog({
+    call,
+    contact,
+    note,
+    triggerType,
+    formData,
+    redirect = false,
+  }: HostLogInput) {
+    const formatted = this._format(call, { notes: note });
+    if (!formatted) {
+      throw new Error('RingCX call to log was not found');
+    }
+    if (note) {
+      formatted.call.ringcx.notes = note;
+    }
+    const loggerCall = this._toLoggerCall(formatted);
+    const entity = contact ?? selectedContact(loggerCall, formData);
+    const inbound = loggerCall.direction !== 'Outbound';
+    return this._thirdParty.logCall({
+      call: {
+        ...loggerCall,
+        duration:
+          formatted.call.duration ??
+          Math.round((Date.now() - Number(loggerCall.startTime)) / 1000),
+      } as unknown as Parameters<ThirdParty['logCall']>[0]['call'],
+      fromEntity: (inbound && entity) || null,
+      toEntity: (!inbound && entity) || null,
+      note,
+      aiNote: formatted.call.aiNote,
+      formData,
+      redirect,
+      triggerType,
+      throwOnFailure: true,
+    });
   }
 
   get leadViewerRegistered(): boolean {
@@ -906,6 +1103,22 @@ function singleContactMatch(call: CompatibleCall): CallLogContact {
   const matches =
     call.direction === 'Outbound' ? call.toMatches : call.fromMatches;
   return matches?.length === 1 ? (matches[0] as CallLogContact) : undefined;
+}
+
+/**
+ * The contact a log form picked, as the log page reads it, else the only
+ * contact match.
+ */
+function selectedContact(
+  call: CompatibleCall,
+  formData?: UnknownRecord,
+): CallLogContact {
+  const matches =
+    call.direction === 'Outbound' ? call.toMatches : call.fromMatches;
+  const picked = formData?.contactId
+    ? matches?.find((match) => match.id === formData.contactId)
+    : undefined;
+  return (picked as CallLogContact) ?? singleContactMatch(call);
 }
 
 /**

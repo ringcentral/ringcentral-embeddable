@@ -32,6 +32,10 @@ const AGENT_DIALER_PATH = `${AGENT_PATH}/home/${AGENT_DIALER_TAB}`;
 const AGENT_TABS_ID = 'agentTabs';
 const AGENT_HOME_TABS: readonly string[] = ['dialer', 'leads', 'history'];
 
+type CxDispositionModule = CxViewModule & {
+  getTabNameKey(callId?: string): 'disposition' | 'logCall';
+};
+
 type CxLiveCalls = {
   readonly callIds: readonly string[];
 };
@@ -47,7 +51,7 @@ export class CxAgentTabView extends RcViewModule {
   private readonly _cxCallHistoryDetailView?: CxViewModule;
 
   @dynamic('CxDispositionView')
-  private readonly _cxDispositionView?: CxViewModule;
+  private readonly _cxDispositionView?: CxDispositionModule;
 
   @dynamic('CxCallMonitor')
   private readonly _cxCallMonitor?: CxLiveCalls;
@@ -128,6 +132,17 @@ export class CxAgentTabView extends RcViewModule {
       return [];
     }
     return AGENT_HOME_TABS.map((tab) => `${AGENT_PATH}/home/${tab}`);
+  }
+
+  /**
+   * The CX disposition tab's name: Disposition, or Log call for a wrap-up
+   * page that only logs its call.
+   */
+  resolveDispositionTabNameKey(callId?: string): 'disposition' | 'logCall' {
+    if (!this._ringCX.loaded || !this._cxDispositionView) {
+      return 'disposition';
+    }
+    return this._cxDispositionView.getTabNameKey(callId);
   }
 
   /**

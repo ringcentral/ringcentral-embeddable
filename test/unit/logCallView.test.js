@@ -75,9 +75,14 @@ describe("LogCallView", () => {
     const callViewState = {
       getExtraLogData: jest.fn(() => ({ callSelectionInfo })),
     };
-    const view = new LogCallView(callLogger, {}, {}, {}, callViewState);
+    const thirdParty = { setLogCallPageOwner: jest.fn() };
+    const view = new LogCallView(callLogger, thirdParty, {}, {}, callViewState);
 
     await view.loadCall("session-id");
+
+    // The host's log form now belongs to this call, so a RingCX wrap-up page
+    // asks for its own form again.
+    expect(thirdParty.setLogCallPageOwner).toHaveBeenCalledWith("session-id");
 
     expect(view.currentCall).toEqual(call);
     expect(view.getCurrentCallWithExtraLogData()).toEqual({
@@ -95,7 +100,7 @@ describe("LogCallView", () => {
     const call = { sessionId: "session-id", telephonySessionId: "t-1" };
     const view = new LogCallView(
       { getCall: jest.fn(async () => call) },
-      {},
+      { setLogCallPageOwner: jest.fn() },
       {},
       {},
       { getExtraLogData: jest.fn(() => ({})) },
@@ -185,7 +190,11 @@ describe("LogCallView from the call page", () => {
   } = {}) {
     const view = new LogCallView(
       callLogger,
-      { callLoggerTitle: null, customizedLogCallPage: null },
+      {
+        callLoggerTitle: null,
+        customizedLogCallPage: null,
+        setLogCallPageOwner: jest.fn(),
+      },
       router,
       {},
       { getExtraLogData: jest.fn(() => ({})) },
@@ -237,6 +246,56 @@ describe("LogCallView from the call page", () => {
     await view.openLogCallPage("/log/call/session-1");
 
     expect(router.push).toHaveBeenCalledWith("/log/call/session-1");
+  });
+
+  describe("a source that shows the log form itself", () => {
+    const {
+      callLogSourceRegistry,
+    } = require("../../src/app/services/CallLogger/CallLogSourceRegistry");
+
+    afterEach(() => {
+      callLogSourceRegistry.unregisterLogPageHandler("ringcx");
+    });
+
+    test("lets the source show its call's log page", async () => {
+      const router = createRouter("/dialer");
+      const handler = jest.fn(async () => true);
+      callLogSourceRegistry.registerLogPageHandler("ringcx", handler);
+      const view = createView({ router });
+
+      await expect(
+        view.openLogCallPage("/log/call/uii%241?source=ringcx")
+      ).resolves.toBe(true);
+
+      expect(handler).toHaveBeenCalledWith("uii$1");
+      expect(router.push).not.toHaveBeenCalled();
+    });
+
+    test("opens the log page when the source does not show it", async () => {
+      const router = createRouter("/dialer");
+      const handler = jest.fn(async () => false);
+      callLogSourceRegistry.registerLogPageHandler("ringcx", handler);
+      const view = createView({ router });
+
+      await view.openLogCallPage("/log/call/uii-2?source=ringcx");
+
+      expect(handler).toHaveBeenCalledWith("uii-2");
+      expect(router.push).toHaveBeenCalledWith(
+        "/log/call/uii-2?source=ringcx"
+      );
+    });
+
+    test("leaves a log page without a source to the log page", async () => {
+      const router = createRouter("/dialer");
+      const handler = jest.fn(async () => true);
+      callLogSourceRegistry.registerLogPageHandler("ringcx", handler);
+      const view = createView({ router });
+
+      await view.openLogCallPage("/log/call/session-1");
+
+      expect(handler).not.toHaveBeenCalled();
+      expect(router.push).toHaveBeenCalledWith("/log/call/session-1");
+    });
   });
 
   test("leaves other paths to the caller", async () => {
@@ -405,7 +464,11 @@ describe("LogCallView in a routed side widget tab", () => {
     };
     const view = new LogCallView(
       callLogger,
-      { callLoggerTitle: null, customizedLogCallPage: null },
+      {
+        callLoggerTitle: null,
+        customizedLogCallPage: null,
+        setLogCallPageOwner: jest.fn(),
+      },
       router,
       {},
       { getExtraLogData: jest.fn(() => ({})) }

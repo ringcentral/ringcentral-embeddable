@@ -997,7 +997,7 @@ describe('ThirdParty service', () => {
     requestWithPostMessage.mockResolvedValueOnce({ data: 'ok' });
     await expect(
       service.logCall({ call, throwOnFailure: true, note: 'Saved' }),
-    ).resolves.toBeUndefined();
+    ).resolves.toEqual({ data: 'ok' });
     const [, body] = requestWithPostMessage.mock.calls.at(-1);
     expect(body).toEqual(expect.objectContaining({ note: 'Saved' }));
     expect(body).not.toHaveProperty('throwOnFailure');
@@ -1008,13 +1008,56 @@ describe('ThirdParty service', () => {
     const call = { sessionId: 'one', from: {}, to: {} };
 
     requestWithPostMessage.mockResolvedValueOnce({ data: 'ok' });
-    await expect(service._sendCallLog('/callLogger', { call })).resolves.toBe(
-      true,
+    await expect(service._sendCallLog('/callLogger', { call })).resolves.toEqual(
+      { sent: true, response: { data: 'ok' } },
+    );
+    requestWithPostMessage.mockResolvedValueOnce('ok');
+    await expect(service._sendCallLog('/callLogger', { call })).resolves.toEqual(
+      { sent: true, response: undefined },
     );
     requestWithPostMessage.mockRejectedValueOnce(new Error('Time out: /callLogger'));
-    await expect(service._sendCallLog('/callLogger', { call })).resolves.toBe(
-      false,
+    await expect(service._sendCallLog('/callLogger', { call })).resolves.toEqual(
+      { sent: false },
     );
+  });
+
+  test('returns the host answer to a call logger request', async () => {
+    const { service } = createThirdParty();
+    registerService(service);
+    const call = { sessionId: 'one', from: {}, to: {} };
+
+    requestWithPostMessage.mockResolvedValueOnce({
+      data: 'ok',
+      noLogForm: 'No contact',
+    });
+    await expect(
+      service.logCall({ call, triggerType: 'prepareLogForm' }),
+    ).resolves.toEqual({ data: 'ok', noLogForm: 'No contact' });
+
+    requestWithPostMessage.mockResolvedValueOnce({ error: 'CRM is down' });
+    await expect(
+      service.logCall({ call, triggerType: 'logForm', throwOnFailure: true }),
+    ).resolves.toEqual({ error: 'CRM is down' });
+  });
+
+  test('registers the RingCX prepareLogForm opt-in with the call logger', () => {
+    const { service } = createThirdParty();
+    registerService(service);
+    expect(service.callLoggerPrepareLogForm).toBe(false);
+
+    registerService(service, { callLoggerPrepareLogForm: true });
+    expect(service.callLoggerPrepareLogForm).toBe(true);
+  });
+
+  test('records which call the log form was asked for', async () => {
+    const { service } = createThirdParty();
+    expect(service.logCallPageOwnerId).toBeNull();
+
+    await service.setLogCallPageOwner('uii-1$1');
+    expect(service.logCallPageOwnerId).toBe('uii-1$1');
+
+    await service.setLogCallPageOwner(null);
+    expect(service.logCallPageOwnerId).toBeNull();
   });
 
   test('marks activities loaded with none when the host fails', async () => {

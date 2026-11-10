@@ -96,6 +96,15 @@ export class LogCallView extends RcViewModule {
     if (!path.startsWith(LOG_CALL_PATH_PREFIX)) {
       return false;
     }
+    // A source can show the form on a page of its own, such as the wrap-up
+    // page of a RingCX call that is being dispositioned.
+    const [pathname, search = ""] = path.split("?");
+    const source = new URLSearchParams(search).get("source") ?? undefined;
+    const id = decodeURIComponent(pathname.slice(LOG_CALL_PATH_PREFIX.length));
+    if (await callLogSourceRegistry.openLogPage(source, id)) {
+      this._closeCallPageLog();
+      return true;
+    }
     if (
       this._callPageLogHandle &&
       this._router.currentPath === CALLING_ROUTE_PATH
@@ -215,6 +224,9 @@ export class LogCallView extends RcViewModule {
   private async loadCall(sessionId: string, source?: string): Promise<void> {
     this.setLoading(true);
     await this._storeCurrentCall(null);
+    // The host's `$LOG-CALL` form is now this call's, so a wrap-up page asks
+    // for its own form again.
+    void this._thirdParty.setLogCallPageOwner(sessionId);
     try {
       const decodedId = decodeURIComponent(sessionId);
       let call: CompatibleCall | null = null;
