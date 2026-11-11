@@ -50,8 +50,6 @@ export interface DispositionFormProps {
   validated: DispositionValidation;
   /** Required state */
   required: DispositionRequired;
-  /** Whether to hide the call notes field */
-  hideCallNote?: boolean;
   /** Whether to show the summary textarea */
   showSummary?: boolean;
   /** Summary text value */

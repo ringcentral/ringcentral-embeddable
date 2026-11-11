@@ -51,7 +51,6 @@ export const WrapUpPanel: FunctionComponent<WrapUpPanelProps> = ({
   dispositionData,
   validated,
   required,
-  hideCallNote,
   showSummary,
   summary,
   isSummaryFinal,
@@ -178,7 +177,6 @@ export const WrapUpPanel: FunctionComponent<WrapUpPanelProps> = ({
     hasLogForm &&
     showDispositionPart &&
     !dispositionSaved &&
-    !hideCallNote &&
     !!page &&
     hasFormField(page.schema ?? {}, 'note');
   const notes = dispositionData?.notes ?? '';
@@ -294,7 +292,7 @@ export const WrapUpPanel: FunctionComponent<WrapUpPanelProps> = ({
               (item) => item.dispositionId === dispositionData?.dispositionId,
             )?.disposition ?? ''
           }
-          notes={hideCallNote ? undefined : dispositionData?.notes}
+          notes={dispositionData?.notes}
         />
       ) : (
         <DispositionForm
@@ -302,7 +300,6 @@ export const WrapUpPanel: FunctionComponent<WrapUpPanelProps> = ({
           dispositionData={dispositionData}
           validated={validated}
           required={required}
-          hideCallNote={hideCallNote}
           showSummary={showSummary}
           summary={summary}
           isSummaryFinal={isSummaryFinal}

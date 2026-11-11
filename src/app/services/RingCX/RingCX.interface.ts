@@ -38,7 +38,6 @@ export interface CxViewModule {
 export interface RingCXOptions {
   readonly enableAgentScript?: boolean;
   readonly evServer?: string;
-  readonly hideCallNote?: boolean;
 }
 
 /**
@@ -104,7 +103,6 @@ export interface CxRuntimeOptions {
   readonly clientAppVersion: string;
   readonly currentLocale: string;
   readonly enableAgentScript: boolean;
-  readonly hideCallNote: boolean;
 }
 
 export interface CxChunk {

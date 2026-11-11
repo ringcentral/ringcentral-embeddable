@@ -99,13 +99,6 @@ export enum SaveStatus {
 }
 
 /**
- * CxDispositionView options for configuration
- */
-export interface CxDispositionViewOptions {
-  hideCallNote?: boolean;
-}
-
-/**
  * Disposition Item
  */
 interface DispositionItem {
@@ -158,8 +151,6 @@ class CxDispositionView extends RcViewModule {
     private portManager: PortManager,
     private matchedContactSelection: MatchedContactSelection,
     private cxWrapUpLog: CxWrapUpLog,
-    @optional('CxDispositionViewOptions')
-    private dispositionViewOptions?: CxDispositionViewOptions,
     @optional()
     private cxAgentScript?: CxAgentScript,
     @optional('RingCXAdapterBridge')
@@ -1381,7 +1372,6 @@ class CxDispositionView extends RcViewModule {
       hasHistoryCall: !!this.historyCall,
       hasLeadInfo: this.hasLeadInfo,
       showSubmitStep: this.showSubmitStep,
-      hideCallNote: this.dispositionViewOptions?.hideCallNote ?? false,
       showSummary: this.showSummary,
       segmentId,
       summary: this.summary,
@@ -1461,7 +1451,6 @@ class CxDispositionView extends RcViewModule {
       isDisposed,
       isHistoryMode,
       showSubmitStep,
-      hideCallNote,
       showSummary,
       segmentId,
       summary,
@@ -1605,7 +1594,6 @@ class CxDispositionView extends RcViewModule {
                   }}
                   validated={{ dispositionId: true, notes: true }}
                   required={{ notes: false }}
-                  hideCallNote={hideCallNote}
                   showSummary={showSummary}
                   summary={historyActivityDraft.agentSummary}
                   isSummaryFinal
@@ -1707,7 +1695,6 @@ class CxDispositionView extends RcViewModule {
           dispositionData={dispositionData}
           validated={validated}
           required={required}
-          hideCallNote={hideCallNote}
           showSummary={showSummary}
           summary={summary}
           isSummaryFinal={isSummaryFinal}

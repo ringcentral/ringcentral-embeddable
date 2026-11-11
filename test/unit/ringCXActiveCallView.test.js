@@ -123,7 +123,6 @@ describe('CxActiveCallView Disposition button', () => {
       { enable: jest.fn() },
       { shared: false },
       undefined,
-      undefined,
       routedSideWidgetView,
     );
     Object.defineProperty(view, 'callId', { value: CALL_ID });

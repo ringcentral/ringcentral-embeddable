@@ -60,7 +60,6 @@ export interface CxDispositionViewUIProps {
   /** True when the history list still has a row for this route id. */
   hasHistoryCall: boolean;
   showSubmitStep: boolean;
-  hideCallNote: boolean;
   showSummary: boolean;
   segmentId: string;
   summary: string;

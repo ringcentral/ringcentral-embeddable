@@ -361,7 +361,6 @@ interface CreateAppEntryOptions<T extends typeof createSharedApp>
   enableAgentScript?: boolean;
   enableAudioInitPrompt?: boolean;
   enableLoadMoreCalls?: boolean;
-  hideCallNote?: boolean;
 }
 
 /**
@@ -409,7 +408,6 @@ export const getAppConfig = <T extends typeof createSharedApp>({
   enableAgentScript = false,
   enableAudioInitPrompt = false,
   enableLoadMoreCalls = false,
-  hideCallNote = false,
   disableCall = false,
   disableCallHistory = false,
   disableContacts = false,
@@ -1139,7 +1137,6 @@ export const getAppConfig = <T extends typeof createSharedApp>({
         useValue: {
           enableAgentScript,
           evServer,
-          hideCallNote,
         },
       },
       // The RingCX chunk reaches the host through this token, so it does not

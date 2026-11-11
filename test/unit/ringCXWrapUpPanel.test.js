@@ -78,7 +78,6 @@ function props(overrides = {}) {
     dispositionData: { dispositionId: 'disp-1', notes: '', summary: '' },
     validated: { dispositionId: true, notes: true },
     required: { notes: false },
-    hideCallNote: false,
     showSummary: false,
     summary: '',
     isSummaryFinal: false,

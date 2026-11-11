@@ -55,7 +55,6 @@ export interface WrapUpPanelProps {
   dispositionData: DispositionData | undefined;
   validated: DispositionValidation;
   required: DispositionRequired;
-  hideCallNote: boolean;
   showSummary: boolean;
   summary: string;
   isSummaryFinal: boolean;

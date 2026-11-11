@@ -162,7 +162,6 @@ function init({
     enableRingCX,
     evServer,
     enableAgentScript,
-    hideCallNote,
   } = options;
 
   warnUnsupportedParams(options);
@@ -219,7 +218,6 @@ function init({
     enableRingCX,
     evServer,
     enableAgentScript,
-    hideCallNote,
     _t: Date.now(),
   })}`;
 

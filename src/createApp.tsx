@@ -54,7 +54,6 @@ interface UrlParams {
   enableAgentScript?: boolean;
   enableAudioInitPrompt?: boolean;
   enableLoadMoreCalls?: boolean;
-  hideCallNote?: boolean;
   enableVoicemailDrop?: boolean;
   enableSMSTemplate?: boolean;
   enableSharedMessages?: boolean;
@@ -129,7 +128,6 @@ function readUrlParams(): UrlParams {
     enableAgentScript: parseBooleanParam(params.enableAgentScript),
     enableAudioInitPrompt: parseBooleanParam(params.enableAudioInitPrompt),
     enableLoadMoreCalls: parseBooleanParam(params.enableLoadMoreCalls),
-    hideCallNote: parseBooleanParam(params.hideCallNote),
     enableVoicemailDrop: parseBooleanParam(params.enableVoicemailDrop),
     enableSMSTemplate: parseBooleanParam(params.enableSMSTemplate),
     enableSharedMessages: parseBooleanParam(params.enableSharedMessages),
@@ -264,7 +262,6 @@ export const createApp = async (
     enableAgentScript: urlParams.enableAgentScript,
     enableAudioInitPrompt: urlParams.enableAudioInitPrompt,
     enableLoadMoreCalls: urlParams.enableLoadMoreCalls,
-    hideCallNote: urlParams.hideCallNote,
     enableVoicemailDrop: urlParams.enableVoicemailDrop,
     enableSMSTemplate: urlParams.enableSMSTemplate,
     enableSharedMessages: urlParams.enableSharedMessages,

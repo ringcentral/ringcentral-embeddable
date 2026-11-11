@@ -80,14 +80,6 @@ export function getRingCXModules(
       },
     },
     {
-      provide: 'CxActiveCallViewOptions',
-      useValue: { hideCallNote: options.hideCallNote },
-    },
-    {
-      provide: 'CxDispositionViewOptions',
-      useValue: { hideCallNote: options.hideCallNote },
-    },
-    {
       provide: 'CxSessionRecoveryOptions',
       useValue: { dispositionPathPrefix: '/agent/calls' },
     },

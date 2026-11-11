@@ -172,7 +172,6 @@ function createView({
     {},
     wrapUpLog,
     undefined,
-    undefined,
     bridge,
   );
   // The disposition itself: RingCX, its activity and the script result.
