@@ -567,7 +567,6 @@ export class RingCX extends RcModule {
       clientAppVersion: this._version ?? '',
       currentLocale: this._locale.currentLocale,
       enableAgentScript: this._options?.enableAgentScript ?? false,
-      hideCallNote: this._options?.hideCallNote ?? false,
     };
   }
 

@@ -17,7 +17,6 @@ export const DispositionForm: FunctionComponent<DispositionFormProps> = ({
   dispositionData,
   validated,
   required,
-  hideCallNote = false,
   showSummary = false,
   summary = '',
   isSummaryFinal = false,
@@ -38,12 +37,6 @@ export const DispositionForm: FunctionComponent<DispositionFormProps> = ({
   'data-sign': dataSign = 'dispositionForm',
 }) => {
   const hasDispositions = dispositionPickList.length > 0;
-  const showNotes = !hideCallNote;
-
-  if (!hasDispositions && !showNotes) {
-    return null;
-  }
-
   const dispositionOptions = dispositionPickList.map((item) => ({
     value: item.dispositionId,
     label: item.disposition,
@@ -109,28 +102,26 @@ export const DispositionForm: FunctionComponent<DispositionFormProps> = ({
         </div>
       )}
       {/* Notes Textarea */}
-      {showNotes && (
-        <div data-sign="notesField">
-          <Textarea
-            label={
-              required.notes
-                ? `${notesLabel} *`
-                : notesLabel
-            }
-            value={dispositionData?.notes || ''}
-            onChange={(event) => {
-              onFieldChange('notes', (event.target as HTMLTextAreaElement).value);
-            }}
-            error={!validated.notes}
-            helperText={!validated.notes ? notesErrorText : undefined}
-            placeholder={notesPlaceholder}
-            maxLength={32000}
-            fullWidth
-            rows={4}
-            data-sign="notesTextarea"
-          />
-        </div>
-      )}
+      <div data-sign="notesField">
+        <Textarea
+          label={
+            required.notes
+              ? `${notesLabel} *`
+              : notesLabel
+          }
+          value={dispositionData?.notes || ''}
+          onChange={(event) => {
+            onFieldChange('notes', (event.target as HTMLTextAreaElement).value);
+          }}
+          error={!validated.notes}
+          helperText={!validated.notes ? notesErrorText : undefined}
+          placeholder={notesPlaceholder}
+          maxLength={32000}
+          fullWidth
+          rows={4}
+          data-sign="notesTextarea"
+        />
+      </div>
     </div>
   );
 };

@@ -119,13 +119,6 @@ const END_CALL_OPTION_APPEARANCES: Record<
 };
 
 /**
- * CxActiveCallView options for configuration
- */
-export interface CxActiveCallViewOptions {
-  hideCallNote?: boolean;
-}
-
-/**
  * CxActiveCallView module - Active call control with Spring UI grid layout
  */
 @injectable({
@@ -153,8 +146,6 @@ class CxActiveCallView extends RcViewModule {
     private toast: Toast,
     private storagePlugin: StoragePlugin,
     private portManager: PortManager,
-    @optional('CxActiveCallViewOptions')
-    private activeCallViewOptions?: CxActiveCallViewOptions,
     @optional()
     private ringCXSideWidgets?: RingCXSideWidgets,
     @optional()
@@ -1355,19 +1346,17 @@ class CxActiveCallView extends RcViewModule {
 
         <div className="flex-1 flex flex-col relative overflow-hidden">
           <div className="flex-1 flex flex-col overflow-auto">
-            {!this.activeCallViewOptions?.hideCallNote && (
-              <div className="px-4 pt-3 min-w-0">
-                <Textarea
-                  placeholder={t('enterCallNotes')}
-                  value={notes}
-                  onChange={handleNotesChange}
-                  data-sign="quickNotesInput"
-                  rows={2}
-                  maxLength={32000}
-                  fullWidth
-                />
-              </div>
-            )}
+            <div className="px-4 pt-3 min-w-0">
+              <Textarea
+                placeholder={t('enterCallNotes')}
+                value={notes}
+                onChange={handleNotesChange}
+                data-sign="quickNotesInput"
+                rows={2}
+                maxLength={32000}
+                fullWidth
+              />
+            </div>
             <div className="flex-1" />
             <div className="px-6 py-4">
               <CallControlGrid actions={visibleCallActions} />

@@ -124,7 +124,6 @@ function createView({
     wrapUpLog,
     undefined,
     undefined,
-    undefined,
     ringCXSideWidgets,
   );
   view._reset = jest.fn();
