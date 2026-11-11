@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.0">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
     
     
       
@@ -2077,24 +2077,102 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#enable-ringcx" class="md-nav__link">
+  <a href="#quick-start" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Enable RingCX
+        Quick start
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Quick start">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-enable-ringcx" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Enable RingCX
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#supporting-ringcx-in-3-steps" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#2-tell-ringcx-calls-apart" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Supporting RingCX in 3 steps
+        2. Tell RingCX calls apart
       
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-handle-ringcx-call-logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Handle RingCX call logging
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-optional-open-leads-in-your-app" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Optional: open leads in your app
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#concepts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Concepts
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Concepts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#call-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Call lifecycle
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#call-ids-and-times" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Call ids and times
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2106,6 +2184,95 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Events">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#call-events" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Call events
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ringcx-only-events" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RingCX-only events
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="RingCX-only events">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rc-ringcx-agent-session-notify" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        rc-ringcx-agent-session-notify
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rc-ringcx-agent-state-notify" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        rc-ringcx-agent-state-notify
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rc-ringcx-call-disposed-notify" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        rc-ringcx-call-disposed-notify
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rc-ringcx-lead-notify" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        rc-ringcx-lead-notify
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rc-ringcx-progressive-dial-notify" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        rc-ringcx-progressive-dial-notify
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2146,6 +2313,111 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Call logging">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#choose-a-logging-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Choose a logging mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-callloggerpreparelogform-true" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended: callLoggerPrepareLogForm: true
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#showlogmodal-true" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        showLogModal: true
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#only-callloggerpath" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Only callLoggerPath
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-the-wrap-up-page-shows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the wrap-up page shows
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#where-the-disposition-data-arrives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where the disposition data arrives
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edge-cases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Edge cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#call-history" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Call history
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contact-matching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contact matching
+      
+    </span>
+  </a>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2157,6 +2429,51 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Leads">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lead-tab" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lead tab
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Lead tab">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lead-tab-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lead tab details
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#progressive-dialing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Progressive dialing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2164,17 +2481,6 @@
     <span class="md-ellipsis">
       
         Voicemail drop
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#contact-matching" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Contact matching
       
     </span>
   </a>
@@ -2828,24 +3134,102 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#enable-ringcx" class="md-nav__link">
+  <a href="#quick-start" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Enable RingCX
+        Quick start
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Quick start">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-enable-ringcx" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Enable RingCX
       
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#supporting-ringcx-in-3-steps" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#2-tell-ringcx-calls-apart" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Supporting RingCX in 3 steps
+        2. Tell RingCX calls apart
       
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-handle-ringcx-call-logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Handle RingCX call logging
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-optional-open-leads-in-your-app" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Optional: open leads in your app
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#concepts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Concepts
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Concepts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#call-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Call lifecycle
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#call-ids-and-times" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Call ids and times
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2857,6 +3241,95 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Events">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#call-events" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Call events
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ringcx-only-events" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RingCX-only events
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="RingCX-only events">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rc-ringcx-agent-session-notify" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        rc-ringcx-agent-session-notify
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rc-ringcx-agent-state-notify" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        rc-ringcx-agent-state-notify
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rc-ringcx-call-disposed-notify" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        rc-ringcx-call-disposed-notify
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rc-ringcx-lead-notify" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        rc-ringcx-lead-notify
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rc-ringcx-progressive-dial-notify" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        rc-ringcx-progressive-dial-notify
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -2897,6 +3370,111 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Call logging">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#choose-a-logging-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Choose a logging mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recommended-callloggerpreparelogform-true" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recommended: callLoggerPrepareLogForm: true
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#showlogmodal-true" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        showLogModal: true
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#only-callloggerpath" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Only callLoggerPath
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-the-wrap-up-page-shows" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the wrap-up page shows
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#where-the-disposition-data-arrives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where the disposition data arrives
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#edge-cases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Edge cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#call-history" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Call history
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contact-matching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contact matching
+      
+    </span>
+  </a>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2908,6 +3486,51 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Leads">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lead-tab" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lead tab
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Lead tab">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#lead-tab-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lead tab details
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#progressive-dialing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Progressive dialing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -2915,17 +3538,6 @@
     <span class="md-ellipsis">
       
         Voicemail drop
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#contact-matching" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Contact matching
       
     </span>
   </a>
@@ -3046,23 +3658,23 @@
 <p><span class="mdx-badge"><span class="mdx-badge__icon"><a href="https://github.com/ringcentral/ringcentral-embeddable/releases" title="Minimum version"><span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m21.41 11.58-9-9A2 2 0 0 0 11 2H4a2 2 0 0 0-2 2v7a2 2 0 0 0 .59 1.42l9 9A2 2 0 0 0 13 22a2 2 0 0 0 1.41-.59l7-7A2 2 0 0 0 22 13a2 2 0 0 0-.59-1.42M13 20l-9-9V4h7l9 9M6.5 5A1.5 1.5 0 1 1 5 6.5 1.5 1.5 0 0 1 6.5 5"/></svg></span></a></span><span class="mdx-badge__text"><a href="https://github.com/ringcentral/ringcentral-embeddable/releases">3.1.0</a></span></span></p>
 <div class="admonition info">
 <p class="admonition-title">Beta</p>
-<p>RingCX support is part of the <a href="../../3.1.x/">Embeddable 3.1.x beta</a>. </p>
+<p>RingCX support is part of the <a href="../../3.1.x/">Embeddable 3.1.x beta</a>.</p>
 </div>
-<p>RingCX calls use the same <code>registerThirdPartyService</code> and <code>rc-*</code> protocol as RingEX calls. Read <code>call.source</code>. You do not need a second protocol.</p>
-<h2 id="enable-ringcx">Enable RingCX</h2>
+<p>RingCX is RingCentral's contact center product. With RingCX enabled, agents handle RingCX calls in Embeddable next to their RingEX (RingCentral phone) calls.</p>
+<p>RingCX calls use the same events, commands, and <a href="../"><code>registerThirdPartyService</code></a> API as RingEX calls. You do not need a second protocol. To tell the two apart, check <code>call.source</code>: it is <code>'ringcx'</code> for a RingCX call.</p>
+<h2 id="quick-start">Quick start</h2>
+<h3 id="1-enable-ringcx">1. Enable RingCX</h3>
 <p>Add <code>enableRingCX=1</code> to the adapter.js or app.html URL. It is off by default and cannot be changed at runtime.</p>
-<div class="highlight"><pre><span></span><code><span class="o">&lt;</span><span class="nx">script</span><span class="o">&gt;</span>
+<div class="highlight"><pre><span></span><code><span class="p">&lt;</span><span class="nt">script</span><span class="p">&gt;</span>
 <span class="w">  </span><span class="p">(</span><span class="kd">function</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
 <span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">createElement</span><span class="p">(</span><span class="s2">"script"</span><span class="p">);</span>
 <span class="w">    </span><span class="nx">rcs</span><span class="p">.</span><span class="nx">src</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">"https://apps.ringcentral.com/integration/ringcentral-embeddable/3.1.x/adapter.js?clientId=YOUR_RINGCENTRAL_CLIENT_ID&amp;enableRingCX=1"</span><span class="p">;</span>
 <span class="w">    </span><span class="kd">var</span><span class="w"> </span><span class="nx">rcs0</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">document</span><span class="p">.</span><span class="nx">getElementsByTagName</span><span class="p">(</span><span class="s2">"script"</span><span class="p">)[</span><span class="mf">0</span><span class="p">];</span>
 <span class="w">    </span><span class="nx">rcs0</span><span class="p">.</span><span class="nx">parentNode</span><span class="p">.</span><span class="nx">insertBefore</span><span class="p">(</span><span class="nx">rcs</span><span class="p">,</span><span class="w"> </span><span class="nx">rcs0</span><span class="p">);</span>
 <span class="w">  </span><span class="p">})();</span>
-<span class="o">&lt;</span><span class="err">/script&gt;</span>
+<span class="p">&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
 </code></pre></div>
-<p>The <strong>Agent</strong> tab is shown when <code>enableRingCX</code> is on and the signed-in RingCentral user has a RingCX (Contact Center) account. The RingCentral login is reused for RingCX, so no second login or extra app scope is needed. A user who is not a RingCX agent gets an error when starting the session.</p>
-<p><code>rc-login-status-notify</code> reports <code>features.ringCX</code>, so your page can tell whether the user has RingCX.</p>
-<p>The agent session does not start on first load. The user starts it from the Agent tab, or your page starts it with <code>RCAdapter.startRingCXAgentSession()</code>. After a session has reached <code>ready</code>, it is restored automatically when the widget reloads, until the agent ends it.</p>
+<p>The <strong>Agent</strong> tab appears when the signed-in RingCentral user also has a RingCX account. RingCX reuses the RingCentral login, so there is no second login and no extra app scope. <a href="../events/#login-status-event"><code>rc-login-status-notify</code></a> reports <code>features.ringCX</code>, so your page can tell whether the user has RingCX.</p>
 <p>Optional parameters:</p>
 <table>
 <thead>
@@ -3076,19 +3688,108 @@
 <tr>
 <td><code>enableAgentScript</code></td>
 <td>off</td>
-<td>Show RingCX agent scripts in the side panel during calls. We recommend using it with <code>enableSideWidget=1</code>.</td>
+<td>Show RingCX agent scripts in the side panel during calls. Use it with <code>enableSideWidget=1</code>.</td>
 </tr>
 </tbody>
 </table>
-<h2 id="supporting-ringcx-in-3-steps">Supporting RingCX in 3 steps</h2>
+<h3 id="2-tell-ringcx-calls-apart">2. Tell RingCX calls apart</h3>
+<p>In every call event and logger request, read <code>call.source</code>:</p>
+<ul>
+<li><code>'ringcx'</code>: a RingCX call. RingCX-only fields are under <code>call.ringcx</code>.</li>
+<li><code>'ringcentral'</code>, or no <code>source</code>: a RingEX call.</li>
+</ul>
+<p>Your existing <a href="../call-logging/"><code>callLoggerPath</code></a>, <a href="../address-book/#show-matched-contact-in-the-call-history-or-incoming-call-page"><code>contactMatchPath</code></a>, and <a href="../call-logging/#add-call-log-entity-matcher"><code>callLogEntityMatcherPath</code></a> registrations apply to RingCX calls with no other change.</p>
+<h3 id="3-handle-ringcx-call-logging">3. Handle RingCX call logging</h3>
+<p>The simplest path: accept <code>triggerType: 'callDisposition'</code> in your <code>callLoggerPath</code> handler. The widget sends it after the agent submits a disposition, and no log form is shown.</p>
+<div class="highlight"><pre><span></span><code><span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">'message'</span><span class="p">,</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">var</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">data</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="s1">'rc-post-message-request'</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">path</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="s1">'/callLogger'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="kd">var</span><span class="w"> </span><span class="nx">body</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">body</span><span class="p">;</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">body</span><span class="p">.</span><span class="nx">call</span><span class="p">.</span><span class="nx">source</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'ringcx'</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">body</span><span class="p">.</span><span class="nx">triggerType</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'callDisposition'</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// body.call.ringcx.disposition: the disposition the agent picked</span>
+<span class="w">    </span><span class="c1">// body.call.ringcx.notes: the disposition notes</span>
+<span class="w">    </span><span class="c1">// body.redirect: true. Open the CRM record only if your own auto-log setting says so.</span>
+<span class="w">    </span><span class="nx">saveCallToCrm</span><span class="p">(</span><span class="nx">body</span><span class="p">.</span><span class="nx">call</span><span class="p">);</span><span class="w"> </span><span class="c1">// your code</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">    </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-post-message-response'</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">responseId</span><span class="o">:</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">requestId</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">response</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">data</span><span class="o">:</span><span class="w"> </span><span class="s1">'ok'</span><span class="w"> </span><span class="p">},</span>
+<span class="w">  </span><span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
+<span class="p">});</span>
+</code></pre></div>
+<p>To show your own log form on the agent's wrap-up page instead, see <a href="#call-logging">Call logging</a>. That is the recommended setup.</p>
+<h3 id="4-optional-open-leads-in-your-app">4. Optional: open leads in your app</h3>
+<p>Register <code>leadViewerPath</code> to add <strong>View lead</strong> to the <strong>Lead</strong> tab. See <a href="#lead-tab">Lead tab</a>.</p>
+<h2 id="concepts">Concepts</h2>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Agent tab</td>
+<td>The widget tab for RingCX: agent state, calls, leads, and RingCX call history.</td>
+</tr>
+<tr>
+<td>Agent session</td>
+<td>The agent's RingCX login for this widget. Calls and commands need a session in the <code>ready</code> status.</td>
+</tr>
+<tr>
+<td>Agent state</td>
+<td>The agent's RingCX availability, such as <code>AVAILABLE</code>, <code>ENGAGED</code>, or <code>ON-BREAK</code>. An <strong>aux state</strong> is a named sub-state of a state, such as a break reason.</td>
+</tr>
+<tr>
+<td>Integrated softphone</td>
+<td>RingCX audio in the browser. It runs on the WebPhone: RingCX places a web phone call leg that carries the audio. That leg is not reported as a separate call.</td>
+</tr>
+<tr>
+<td>Disposition</td>
+<td>The outcome the agent records after a RingCX call, such as "Sale" or "No answer", plus optional notes. It is saved to RingCX. Until it is submitted, the agent is in <strong>Pending Disposition</strong>.</td>
+</tr>
+<tr>
+<td>Wrap-up page</td>
+<td>The page in the Agent tab's side panel where the agent submits the disposition and, optionally, your call log form.</td>
+</tr>
+<tr>
+<td>Lead</td>
+<td>A contact that a RingCX campaign assigns to the agent to call.</td>
+</tr>
+<tr>
+<td>Dial group</td>
+<td>The RingCX setting that decides how the agent dials leads. In a <strong>preview</strong> dial group, the agent picks a lead and dials it. In a <strong>progressive</strong> dial group, the widget dials leads one by one.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="call-lifecycle">Call lifecycle</h3>
 <ol>
-<li>Read <code>call.source</code>. <code>'ringcx'</code> means a RingCX call. Absence, or <code>'ringcentral'</code>, means a RingEX call. RingCX-only fields are under <code>call.ringcx</code>.</li>
-<li>Accept <code>triggerType: 'callDisposition'</code> in your <code>callLoggerPath</code> handler. That value means the widget logged the call automatically, with no log form shown. See <a href="#call-logging">Call logging</a>.</li>
-<li>Optionally add <code>leadViewerPath</code> if agents should open a preview lead in your app.</li>
+<li><strong>Start the session.</strong> The session does not start on first load. The agent starts it from the Agent tab, or your page calls <code>RCAdapter.startRingCXAgentSession()</code>. Wait for <code>rc-ringcx-agent-session-notify</code> with <code>status: 'ready'</code>. After a session has reached <code>ready</code>, it is restored automatically when the widget reloads, until the agent ends it. A user who is not a RingCX agent gets an error here.</li>
+<li><strong>Go available.</strong> The agent sets the state to <code>AVAILABLE</code>, from the Agent tab or with <code>rc-adapter-ringcx-set-agent-state</code>.</li>
+<li><strong>Call.</strong> An inbound call rings (<code>rc-call-ring-notify</code>), or the agent dials a number or a lead. The call connects (<code>rc-call-start-notify</code>) and later ends (<code>rc-call-end-notify</code>).</li>
+<li><strong>Wrap up.</strong> The agent submits the disposition, and your log form if there is one, on the wrap-up page (<code>rc-ringcx-call-disposed-notify</code>). See <a href="#call-logging">Call logging</a>.</li>
+<li><strong>Repeat.</strong> After a lead call, the widget goes back to the Leads tab.</li>
 </ol>
-<p>Existing <code>callLoggerPath</code>, <code>contactMatchPath</code>, and <code>callLogEntityMatcherPath</code> registrations apply to RingCX calls with no other change.</p>
+<p><code>rc-call-end-notify</code> usually comes before the disposition. If the agent submits the disposition while the call is still connected, it comes after <code>rc-ringcx-call-disposed-notify</code>.</p>
+<h3 id="call-ids-and-times">Call ids and times</h3>
+<ul>
+<li><code>call.id</code> and <code>call.sessionId</code> are the same stable id: the RingCX call <code>uii</code> (RingCX's unique call id). A live call and its later history row have the same id. Use it with <code>callLogEntityMatcherPath</code>.</li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Time formats differ</p>
+<ul>
+<li>Call events (<code>rc-call-*-notify</code>, <code>rc-ringcx-*-notify</code>): <code>startTime</code> is an ISO-8601 string.</li>
+<li><code>rc-active-call-notify</code>: <code>startTime</code> is epoch milliseconds, as for RingEX calls.</li>
+<li><code>callLoggerPath</code> requests: <code>startTime</code> is epoch milliseconds, as for RingEX calls.</li>
+</ul>
+</div>
 <h2 id="events">Events</h2>
-<p>RingCX calls use the existing call events:</p>
+<h3 id="call-events">Call events</h3>
+<p>RingCX calls use the existing call events, with <code>call.source: 'ringcx'</code>. The table lists only what is specific to RingCX calls; follow each link for the full event and payload.</p>
 <table>
 <thead>
 <tr>
@@ -3098,133 +3799,209 @@
 </thead>
 <tbody>
 <tr>
-<td><code>rc-call-ring-notify</code></td>
-<td>Inbound RingCX call is ringing. <code>call.source</code> is <code>'ringcx'</code>. An auto-answered inbound call still sends it, right before <code>rc-call-start-notify</code>.</td>
+<td><a href="../events/#web-phone-call-event"><code>rc-call-ring-notify</code></a></td>
+<td>An inbound RingCX call is ringing. An auto-answered inbound call still sends it, right before <code>rc-call-start-notify</code>.</td>
 </tr>
 <tr>
-<td><code>rc-call-start-notify</code></td>
-<td>RingCX call is connected.</td>
+<td><a href="../events/#web-phone-call-event"><code>rc-call-start-notify</code></a></td>
+<td>The RingCX call is connected.</td>
 </tr>
 <tr>
-<td><code>rc-call-end-notify</code></td>
-<td>RingCX call ended. It usually comes before the disposition. If the agent dispositions while the call is still connected, it comes after <code>rc-ringcx-call-disposed-notify</code>.</td>
+<td><a href="../events/#web-phone-call-event"><code>rc-call-end-notify</code></a></td>
+<td>The RingCX call ended. See <a href="#call-lifecycle">Call lifecycle</a> for its order with the disposition.</td>
 </tr>
 <tr>
-<td><code>rc-active-call-notify</code></td>
-<td>Sent on ring (inbound only), connect, and end, in the RingEX active call shape: <code>call.telephonyStatus</code> is <code>Ringing</code>, <code>CallConnected</code>, or <code>NoCall</code> (with <code>terminationType: 'final'</code>), and <code>call.startTime</code> is epoch milliseconds. <code>call.source</code> is <code>'ringcx'</code>. The RingEX leg that carries the RingCX audio is not reported.</td>
+<td><a href="../events/#active-call-event"><code>rc-active-call-notify</code></a></td>
+<td>Sent on ring (inbound only), connect, and end, in the RingEX active call shape. See below.</td>
 </tr>
 <tr>
-<td><code>rc-call-drop-voicemail-notify</code></td>
-<td>The status of a voicemail drop on the RingCX call changed. <code>call.voicemailDropStatus</code> is set. See <a href="../../config/voicemail-drop/#voicemail-drop-event">Voicemail drop</a>.</td>
+<td><a href="../../config/voicemail-drop/#voicemail-drop-event"><code>rc-call-drop-voicemail-notify</code></a></td>
+<td>The status of a voicemail drop on the call changed. <code>call.voicemailDropStatus</code> is set.</td>
+</tr>
+<tr>
+<td><a href="../events/#web-phone-connection-status-event"><code>rc-webphone-connection-status-notify</code></a></td>
+<td>The integrated softphone's connection status. It runs on the WebPhone, so there is no separate RingCX event.</td>
 </tr>
 </tbody>
 </table>
-<p>RingCX-only events:</p>
+<p>For <code>rc-active-call-notify</code>, <code>call.telephonyStatus</code> is <code>Ringing</code>, <code>CallConnected</code>, or <code>NoCall</code> (with <code>terminationType: 'final'</code>), and <code>call.startTime</code> is epoch milliseconds.</p>
+<h3 id="ringcx-only-events">RingCX-only events</h3>
 <table>
 <thead>
 <tr>
 <th>Event</th>
-<th>Payload</th>
+<th>When</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>rc-ringcx-call-disposed-notify</code></td>
-<td><code>{ type, call }</code> after the agent submits a disposition. <code>call.ringcx.disposition</code> and <code>call.ringcx.notes</code> are set, plus <code>call.aiNote</code> when the disposition form has a call summary. Calls without a disposition step do not send it.</td>
+<td><a href="#rc-ringcx-agent-session-notify"><code>rc-ringcx-agent-session-notify</code></a></td>
+<td>The session status, agent, or session configuration changed.</td>
 </tr>
 <tr>
-<td><code>rc-ringcx-agent-session-notify</code></td>
-<td><code>{ type, status, agent?, session?, permissions? }</code>. <code>status</code> is <code>idle</code>, <code>loading</code>, <code>authenticating</code>, <code>chooseAccount</code>, <code>sessionConfig</code>, <code>ready</code>, or <code>error</code>. Sent when the status, agent, or session configuration changes.</td>
+<td><a href="#rc-ringcx-agent-state-notify"><code>rc-ringcx-agent-state-notify</code></a></td>
+<td>The agent state changed, while the session is <code>ready</code>.</td>
 </tr>
 <tr>
-<td><code>rc-ringcx-agent-state-notify</code></td>
-<td><code>{ type, state, auxState, pendingDisposition }</code> while the session is <code>ready</code>. <code>state</code> is the RingCX agent state, such as <code>AVAILABLE</code>, <code>ENGAGED</code>, or <code>ON-BREAK</code>.</td>
+<td><a href="#rc-ringcx-call-disposed-notify"><code>rc-ringcx-call-disposed-notify</code></a></td>
+<td>The agent submitted a disposition.</td>
 </tr>
 <tr>
-<td><code>rc-ringcx-lead-notify</code></td>
-<td><code>{ type, action, leads?, lead?, destination? }</code>. <code>action</code> is <code>loaded</code>, <code>passed</code>, <code>dialed</code>, or <code>updated</code>; <code>dialed</code> is sent once the dial request is sent, and <code>updated</code> once the agent saved an edit to the lead, with the saved fields on <code>lead</code>. Each lead is <code>{ leadId, externId, campaignId, firstName, lastName, destination, raw }</code>, where <code>raw</code> is the original RingCX lead. A lead dialed by the progressive dialer has no <code>destination</code>: the server picks the number.</td>
+<td><a href="#rc-ringcx-lead-notify"><code>rc-ringcx-lead-notify</code></a></td>
+<td>Leads were loaded, passed, dialed, or updated.</td>
 </tr>
 <tr>
-<td><code>rc-ringcx-progressive-dial-notify</code></td>
-<td><code>{ type, running, phase, nextDialAt, lead?, reason }</code>. Sent when the progressive dialer starts, stops, or moves to another step, and when a start is refused; not every countdown second. <code>phase</code> is <code>idle</code>, <code>connecting</code>, <code>fetching</code>, <code>countdown</code>, <code>dialing</code>, <code>waiting</code>, or <code>noLeads</code>. <code>nextDialAt</code> is the epoch milliseconds of the next dial (<code>countdown</code>) or lead fetch (<code>noLeads</code>). <code>lead</code> is the lead the countdown dials, in the <code>rc-ringcx-lead-notify</code> shape. <code>reason</code> is set when the dialer stopped or did not start: <code>stopped</code>, <code>notProgressive</code>, <code>busy</code>, <code>notAvailable</code>, <code>offhookFailed</code>, <code>offhookEnded</code>, <code>manualOutdial</code>, <code>inboundCall</code>, <code>agentState</code>, <code>dialGroupChanged</code>, <code>dialFailed</code>, or <code>logout</code>.</td>
+<td><a href="#rc-ringcx-progressive-dial-notify"><code>rc-ringcx-progressive-dial-notify</code></a></td>
+<td>The progressive dialer started, stopped, moved to another step, or refused to start.</td>
 </tr>
 </tbody>
 </table>
-<p>The integrated softphone runs on the RingEX WebPhone, so its status is <code>rc-webphone-connection-status-notify</code>.</p>
-<p><code>call.id</code> and <code>call.sessionId</code> are the same stable id: the RingCX call <code>uii</code>. A live call and its later history row have the same id. Use that id with <code>callLogEntityMatcherPath</code>.</p>
-<p>Event <code>startTime</code> is an ISO-8601 string. The call-log request uses the host call logger envelope, so its <code>startTime</code> is epoch milliseconds, the same as a RingEX call.</p>
+<h4 id="rc-ringcx-agent-session-notify">rc-ringcx-agent-session-notify</h4>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-ringcx-agent-session-notify'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="s1">'ready'</span><span class="p">,</span><span class="w"> </span><span class="c1">// idle | loading | authenticating | chooseAccount | sessionConfig | ready | error</span>
+<span class="w">  </span><span class="nx">agent</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">},</span><span class="w">       </span><span class="c1">// optional</span>
+<span class="w">  </span><span class="nx">session</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">},</span><span class="w">     </span><span class="c1">// optional</span>
+<span class="w">  </span><span class="nx">permissions</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">},</span><span class="w"> </span><span class="c1">// optional, e.g. permissions.progressiveEnabled</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><code>chooseAccount</code> and <code>sessionConfig</code> mean the agent must pick a RingCX account or configure the session in the Agent tab.</p>
+<h4 id="rc-ringcx-agent-state-notify">rc-ringcx-agent-state-notify</h4>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-ringcx-agent-state-notify'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">state</span><span class="o">:</span><span class="w"> </span><span class="s1">'AVAILABLE'</span><span class="p">,</span><span class="w"> </span><span class="c1">// RingCX agent state, e.g. AVAILABLE, ENGAGED, ON-BREAK</span>
+<span class="w">  </span><span class="nx">auxState</span><span class="o">:</span><span class="w"> </span><span class="s1">'...'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">pendingDisposition</span><span class="o">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span><span class="w"> </span><span class="c1">// true while a disposition is still to be submitted</span>
+<span class="p">}</span>
+</code></pre></div>
+<h4 id="rc-ringcx-call-disposed-notify">rc-ringcx-call-disposed-notify</h4>
+<p><code>{ type, call }</code>, sent after the agent submits a disposition. <code>call.ringcx.disposition</code> and <code>call.ringcx.notes</code> are set, plus <code>call.aiNote</code> when the disposition form has a call summary. Calls without a disposition step do not send it.</p>
+<h4 id="rc-ringcx-lead-notify">rc-ringcx-lead-notify</h4>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-ringcx-lead-notify'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">action</span><span class="o">:</span><span class="w"> </span><span class="s1">'loaded'</span><span class="p">,</span><span class="w"> </span><span class="c1">// loaded | passed | dialed | updated</span>
+<span class="w">  </span><span class="nx">leads</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">],</span><span class="w">   </span><span class="c1">// optional</span>
+<span class="w">  </span><span class="nx">lead</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">},</span><span class="w">    </span><span class="c1">// optional</span>
+<span class="w">  </span><span class="nx">destination</span><span class="o">:</span><span class="w"> </span><span class="s1">'...'</span><span class="p">,</span><span class="w"> </span><span class="c1">// optional</span>
+<span class="p">}</span>
+</code></pre></div>
+<ul>
+<li><code>dialed</code> is sent once the dial request is sent.</li>
+<li><code>updated</code> is sent once the agent saved an edit to the lead, with the saved fields on <code>lead</code>.</li>
+</ul>
+<p>Each lead has this shape:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="w"> </span><span class="nx">leadId</span><span class="p">,</span><span class="w"> </span><span class="nx">externId</span><span class="p">,</span><span class="w"> </span><span class="nx">campaignId</span><span class="p">,</span><span class="w"> </span><span class="nx">firstName</span><span class="p">,</span><span class="w"> </span><span class="nx">lastName</span><span class="p">,</span><span class="w"> </span><span class="nx">destination</span><span class="p">,</span><span class="w"> </span><span class="nx">raw</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<p><code>raw</code> is the original RingCX lead. A lead dialed by the progressive dialer has no <code>destination</code>, because the server picks the number.</p>
+<h4 id="rc-ringcx-progressive-dial-notify">rc-ringcx-progressive-dial-notify</h4>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-ringcx-progressive-dial-notify'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">running</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">phase</span><span class="o">:</span><span class="w"> </span><span class="s1">'countdown'</span><span class="p">,</span><span class="w"> </span><span class="c1">// idle | connecting | fetching | countdown | dialing | waiting | noLeads</span>
+<span class="w">  </span><span class="nx">nextDialAt</span><span class="o">:</span><span class="w"> </span><span class="mf">1731300000000</span><span class="p">,</span><span class="w"> </span><span class="c1">// epoch ms of the next dial (countdown) or lead fetch (noLeads)</span>
+<span class="w">  </span><span class="nx">lead</span><span class="o">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">},</span><span class="w">  </span><span class="c1">// optional: the lead the countdown dials, in the rc-ringcx-lead-notify shape</span>
+<span class="w">  </span><span class="nx">reason</span><span class="o">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span><span class="w">   </span><span class="c1">// set when the dialer stopped or did not start</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>It is not sent for every countdown second. <code>reason</code> is one of <code>stopped</code>, <code>notProgressive</code>, <code>busy</code>, <code>notAvailable</code>, <code>offhookFailed</code>, <code>offhookEnded</code>, <code>manualOutdial</code>, <code>inboundCall</code>, <code>agentState</code>, <code>dialGroupChanged</code>, <code>dialFailed</code>, or <code>logout</code>. <code>offhookFailed</code> and <code>offhookEnded</code> mean the agent's line could not be connected, or was disconnected. See <a href="#progressive-dialing">Progressive dialing</a>.</p>
 <h2 id="commands">Commands</h2>
+<p>Each command has an <code>RCAdapter</code> helper. <code>rc-adapter-new-call</code> and <code>rc-adapter-control-call</code> are the existing commands; the table lists only what is specific to RingCX calls.</p>
 <table>
 <thead>
 <tr>
 <th>Command</th>
+<th><code>RCAdapter</code> helper</th>
 <th>Payload</th>
 <th>Effect</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>rc-adapter-new-call</code></td>
-<td><code>{ phoneNumber, callWith: 'ringcx', callerId? }</code></td>
-<td>Places a RingCX call right away; <code>toCall</code> is not needed. Requires a ready agent session. <code>callerId</code> becomes the agent's manual dial caller ID.</td>
-</tr>
-<tr>
-<td><code>rc-adapter-control-call</code></td>
-<td><code>{ callAction, callId, source: 'ringcx', options? }</code></td>
-<td><code>answer</code>, <code>reject</code>, <code>hangup</code>, <code>hold</code>, <code>unhold</code>, <code>mute</code>, <code>unmute</code>, <code>record</code> or <code>startRecord</code>, <code>stopRecord</code>, and <code>dtmf</code> with <code>options.dtmf</code>.</td>
-</tr>
-<tr>
 <td><code>rc-adapter-ringcx-start-agent-session</code></td>
+<td><code>startRingCXAgentSession()</code></td>
 <td><code>{}</code></td>
-<td>Starts the Agent tab session.</td>
+<td>Starts the agent session.</td>
 </tr>
 <tr>
 <td><code>rc-adapter-ringcx-end-agent-session</code></td>
+<td><code>endRingCXAgentSession()</code></td>
 <td><code>{}</code></td>
 <td>Ends the session. Refused while a call or pending disposition is active.</td>
 </tr>
 <tr>
 <td><code>rc-adapter-ringcx-set-agent-state</code></td>
+<td><code>setRingCXAgentState(state, auxState?)</code></td>
 <td><code>{ state, auxState? }</code></td>
-<td>Sets the agent state, such as <code>AVAILABLE</code> or <code>ON-BREAK</code>. <code>auxState</code> picks one of the agent's aux states for it, as <code>rc-ringcx-agent-state-notify</code> reports them; without it, the first aux state listed for <code>state</code> is used. A state the agent cannot choose is refused with a message.</td>
+<td>Sets the agent state. See below.</td>
+</tr>
+<tr>
+<td><a href="../api/#open-the-dialer-and-start-a-call"><code>rc-adapter-new-call</code></a></td>
+<td><code>clickToCall(number, { callWith: 'ringcx', callerId })</code></td>
+<td><code>{ phoneNumber, callWith: 'ringcx', callerId? }</code></td>
+<td>Places a RingCX call right away; <code>toCall</code> is not needed. <code>callerId</code> becomes the agent's manual dial caller ID.</td>
+</tr>
+<tr>
+<td><a href="../api/#active-call-control"><code>rc-adapter-control-call</code></a></td>
+<td><code>controlCall(action, id, { source: 'ringcx' })</code></td>
+<td><code>{ callAction, callId, source: 'ringcx', options? }</code></td>
+<td>Controls the current RingCX call. See below.</td>
 </tr>
 <tr>
 <td><code>rc-adapter-ringcx-dial-lead</code></td>
+<td><code>dialRingCXLead(lead, destination)</code></td>
 <td><code>{ lead, destination }</code></td>
-<td>Dials a preview lead. <code>lead</code> can be the lead from <code>rc-ringcx-lead-notify</code>, its <code>raw</code> lead, or <code>{ leadId, campaignId }</code>; with only <code>leadId</code>, the lead must be in the agent's current lead list. <code>destination</code> must be one of the lead's numbers, in its national or E.164 form; another number is not dialed.</td>
+<td>Dials a preview lead. See below.</td>
 </tr>
 <tr>
 <td><code>rc-adapter-ringcx-start-progressive-dial</code></td>
+<td><code>startRingCXProgressiveDial()</code></td>
 <td><code>{}</code></td>
-<td>Same as <strong>Start dialing</strong> on the Leads tab. Needs a progressive dial group (<code>permissions.progressiveEnabled</code>). When the agent is not available, the widget opens on the Leads tab and asks the agent to go available.</td>
+<td>Same as <strong>Start dialing</strong> on the Leads tab. Needs <code>permissions.progressiveEnabled</code>. When the agent is not available, the widget opens on the Leads tab and asks the agent to go available.</td>
 </tr>
 <tr>
 <td><code>rc-adapter-ringcx-stop-progressive-dial</code></td>
+<td><code>stopRingCXProgressiveDial()</code></td>
 <td><code>{}</code></td>
 <td>Same as <strong>Stop dialing</strong> on the Leads tab.</td>
 </tr>
 </tbody>
 </table>
-<p><code>rc-adapter-control-call</code> actions apply to the current RingCX call, as the Agent tab controls do. <code>hold</code>, <code>unhold</code>, <code>hangup</code>, and recording actions follow the call permissions. <code>answer</code>, <code>reject</code>, <code>mute</code>, <code>unmute</code>, and <code>dtmf</code> need the integrated softphone; <code>answer</code> and <code>reject</code> do nothing when no call is ringing there. A refused or failed action shows a message in the widget.</p>
-<p>While a RingCX call is active, <code>rc-adapter-new-call</code> without <code>callWith: 'ringcx'</code> is refused and the widget asks the agent to finish the RingCX call first.</p>
-<p>Commands that need a ready session are not ignored when the session is not ready. The widget shows a message and posts <code>rc-ringcx-agent-session-notify</code> with the current status.</p>
-<p><code>RCAdapter</code> helpers: <code>clickToCall(number, { callWith: 'ringcx', callerId })</code>, <code>startRingCXAgentSession()</code>, <code>endRingCXAgentSession()</code>, <code>setRingCXAgentState(state)</code>, <code>dialRingCXLead(lead, destination)</code>, and <code>controlCall(action, id, { source: 'ringcx' })</code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Refused commands</p>
+<p>Commands that need a ready session are not silently ignored when the session is not ready. The widget shows a message to the agent and posts <code>rc-ringcx-agent-session-notify</code> with the current status. Other refused or failed commands also show a message to the agent.</p>
+</div>
+<p><strong>Set agent state.</strong> <code>auxState</code> picks one of the agent's aux states for <code>state</code>, as <code>rc-ringcx-agent-state-notify</code> reports them. Without it, the first aux state listed for <code>state</code> is used. A state the agent cannot choose is refused.</p>
+<p><strong>Control call.</strong> Actions apply to the current RingCX call, as the Agent tab controls do:</p>
+<table>
+<thead>
+<tr>
+<th><code>callAction</code></th>
+<th>Requirement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>hold</code>, <code>unhold</code>, <code>hangup</code>, <code>record</code> or <code>startRecord</code>, <code>stopRecord</code></td>
+<td>Follow the agent's call permissions.</td>
+</tr>
+<tr>
+<td><code>mute</code>, <code>unmute</code></td>
+<td>The integrated softphone.</td>
+</tr>
+<tr>
+<td><code>answer</code>, <code>reject</code></td>
+<td>The integrated softphone, with a call ringing there.</td>
+</tr>
+<tr>
+<td><code>dtmf</code></td>
+<td>The integrated softphone, and <code>options.dtmf</code>.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Dial lead.</strong> <code>lead</code> can be the lead from <code>rc-ringcx-lead-notify</code>, its <code>raw</code> lead, or <code>{ leadId, campaignId }</code>. With only <code>leadId</code>, the lead must be in the agent's current lead list. <code>destination</code> must be one of the lead's numbers, in its national or E.164 form; another number is not dialed.</p>
+<p><strong>New call.</strong> <code>rc-adapter-new-call</code> with <code>callWith: 'ringcx'</code> needs a ready session. While a RingCX call is active, <code>rc-adapter-new-call</code> without <code>callWith: 'ringcx'</code> is refused, and the widget asks the agent to finish the RingCX call first.</p>
 <h3 id="message-requests">Message requests</h3>
-<p>Send these as <code>rc-adapter-message-request</code>, the same as other <a href="../api/#schedule-a-meeting">message requests</a>. The reply is <code>rc-adapter-message-response</code> with <code>responseId</code> equal to your <code>requestId</code>.</p>
-<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">requestId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">().</span><span class="nx">toString</span><span class="p">();</span>
-<span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
-<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-message-request'</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">requestId</span><span class="p">,</span>
-<span class="w">  </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">'/ringcx/agent-session'</span><span class="p">,</span>
-<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
-
-<span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">'message'</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
-<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span>
-<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'rc-adapter-message-response'</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">responseId</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">requestId</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
-<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">response</span><span class="p">);</span><span class="w"> </span><span class="c1">// { status, agent, session, permissions }</span>
-<span class="w">  </span><span class="p">}</span>
-<span class="p">});</span>
-</code></pre></div>
+<p>These are request/response calls. Send <code>rc-adapter-message-request</code>, the same as other <a href="../api/#schedule-a-meeting">message requests</a>. The reply is <code>rc-adapter-message-response</code> with <code>responseId</code> equal to your <code>requestId</code>.</p>
 <table>
 <thead>
 <tr>
@@ -3242,7 +4019,7 @@
 <tr>
 <td><code>/ringcx/dispositions</code></td>
 <td><code>{ callId }</code></td>
-<td><code>{ callId, dispositions }</code>. <code>{ error }</code> when the session is not ready.</td>
+<td><code>{ callId, dispositions }</code>: the dispositions the agent can pick for the call. <code>{ error }</code> when the session is not ready.</td>
 </tr>
 <tr>
 <td><code>/get-call-log</code></td>
@@ -3251,30 +4028,182 @@
 </tr>
 </tbody>
 </table>
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">requestId</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">().</span><span class="nx">toString</span><span class="p">();</span>
+<span class="nb">document</span><span class="p">.</span><span class="nx">querySelector</span><span class="p">(</span><span class="s2">"#rc-widget-adapter-frame"</span><span class="p">).</span><span class="nx">contentWindow</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-message-request'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">requestId</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">path</span><span class="o">:</span><span class="w"> </span><span class="s1">'/ringcx/agent-session'</span><span class="p">,</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
+
+<span class="nb">window</span><span class="p">.</span><span class="nx">addEventListener</span><span class="p">(</span><span class="s1">'message'</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">data</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">data</span><span class="p">;</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="nx">data</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">type</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">'rc-adapter-message-response'</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">data</span><span class="p">.</span><span class="nx">responseId</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">requestId</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">response</span><span class="p">);</span><span class="w"> </span><span class="c1">// { status, agent, session, permissions }</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">});</span>
+</code></pre></div>
 <h2 id="call-logging">Call logging</h2>
-<p>Disposition and call logging are separate.</p>
-<ul>
-<li>Disposition is submitted to RingCX before any CRM log.</li>
-<li>Call logging uses <code>callLoggerPath</code> and the host log page at <code>/log/call/&lt;id&gt;?source=ringcx</code>.</li>
+<p>After a RingCX call, the agent wraps it up on one page in the Agent tab's side panel: the RingCX disposition and your call log form, with one <strong>Submit</strong>. The disposition is always saved to RingCX first; the CRM log follows.</p>
+<h3 id="choose-a-logging-mode">Choose a logging mode</h3>
+<p>What you receive depends on your service registration:</p>
+<table>
+<thead>
+<tr>
+<th>Your registration</th>
+<th>Requests to <code>callLoggerPath</code></th>
+<th>Your form on the wrap-up page</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>callLoggerPrepareLogForm: true</code> (recommended)</td>
+<td><code>prepareLogForm</code> when the page opens, then <code>logForm</code> on <strong>Submit</strong></td>
+<td>Yes, during the call or after it ends</td>
+</tr>
+<tr>
+<td><a href="../call-logging/#add-call-logger-modal"><code>showLogModal: true</code></a></td>
+<td><code>logForm</code> on <strong>Submit</strong></td>
+<td>Yes, once the call has ended</td>
+</tr>
+<tr>
+<td>Neither (only <code>callLoggerPath</code>)</td>
+<td><code>callDisposition</code>, sent automatically</td>
+<td>No, unless you open it yourself</td>
+</tr>
+</tbody>
+</table>
+<p><code>rc-ringcx-call-disposed-notify</code> is posted in every mode.</p>
+<h3 id="recommended-callloggerpreparelogform-true">Recommended: <code>callLoggerPrepareLogForm: true</code></h3>
+<div class="highlight"><pre><span></span><code><span class="nb">window</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">  </span><span class="nx">type</span><span class="o">:</span><span class="w"> </span><span class="s1">'rc-adapter-register-third-party-service'</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">service</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">'MyCRM'</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">callLoggerPath</span><span class="o">:</span><span class="w"> </span><span class="s1">'/callLogger'</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">callLogPageInputChangedEventPath</span><span class="o">:</span><span class="w"> </span><span class="s1">'/callLogger/inputChanged'</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">callLoggerPrepareLogForm</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">},</span><span class="w"> </span><span class="s1">'*'</span><span class="p">);</span>
+</code></pre></div>
+<ol>
+<li>When the wrap-up page opens, during the call or after it ends, the widget sends <code>callLoggerPath</code> once with <code>triggerType: 'prepareLogForm'</code>. <code>call.ringcx.notes</code> holds the notes typed so far.</li>
+<li>Post your form with <a href="../custom-call-log-page/"><code>rc-adapter-update-call-log-page</code></a>, then answer <code>{ data: 'ok' }</code>. Do not navigate and do not log yet.<ul>
+<li>If you have no form for this call, answer <code>{ data: 'ok', noLogForm: '&lt;short reason&gt;' }</code>. The page shows the reason instead of the form.</li>
 </ul>
-<p>When <code>showLogModal</code> is false:</p>
-<ul>
-<li>When auto log is on, submitting a disposition logs the call right away with <code>triggerType: 'callDisposition'</code> and <code>redirect: true</code>. The widget does not open another page. Your <code>callLoggerPath</code> handler decides from its own auto-log setting whether to open the CRM record.</li>
-<li>A call without a disposition step is logged the same way when it ends, but only if auto log is on in the widget settings.</li>
+</li>
+<li>On <strong>Submit</strong>, the widget sends <code>triggerType: 'logForm'</code> with the form data, as the log page does.<ul>
+<li>Answer <code>{ error: '&lt;message&gt;' }</code> when the save failed. The disposition stays saved, and the page keeps the input with <strong>Retry</strong> and <strong>Log later</strong>.</li>
+<li>No answer within 15 seconds counts as a failure.</li>
 </ul>
-<p>When <code>showLogModal</code> is true and <code>callLoggerPath</code> is registered, the host log page opens once the call has ended, and your <code>$LOG-CALL</code> schema renders there. If the agent dispositions while the call is still connected, the page opens when the call ends.</p>
-<p>The log page closes itself once your <code>callLoggerPath</code> responds to a <code>logForm</code> save, the same as for RingEX calls. To close it or the disposition page from your side, use <code>rc-adapter-navigate-to</code> with <code>path: 'goBack'</code> or a target path. Going back never reopens a disposition that was already submitted for an ended call; the agent lands on the dialer instead.</p>
-<p>A failing <code>callLoggerPath</code> does not leave the agent in Pending Disposition. The call stays dispositioned and the log can be retried from history.</p>
-<p>The disposition is not a field of the log form. It arrives as <code>call.ringcx.disposition</code>. The disposition note arrives twice: <code>call.ringcx.notes</code>, and the prefilled <code>note</code> on the default log page. A schema without a <code>note</code> field still receives it on <code>call.ringcx.notes</code>. The call summary from the disposition form, AI generated or agent edited, arrives as <code>aiNote</code> on both the request and <code>call.aiNote</code>, the same field RingEX calls use for the AI note. It is absent when summaries are off for the session.</p>
-<p>History rows use the host actions <strong>Log call</strong>, <strong>Edit log</strong>, and <strong>View log</strong>, with the same labels and <code>callLoggerTitle</code> as RingEX rows. They send <code>triggerType</code> <code>createLog</code>, <code>editLog</code>, and <code>viewLog</code>. They are hidden when no <code>callLoggerPath</code> is registered. The Logged / Unlogged status is derived from <code>callLogEntityMatcherPath</code> results, as for RingEX rows.</p>
-<p>History rows also show <strong>Refresh contact</strong> and the <code>callAction</code> buttons registered with <code>buttonEventPath</code>, as RingEX rows do. A <code>callAction</code> click sends the row as <code>resource</code> in the same shape as the call events, so <code>resource.source</code> is <code>'ringcx'</code> and RingCX fields are under <code>resource.ringcx</code>.</p>
+</li>
+</ol>
+<p>You never receive <code>callDisposition</code> in this mode. The form's <code>note</code> field follows the disposition <strong>Notes</strong> until the agent edits it; changes reach <a href="../custom-call-log-page/"><code>callLogPageInputChangedEventPath</code></a> with <code>keys: ['note']</code>.</p>
+<h3 id="showlogmodal-true"><code>showLogModal: true</code></h3>
+<p>Without <code>callLoggerPrepareLogForm</code>, your current <code>$LOG-CALL</code> form, or the default form, shows on the wrap-up page once the call has ended. <strong>Submit</strong> sends <code>logForm</code>. No <code>callDisposition</code> is sent.</p>
+<h3 id="only-callloggerpath">Only <code>callLoggerPath</code></h3>
+<ul>
+<li>Submitting a disposition logs the call right away with <code>triggerType: 'callDisposition'</code> and <code>redirect: true</code>, whatever the widget's auto log setting. The widget does not open another page. Your handler decides from its own auto-log setting whether to open the CRM record.</li>
+<li>A call without a disposition step is logged the same way when it ends, but only if <strong>Auto log</strong> is on in the widget settings.</li>
+<li>If you open your own log page for the call with <a href="../api/#navigate-to-arbitrary-path"><code>rc-adapter-navigate-to</code></a> and <code>/log/call/&lt;id&gt;?source=ringcx</code>, your form shows on the call's wrap-up page instead of a separate page.</li>
+</ul>
+<h3 id="what-the-wrap-up-page-shows">What the wrap-up page shows</h3>
+<ul>
+<li>With both a disposition and your form: two pill tabs, <strong>Disposition</strong> and your service's <code>displayName</code> (else its <code>name</code>).</li>
+<li>A call without a disposition step: only your form, in a tab named <strong>Log call</strong>.</li>
+<li>A call with dispositions and no log form: only the disposition.</li>
+<li>When only your form is left to save, its button uses your <code>uiSchema.submitButtonOptions.submitText</code>, as the log page does, else <strong>Save</strong>.</li>
+</ul>
+<h3 id="where-the-disposition-data-arrives">Where the disposition data arrives</h3>
+<ul>
+<li><strong>Disposition:</strong> <code>call.ringcx.disposition</code>. It is not a field of the log form.</li>
+<li><strong>Disposition notes:</strong> <code>call.ringcx.notes</code>, and the prefilled <code>note</code> on the default log page. A schema without a <code>note</code> field still receives it on <code>call.ringcx.notes</code>.</li>
+<li><strong>Call summary</strong> (AI generated or agent edited): <code>aiNote</code> on the request and <code>call.aiNote</code>, the same field RingEX calls use for the AI note. It is absent when summaries are off for the session.</li>
+</ul>
+<h3 id="edge-cases">Edge cases</h3>
+<ul>
+<li><strong>Submit during the call.</strong> The disposition is saved right away. The <code>logForm</code> save is sent when the call ends, so the CRM gets the real duration. The wrap-up page comes back only when that save fails, or when the agent submitted before your form was shown.</li>
+<li><strong>Closing the page from your side.</strong> Use <code>rc-adapter-navigate-to</code> with <code>path: 'goBack'</code> or a target path. Going back never reopens a disposition that was already submitted for an ended call; the agent lands on the dialer instead.</li>
+<li><strong>A failing <code>callLoggerPath</code>.</strong> The agent is not left in Pending Disposition. The call stays dispositioned and the log can be retried from history. When the widget logs the call itself (after a disposition, at call end, or from a history action), a <code>callLoggerPath</code> that does not respond within 15 seconds shows a message in the widget.</li>
+</ul>
+<h3 id="call-history">Call history</h3>
 <p>RingCX history stays in the Agent tab. <code>/unlogged-calls</code> does not include RingCX calls.</p>
-<h2 id="leads">Leads</h2>
-<p>Register <code>leadViewerPath</code> to show <strong>View lead</strong> in the Lead tab header. The request body is <code>{ lead, agentId }</code>. For a lead from the Leads tab, <code>lead</code> is the original RingCX lead (the same object as <code>raw</code> in <code>rc-ringcx-lead-notify</code>). For a call's lead, it is the lead data from the call, merged with the matching Leads tab lead when there is one. The button is hidden when the path is not registered.</p>
-<h2 id="voicemail-drop">Voicemail drop</h2>
-<p>With <code>enableVoicemailDrop=1</code> and <code>enableSideWidget=1</code>, agents using the integrated softphone can drop a pre-recorded message on outbound RingCX calls. Unlike RingEX calls, the agent stays on the call until the message ends, and can take over if a person answers. See <a href="../../config/voicemail-drop/#voicemail-drop-on-ringcx-calls-experimental">Voicemail drop on RingCX calls</a>.</p>
+<ul>
+<li>History rows use the host actions <strong>Log call</strong>, <strong>Edit log</strong>, and <strong>View log</strong>, with the same labels and <code>callLoggerTitle</code> as RingEX rows. They send <code>triggerType</code> <code>createLog</code>, <code>editLog</code>, and <code>viewLog</code>, and are hidden when no <code>callLoggerPath</code> is registered.</li>
+<li>The Logged / Unlogged status comes from <code>callLogEntityMatcherPath</code> results, as for RingEX rows.</li>
+<li>Rows also show <strong>Refresh contact</strong> and the <code>callAction</code> buttons registered with <code>buttonEventPath</code>. A <code>callAction</code> click sends the row as <code>resource</code> in the call event shape, so <code>resource.source</code> is <code>'ringcx'</code> and RingCX fields are under <code>resource.ringcx</code>.</li>
+</ul>
 <h2 id="contact-matching">Contact matching</h2>
-<p><code>contactMatchPath</code> receives the same body as for RingEX calls, <code>{ phoneNumbers, callerIds, triggerFrom? }</code>, with plain phone numbers. The old phone-plus-call-type match key from the standalone RingCX Embeddable is not used. <code>callType</code> is on <code>call.ringcx</code>.</p>
+<p><a href="../address-book/#show-matched-contact-in-the-call-history-or-incoming-call-page"><code>contactMatchPath</code></a> receives the same body as for RingEX calls, <code>{ phoneNumbers, callerIds, triggerFrom? }</code>, with plain phone numbers. The phone-plus-call-type match key of the standalone RingCX Embeddable is not used. The call type is on <code>call.ringcx.callType</code>.</p>
+<h2 id="leads">Leads</h2>
+<p>The agent gets leads on the <strong>Leads</strong> tab of the Agent tab. Your page follows them with <code>rc-ringcx-lead-notify</code> and dials them with <code>rc-adapter-ringcx-dial-lead</code>.</p>
+<ul>
+<li>After a call dialed from a lead, preview or progressive, the widget goes back to the Leads tab once the call and its disposition are done.</li>
+<li>A number of a fetched lead that was already dialed cannot be dialed again, as in the standalone RingCX app.</li>
+</ul>
+<h3 id="lead-tab">Lead tab</h3>
+<p>The side panel's <strong>Lead</strong> tab shows a lead's name, numbers, and details. It opens:</p>
+<ul>
+<li>With each answered call that has a lead ID, next to the agent script and agent assistant. The script stays the active tab; the Lead tab is active only when the call has no script.</li>
+<li>When the agent selects <strong>View lead</strong> on the Leads tab or on the disposition page.</li>
+</ul>
+<p>The agent can dial a number from the Lead tab under the same rules as the Leads tab, except in progressive dial mode. A call's Lead tab closes once the call and its disposition are done.</p>
+<p>The Lead tab header has these actions:</p>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Shown when</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Edit</strong></td>
+<td>The lead's campaign lets agents update leads.</td>
+<td>Opens an <strong>Update lead</strong> form. Saving updates the lead in RingCX and sends <code>rc-ringcx-lead-notify</code> with <code>action: 'updated'</code>.</td>
+</tr>
+<tr>
+<td><strong>Manual pass</strong></td>
+<td>The lead is from the Leads tab and the agent may pass leads.</td>
+<td>Opens a <strong>Manual pass</strong> form. Passing sends <code>rc-ringcx-lead-notify</code> with <code>action: 'passed'</code>.</td>
+</tr>
+<tr>
+<td><strong>View lead</strong></td>
+<td>You registered <code>leadViewerPath</code>.</td>
+<td>Sends your <code>leadViewerPath</code> a request, so you can open the lead in your app.</td>
+</tr>
+</tbody>
+</table>
+<p>When the agent's RingCX permissions include lead history, the Lead tab also shows the lead's past dial attempts.</p>
+<p><strong><code>leadViewerPath</code> request body:</strong> <code>{ lead, agentId }</code>.</p>
+<ul>
+<li>For a lead from the Leads tab, <code>lead</code> is the original RingCX lead, the same object as <code>raw</code> in <code>rc-ringcx-lead-notify</code>.</li>
+<li>For a call's lead, <code>lead</code> is the lead data from the call, merged with the matching Leads tab lead when there is one.</li>
+</ul>
+<h4 id="lead-tab-details">Lead tab details</h4>
+<ul>
+<li>Details include source, lead state, passes, contact fields, IDs, aux data with the campaign's labels, and extra data. A field that holds a RingCX recording URL plays as audio.</li>
+<li>The call screen's side panel button lists the Lead tab with the other side panel tabs, and brings back any that are closed. On the disposition page, <strong>View lead</strong> brings back the call's Lead tab.</li>
+<li>A lead opened from the Leads tab switches to its call once that call is answered, and closes when the lead is passed or no longer fetched.</li>
+<li><strong>Update lead</strong> edits contact fields, aux data, and numbers, one per line. Up to 6 numbers are kept, and each must be a valid number; national numbers are read as US numbers. When the campaign lets agents update everything but the numbers, the numbers cannot be changed.</li>
+<li><strong>Manual pass</strong> follows the same rules as the Leads tab. The form closes when the lead is passed or no longer fetched, or when a RingCX call starts.</li>
+<li>Lead history loads when the agent selects <strong>Show history</strong>, then refreshes with <strong>Refresh</strong>. Each attempt shows its disposition and date in the agent's time zone, then its pass number, agent, agent disposition, and notes. For an attempt that left a voicemail, the notes list the audio that was played, grouped by audio library.</li>
+<li>In the Agent tab's history, a past lead call shows <strong>Call</strong> (disposition, call state, DNIS, termination party and reason), <strong>Lead</strong> (the lead as the call recorded it), and <strong>History</strong> (with lead history permission) tabs. Calls that are not lead calls show the call details only.</li>
+</ul>
+<h3 id="progressive-dialing">Progressive dialing</h3>
+<p>A progressive dial group is a RingCX <strong>Preview</strong> dial group with <strong>Enable progressive mode</strong> checked. With one in the session, <code>rc-ringcx-agent-session-notify</code> has <code>permissions.progressiveEnabled: true</code>, and the Leads tab shows <strong>Start dialing</strong> instead of <strong>Get leads</strong>.</p>
+<ol>
+<li><strong>Start dialing</strong> (or <code>rc-adapter-ringcx-start-progressive-dial</code>) asks the agent to go available when needed, and connects the agent's line. The line stays connected while the dialer runs.</li>
+<li>The widget fetches leads and dials them one by one. Before each dial it waits the dial group's <strong>Progressive call delay</strong>, at most 120 seconds. It moves to the next lead once the call and its disposition are done. When no leads come back, it fetches again every 5 seconds.</li>
+<li><strong>Stop dialing</strong> (or <code>rc-adapter-ringcx-stop-progressive-dial</code>) stops the dialer and disconnects the line once no call is live. A manual call, an inbound call, choosing a state other than Available, a dial group change, or logging out also stops it.</li>
+</ol>
+<p>While the dialer runs, agents cannot pick the lead or its number, so the Lead tab's numbers are not clickable; <strong>View lead</strong> and <strong>Manual pass</strong> stay available. If RingCX leaves the agent in another state after a call, such as Working, the widget asks the agent to go available: <strong>Go available</strong> resumes dialing, and <strong>Dismiss</strong> stops it.</p>
+<p>Follow the dialer with <a href="#rc-ringcx-progressive-dial-notify"><code>rc-ringcx-progressive-dial-notify</code></a>.</p>
+<h2 id="voicemail-drop">Voicemail drop</h2>
+<div class="admonition warning">
+<p class="admonition-title">Experimental</p>
+<p>Voicemail drop on RingCX calls is experimental.</p>
+</div>
+<p>With <code>enableVoicemailDrop=1</code> and <code>enableSideWidget=1</code>, agents using the integrated softphone can drop a pre-recorded message on outbound RingCX calls. Unlike RingEX calls, the agent stays on the call until the message ends, and can take over if a person answers. See <a href="../../config/voicemail-drop/#voicemail-drop-on-ringcx-calls-experimental">Voicemail drop on RingCX calls</a>.</p>
 <h2 id="migrating-from-the-standalone-ringcx-embeddable">Migrating from the standalone RingCX Embeddable</h2>
 <table>
 <thead>
@@ -3318,7 +4247,7 @@
 </tr>
 <tr>
 <td><code>rc-ev-setEnvironment</code></td>
-<td><code>evServer</code> parameter</td>
+<td>The <code>appServer</code> parameter; RingCX follows the RingCentral environment</td>
 </tr>
 <tr>
 <td><code>rc-ev-register</code></td>
@@ -3346,7 +4275,7 @@
 </tr>
 <tr>
 <td><code>rc-ev-setSideWidgetExtended</code></td>
-<td>Not carried. The host controls the drawer.</td>
+<td>Not carried over. The host controls the drawer.</td>
 </tr>
 </tbody>
 </table>
@@ -3452,7 +4381,7 @@
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["announce.dismiss", "navigation.path", "navigation.tabs", "navigation.top", "navigation.expand", "navigation.sections", "search.sharing", "search.highlight", "content.code.copy", "content.action.edit", "content.action.view", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.c21346df.min.js"></script>
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
       
         <script src="../../_rc/ringcentral.js"></script>
       
