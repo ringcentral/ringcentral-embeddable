@@ -417,17 +417,7 @@ export class SmartNotes extends RcModule {
 
   private async _loadSmartNoteClient(): Promise<boolean> {
     try {
-      const response = await fetch('./plugins.json');
-      // plugins.json is optional; without it Smart Notes stays disabled.
-      if (response.status === 404) {
-        return false;
-      }
-      if (!response.ok) {
-        throw new Error(
-          `Failed to load SmartNotes plugins: ${response.status}`,
-        );
-      }
-      const plugins = (await response.json()) as SmartNotesPluginConfig;
+      const plugins = await this._loadPluginConfig();
       if (!plugins.smartNotesMFE) {
         return false;
       }
@@ -445,6 +435,30 @@ export class SmartNotes extends RcModule {
       this._smartNoteClientConstructor = null;
       return false;
     }
+  }
+
+  /**
+   * `plugins.json` overrides the build-time default MFE. Extension builds have
+   * no default (remote code is not allowed there), so Smart Notes stays
+   * disabled unless `plugins.json` provides one.
+   */
+  private async _loadPluginConfig(): Promise<SmartNotesPluginConfig> {
+    const defaultConfig: SmartNotesPluginConfig = {
+      smartNotesMFE: process.env.SMART_NOTES_MFE_URI,
+    };
+    const response = await fetch('./plugins.json');
+    // plugins.json is optional.
+    if (response.status === 404) {
+      return defaultConfig;
+    }
+    if (!response.ok) {
+      throw new Error(`Failed to load SmartNotes plugins: ${response.status}`);
+    }
+    const plugins = (await response.json()) as SmartNotesPluginConfig;
+    return {
+      ...plugins,
+      smartNotesMFE: plugins.smartNotesMFE || defaultConfig.smartNotesMFE,
+    };
   }
 
   @delegate('mainClient')

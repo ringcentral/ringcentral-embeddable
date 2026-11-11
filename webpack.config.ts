@@ -19,6 +19,8 @@ const DEFAULT_AGENT_ASSISTANT_PAGE_URL =
   'https://cdn.labs.ringcentral.com/ringcx-embeddable/ai-assistant/0.0.1/index.html';
 const DEFAULT_AGENT_SCRIPT_PAGE_URL =
   'https://cdn.labs.ringcentral.com/ringcx-embeddable/agent-script/0.0.2/index.html';
+const DEFAULT_SMART_NOTES_MFE_URI =
+  'https://cdn.labs.ringcentral.com/smart-note-plugin/0.0.1/remoteEntry.js';
 const RINGCX_AGENT_SDK_ASSET = /[\\/]assets[\\/]ringcx[\\/]agentLibrary\.js$/;
 
 const readEnv = (...names: string[]) => {
@@ -66,6 +68,19 @@ const getNoiseReductionSdkUrl = (
   return (
     readEnv('NOISE_REDUCTION_SDK_URL') || DEFAULT_NOISE_REDUCTION_SDK_URL
   );
+};
+
+/**
+ * Chrome Web Store forbids remotely hosted code, so extension builds get no
+ * default Smart Notes MFE. They can still opt in through `plugins.json`.
+ */
+const getSmartNotesMfeUri = (
+  options: AppWebpackConfigOptions,
+): string | undefined => {
+  if (isExtensionBuild(options)) {
+    return undefined;
+  }
+  return readEnv('SMART_NOTES_MFE_URI') || DEFAULT_SMART_NOTES_MFE_URI;
 };
 
 /**
@@ -204,6 +219,9 @@ export const getWebpackConfig = (
         ),
         'process.env.AGENT_SCRIPT_PAGE_URL': toDefineValue(
           readEnv('AGENT_SCRIPT_PAGE_URL') || DEFAULT_AGENT_SCRIPT_PAGE_URL,
+        ),
+        'process.env.SMART_NOTES_MFE_URI': toDefineValue(
+          getSmartNotesMfeUri(options),
         ),
       }),
     ],
