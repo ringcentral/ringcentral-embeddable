@@ -273,25 +273,124 @@ describe('SmartNotes service', () => {
     expect(global.fetch).not.toHaveBeenCalled();
   });
 
-  test.each([
-    [
-      'an HTTP failure',
-      async () => ({ ok: false, status: 500, json: async () => ({}) }),
-    ],
-    [
-      'missing remote metadata',
-      async () => ({ ok: true, status: 200, json: async () => ({ smartNotesIframe: 'x' }) }),
-    ],
-  ])('handles %s while loading the remote client', async (_label, response) => {
-    global.fetch.mockImplementationOnce(response);
-    const { smartNotes } = createSmartNotes();
+  describe('plugin config resolution', () => {
+    const DEFAULT_MFE = 'https://cdn.example.com/default-remote-entry.js';
+    const PLUGIN_MFE = 'https://example.com/remote-entry.js';
+    const BOOTSTRAP = '@ringcentral/smart-note-widget/src/bootstrap';
+    let originalDefaultMfe;
 
-    await smartNotes.onInit();
+    const httpError = (status) => async () => ({
+      ok: false,
+      status,
+      json: async () => ({}),
+    });
 
-    expect(smartNotes.clientInitialized).toBe(false);
-    if (_label === 'an HTTP failure') {
+    beforeEach(() => {
+      originalDefaultMfe = process.env.SMART_NOTES_MFE_URI;
+    });
+
+    afterEach(() => {
+      if (originalDefaultMfe === undefined) {
+        delete process.env.SMART_NOTES_MFE_URI;
+      } else {
+        process.env.SMART_NOTES_MFE_URI = originalDefaultMfe;
+      }
+    });
+
+    describe('without a build-time default (extension build)', () => {
+      beforeEach(() => {
+        delete process.env.SMART_NOTES_MFE_URI;
+      });
+
+      test.each([403, 404, 500])(
+        'stays disabled without logging when plugins.json responds %i',
+        async (status) => {
+          global.fetch.mockImplementationOnce(httpError(status));
+          const { smartNotes } = createSmartNotes();
+
+          await smartNotes.onInit();
+
+          expect(dynamicLoad).not.toHaveBeenCalled();
+          expect(smartNotes.clientInitialized).toBe(false);
+          expect(smartNotes.logger.error).not.toHaveBeenCalled();
+        },
+      );
+
+      test('stays disabled when plugins.json has no MFE entry', async () => {
+        global.fetch.mockImplementationOnce(async () => ({
+          ok: true,
+          status: 200,
+          json: async () => ({ smartNotesIframe: 'x' }),
+        }));
+        const { smartNotes } = createSmartNotes();
+
+        await smartNotes.onInit();
+
+        expect(dynamicLoad).not.toHaveBeenCalled();
+        expect(smartNotes.clientInitialized).toBe(false);
+      });
+    });
+
+    describe('with a build-time default', () => {
+      beforeEach(() => {
+        process.env.SMART_NOTES_MFE_URI = DEFAULT_MFE;
+      });
+
+      test.each([403, 404, 500])(
+        'falls back to the default MFE when plugins.json responds %i',
+        async (status) => {
+          global.fetch.mockImplementationOnce(httpError(status));
+          const { smartNotes } = createSmartNotes();
+
+          await smartNotes.onInit();
+
+          expect(dynamicLoad).toHaveBeenCalledWith(BOOTSTRAP, DEFAULT_MFE);
+          expect(smartNotes.clientInitialized).toBe(true);
+          expect(smartNotes.smartNoteMFERemoteEntry).toBe(DEFAULT_MFE);
+          expect(smartNotes.logger.error).not.toHaveBeenCalled();
+        },
+      );
+
+      test('falls back to the default MFE and keeps other plugin fields', async () => {
+        global.fetch.mockImplementationOnce(async () => ({
+          ok: true,
+          status: 200,
+          json: async () => ({ smartNotesIframe: 'https://example.com/iframe' }),
+        }));
+        const { smartNotes } = createSmartNotes();
+
+        await smartNotes.onInit();
+
+        expect(dynamicLoad).toHaveBeenCalledWith(BOOTSTRAP, DEFAULT_MFE);
+        expect(smartNotes.smartNoteMFERemoteEntry).toBe(DEFAULT_MFE);
+        expect(smartNotes._smartNoteIframeUri).toBe(
+          'https://example.com/iframe',
+        );
+      });
+
+      test('prefers the MFE from plugins.json over the default', async () => {
+        const { smartNotes } = createSmartNotes();
+
+        await smartNotes.onInit();
+
+        expect(dynamicLoad).toHaveBeenCalledWith(BOOTSTRAP, PLUGIN_MFE);
+        expect(smartNotes.smartNoteMFERemoteEntry).toBe(PLUGIN_MFE);
+      });
+    });
+
+    test('logs and stays disabled when fetching plugins.json rejects', async () => {
+      process.env.SMART_NOTES_MFE_URI = DEFAULT_MFE;
+      global.fetch.mockImplementationOnce(async () => {
+        throw new TypeError('Failed to fetch');
+      });
+      const { smartNotes } = createSmartNotes();
+
+      await smartNotes.onInit();
+
+      expect(dynamicLoad).not.toHaveBeenCalled();
+      expect(smartNotes.clientInitialized).toBe(false);
       expect(smartNotes.logger.error).toHaveBeenCalled();
-    }
+    });
   });
 
   test('handles a rejected dynamic import and deduplicates concurrent initialization', async () => {

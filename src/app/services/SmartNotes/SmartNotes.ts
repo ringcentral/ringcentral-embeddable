@@ -447,12 +447,9 @@ export class SmartNotes extends RcModule {
       smartNotesMFE: process.env.SMART_NOTES_MFE_URI,
     };
     const response = await fetch('./plugins.json');
-    // plugins.json is optional.
-    if (response.status === 404) {
-      return defaultConfig;
-    }
+    // plugins.json is optional; static hosts may answer 403 or 404 for it.
     if (!response.ok) {
-      throw new Error(`Failed to load SmartNotes plugins: ${response.status}`);
+      return defaultConfig;
     }
     const plugins = (await response.json()) as SmartNotesPluginConfig;
     return {
