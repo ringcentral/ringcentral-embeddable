@@ -483,6 +483,66 @@ describe('SmartNotes module methods', () => {
       }),
     );
 
+    const notReady = new Error('Resource for parameter [telephonySessionId] is not found');
+    notReady.errorCode = 'CC-102';
+    const notAllowed = new Error('Request failed');
+    notAllowed.response = {
+      _json: {
+        errorCode: 'CC-104',
+        message: 'Action is not allowed',
+      },
+    };
+    const forbidden = new Error('Request failed');
+    forbidden.response = { status: 403 };
+    const autoStartNotes = createSmartNotes(deps);
+    autoStartNotes.SmartNoteClient = FakeSmartNoteClient;
+    autoStartNotes.setAutoStartSmartNote(true);
+    autoStartNotes.setSession({
+      id: 'auto-start-session',
+      status: 'Answered',
+      phoneNumber: '+16505550123',
+      direction: 'Outbound',
+      startTime: '2026-01-01T10:00:00.000Z',
+    });
+    const autoStartClient = FakeSmartNoteClient.instances.at(-1);
+    autoStartClient.start
+      .mockRejectedValueOnce(notReady)
+      .mockRejectedValueOnce(notAllowed)
+      .mockRejectedValueOnce(forbidden)
+      .mockResolvedValueOnce(undefined);
+    jest.advanceTimersByTime(2000);
+    await flushPromises();
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      jest.advanceTimersByTime(5000);
+      await flushPromises();
+    }
+    expect(autoStartClient.start).toHaveBeenCalledTimes(4);
+    expect(deps.alert.alert).toHaveBeenCalledTimes(1);
+
+    const exhaustedNotes = createSmartNotes(deps);
+    exhaustedNotes.SmartNoteClient = FakeSmartNoteClient;
+    exhaustedNotes.setAutoStartSmartNote(true);
+    exhaustedNotes.setSession({
+      id: 'exhausted-session',
+      status: 'Answered',
+      phoneNumber: '+16505550123',
+      direction: 'Outbound',
+      startTime: '2026-01-01T10:00:00.000Z',
+    });
+    const exhaustedClient = FakeSmartNoteClient.instances.at(-1);
+    exhaustedClient.start.mockRejectedValue(notReady);
+    for (let attempt = 0; attempt < 6; attempt += 1) {
+      jest.advanceTimersByTime(attempt === 0 ? 2000 : 5000);
+      await flushPromises();
+    }
+    expect(exhaustedClient.start).toHaveBeenCalledTimes(6);
+    expect(deps.alert.alert).toHaveBeenCalledTimes(2);
+    exhaustedNotes.setSessionDisconnected({
+      id: 'exhausted-session',
+      status: 'Disconnected',
+      direction: 'Outbound',
+    });
+
     const disconnectedNotes = createSmartNotes();
     disconnectedNotes.SmartNoteClient = FakeSmartNoteClient;
     expect(disconnectedNotes.smartNoteClient).toBeNull();

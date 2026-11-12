@@ -12,6 +12,66 @@ import callDirections from '@ringcentral-integration/commons/enums/callDirection
 import { sleep } from '@ringcentral-integration/commons/utils';
 import { trackEvents } from '../Analytics/trackEvents';
 
+// SIP "answered" often arrives before the telephony session can accept AI notes.
+// Click-to-dial in the App Connect widget commonly needs longer than one retry.
+const AUTO_START_MAX_ATTEMPTS = 6;
+const AUTO_START_INITIAL_DELAY = 2000;
+const AUTO_START_RETRY_DELAY = 5000;
+
+// live-transcription answers 403/404 until the server sees the party as Answered,
+// even though a manual start moments later succeeds.
+const NOT_READY_HTTP_STATUSES = [403, 404, 409];
+
+function readErrorText(error) {
+  if (!error) {
+    return '';
+  }
+  if (typeof error === 'string') {
+    return error;
+  }
+  const responseJson = [
+    error.response?._json,
+    error.response?.json,
+    error.apiResponse?._json,
+    error.apiResponse?.json,
+    error.response?.data,
+    error.data,
+  ].find((value) => value && typeof value === 'object');
+  return [
+    error.message,
+    error.errorCode,
+    error.code,
+    responseJson?.errorCode,
+    responseJson?.message,
+    responseJson?.error,
+    error.response?.status,
+    error.status,
+  ].filter((part) => part !== undefined && part !== null).join(' ');
+}
+
+function readErrorStatus(error) {
+  if (!error || typeof error !== 'object') {
+    return undefined;
+  }
+  const status = error.response?.status ?? error.apiResponse?.status ?? error.status;
+  if (status !== undefined) {
+    return Number(status);
+  }
+  const match = typeof error.message === 'string' && error.message.match(/\b(403|404|409)\b/);
+  return match ? Number(match[1]) : undefined;
+}
+
+function isTelephonySessionNotReady(error) {
+  if (NOT_READY_HTTP_STATUSES.indexOf(readErrorStatus(error)) > -1) {
+    return true;
+  }
+  const text = readErrorText(error);
+  if (text.indexOf('CC-102') > -1 || text.indexOf('CC-104') > -1) {
+    return true;
+  }
+  return /not answered|not ready|not found|action is not allowed|resource for parameter/i.test(text);
+}
+
 interface SmartNoteSession {
   id: string;
   status: string;
@@ -58,7 +118,7 @@ export class SmartNotes extends RcModuleV2 {
   protected _smartNoteIframeUri: string;
   protected _webphoneHookAdded: boolean;
   protected _onSmartNoteUpdate?: (id: string) => void;
-  protected _autoStartTimeout: NodeJS.Timeout;
+  protected _autoStartTimeout?: NodeJS.Timeout;
 
   constructor(deps) {
     super({
@@ -245,35 +305,41 @@ export class SmartNotes extends RcModuleV2 {
     });
   }
 
-  async _startSmartNote(session, retry = false) {
+  async _startSmartNote(session, retry: boolean | number = false) {
     if (this._autoStartTimeout) {
       clearTimeout(this._autoStartTimeout);
+      this._autoStartTimeout = undefined;
     }
-    const delayTime = retry ? 5000 : 2000;
+    const attempt = typeof retry === 'number' ? retry : (retry ? 1 : 0);
+    const delayTime = attempt === 0 ? AUTO_START_INITIAL_DELAY : AUTO_START_RETRY_DELAY;
     this._autoStartTimeout = setTimeout(async () => {
+      this._autoStartTimeout = undefined;
       const client = this._smartNoteClientMap[session.id];
-      if (client && client.transcriptionStatus === 'idle') {
-        try {
-          await this._smartNoteClientMap[session.id].start();
-        } catch (e) {
-          if (!retry && e.message && (
-            e.message.indexOf('CC-102') > -1 ||
-            e.message.indexOf('CC-104') > -1
-          )) {
-            // if the session is not ready, retry once
-            this._startSmartNote(session, true);
-            return;
-          }
-          console.error(e);
-          this._deps.alert.alert({
-            message: 'showCustomAlertMessage',
-            level: 'warning',
-            payload: {
-              alertMessage: 'Failed to auto start AI assistant, please start it manually after call answered',
-            },
-            ttl: 10000,
-          });
+      if (!client || client.transcriptionStatus !== 'idle') {
+        return;
+      }
+      try {
+        await client.start();
+      } catch (e) {
+        const currentClient = this._smartNoteClientMap[session.id];
+        const callStillActive = currentClient && currentClient.transcriptionStatus === 'idle';
+        const hasAttemptsRemaining = attempt + 1 < AUTO_START_MAX_ATTEMPTS;
+        if (callStillActive && hasAttemptsRemaining && isTelephonySessionNotReady(e)) {
+          this._startSmartNote(session, attempt + 1);
+          return;
         }
+        if (!callStillActive) {
+          return;
+        }
+        console.error(e);
+        this._deps.alert.alert({
+          message: 'showCustomAlertMessage',
+          level: 'warning',
+          payload: {
+            alertMessage: 'Failed to auto start AI assistant, please start it manually after call answered',
+          },
+          ttl: 10000,
+        });
       }
     }, delayTime);
   }
