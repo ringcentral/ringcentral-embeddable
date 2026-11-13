@@ -88,6 +88,8 @@ export interface CxDispositionViewUIFunctions {
   onUpdateCallLog: (field: string, value: string) => void;
   onUpdateSummary: (value: string) => void;
   disposeCall: () => Promise<void>;
+  /** Shows the disposition's errors; resolves whether it can be submitted. */
+  validateDisposition: () => Promise<boolean>;
   /** One Submit for the disposition and the host's call log form. */
   submitWrapUp: (
     input: import('./WrapUpPanel.interface').WrapUpSubmitInput,

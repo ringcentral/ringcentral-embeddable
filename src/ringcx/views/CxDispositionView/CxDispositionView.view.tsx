@@ -1235,10 +1235,26 @@ class CxDispositionView extends RcViewModule {
   /** Shows the disposition's errors; returns whether it can be submitted. */
   private _validateDisposition(): boolean {
     const saveFields = this.cxCallDisposition.getDisposition(this.callId);
+    // A live call's disposition is required whenever it has dispositions to
+    // pick from; one never picked has not been flagged yet.
+    const needsDispositionId =
+      !this.isHistoryMode && this.dispositionPickList.length > 0;
     this.setValidated({
+      dispositionId: !needsDispositionId || !!saveFields?.dispositionId,
       notes: !this.required.notes || (this.required.notes && !!saveFields?.notes),
     });
     return this.validated.dispositionId && this.validated.notes;
+  }
+
+  /**
+   * Checks the disposition before the wrap-up page moves on to the call log
+   * step, showing its errors.
+   *
+   * @returns Whether the disposition can be submitted.
+   */
+  @delegate('server')
+  async validateDisposition(): Promise<boolean> {
+    return this._validateDisposition();
   }
 
   /**
@@ -1412,6 +1428,7 @@ class CxDispositionView extends RcViewModule {
       onUpdateCallLog: (field, value) => this.onUpdateCallLog(field, value),
       onUpdateSummary: (value) => this.onUpdateSummary(value),
       disposeCall: () => this.disposeCall(),
+      validateDisposition: () => this.validateDisposition(),
       submitWrapUp: (input) => this.submitWrapUp(input),
       logLater: () => this.logLater(),
       prepareLogForm: (callId) => this.prepareWrapUpLogForm(callId),
@@ -1705,6 +1722,7 @@ class CxDispositionView extends RcViewModule {
           onUpdateSummary={uiFunctions.onUpdateSummary}
           onSubmit={uiFunctions.submitWrapUp}
           onLogLater={uiFunctions.logLater}
+          onValidateDisposition={uiFunctions.validateDisposition}
           onPrepareLogForm={uiFunctions.prepareLogForm}
           onLoadLogCall={uiFunctions.loadLogCall}
           onLogFormChange={uiFunctions.onLogFormChange}

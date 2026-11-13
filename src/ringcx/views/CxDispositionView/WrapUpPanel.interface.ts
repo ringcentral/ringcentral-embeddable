@@ -65,6 +65,8 @@ export interface WrapUpPanelProps {
   onUpdateSummary: (value: string) => void;
   onSubmit: (input: WrapUpSubmitInput) => void;
   onLogLater: () => void;
+  /** Shows the disposition's errors; resolves whether it can be submitted. */
+  onValidateDisposition: () => Promise<boolean>;
   onPrepareLogForm: (callId: string) => void;
   onLoadLogCall: (callId: string) => void;
   onLogFormChange: (formData: UnknownRecord, keys: string[]) => void;
