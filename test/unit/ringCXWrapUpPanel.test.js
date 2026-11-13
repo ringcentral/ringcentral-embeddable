@@ -4,14 +4,6 @@ import React from 'react';
 
 import { WrapUpPanel } from '../../src/ringcx/views/CxDispositionView/WrapUpPanel';
 
-// The shared mock passes the pill tab props on to the DOM.
-jest.mock('@ringcentral/spring-ui', () => ({
-  ...jest.requireActual('@ringcentral/spring-ui'),
-  Tabs: ({ children, variant, pill, size, ...props }) => (
-    <div {...props}>{children}</div>
-  ),
-}));
-
 jest.mock('../../src/ringcx/components/CallInfoHeader', () => ({
   CallInfoHeader: ({ actions }) => <header data-sign="callInfoHeader">{actions}</header>,
 }));
@@ -35,7 +27,11 @@ jest.mock('../../src/app/views/LogCallView/i18n', () => ({
 const CALL_ID = 'uii-1$session-1';
 const DISPOSITIONS = [{ dispositionId: 'disp-1', disposition: 'Finished' }];
 
-function logPage({ required = [], formData = { contact: 'contact-1', note: '' } } = {}) {
+function logPage({
+  required = [],
+  formData = { contact: 'contact-1', note: '' },
+  noteUiSchema,
+} = {}) {
   return {
     id: '$LOG-CALL',
     title: 'Log to TestService',
@@ -44,7 +40,10 @@ function logPage({ required = [], formData = { contact: 'contact-1', note: '' } 
       required,
       properties: { contact: { type: 'string' }, note: { type: 'string' } },
     },
-    uiSchema: { submitButtonOptions: { submitText: 'Save to TestService' } },
+    uiSchema: {
+      submitButtonOptions: { submitText: 'Save to TestService' },
+      ...(noteUiSchema ? { note: noteUiSchema } : {}),
+    },
     formData,
   };
 }
@@ -88,6 +87,7 @@ function props(overrides = {}) {
     onUpdateSummary: jest.fn(),
     onSubmit: jest.fn(),
     onLogLater: jest.fn(),
+    onValidateDisposition: jest.fn(async () => true),
     onPrepareLogForm: jest.fn(),
     onLoadLogCall: jest.fn(),
     onLogFormChange: jest.fn(),
@@ -96,38 +96,111 @@ function props(overrides = {}) {
   };
 }
 
-function activeTab(container) {
-  return container.querySelector('[data-tab-value]')?.getAttribute('data-tab-value');
-}
+const bySign = (sign) => document.querySelector(`[data-sign="${sign}"]`);
+const activeStep = () =>
+  bySign('wrapUpSteps')?.querySelector('ol').getAttribute('data-active-step');
+const stepButton = (sign) => bySign(sign).querySelector('button');
+const submitButton = () => bySign('submitButton');
+const isShown = (sign) => !bySign(sign).classList.contains('hidden');
 
-const submitButton = () => document.querySelector('[data-sign="submitButton"]');
+const defaultJsonSchemaPage = JSONSchemaPage.getMockImplementation();
 
 beforeEach(() => {
   JSONSchemaPage.mockClear();
 });
 
-describe('WrapUpPanel layout', () => {
-  test('opens on Disposition while the disposition is to be submitted', () => {
-    const { container } = render(<WrapUpPanel {...props()} />);
+afterEach(() => {
+  JSONSchemaPage.mockImplementation(defaultJsonSchemaPage);
+});
 
-    expect(activeTab(container)).toBe('disposition');
+describe('WrapUpPanel steps', () => {
+  test('opens on the Disposition step with Next', () => {
+    render(<WrapUpPanel {...props()} />);
+
+    expect(activeStep()).toBe('0');
+    expect(isShown('wrapUpDisposition')).toBe(true);
+    expect(isShown('wrapUpLog')).toBe(false);
     expect(screen.getByText('TestService')).toBeTruthy();
+    expect(bySign('wrapUpNext')).toBeTruthy();
+    expect(submitButton()).toBeNull();
+    // No hint under the buttons.
+    expect(document.querySelector('p')).toBeNull();
+  });
+
+  test('moves on to the host step with a valid disposition', () => {
+    const onValidateDisposition = jest.fn(async () => true);
+    render(<WrapUpPanel {...props({ onValidateDisposition })} />);
+
+    fireEvent.click(bySign('wrapUpNext'));
+
+    expect(activeStep()).toBe('1');
+    expect(isShown('wrapUpLog')).toBe(true);
+    expect(isShown('wrapUpDisposition')).toBe(false);
+    expect(bySign('wrapUpStep-disposition').getAttribute('data-completed')).toBe('true');
+    expect(bySign('wrapUpBack')).toBeTruthy();
     expect(submitButton().textContent).toBe('submit');
-    // No hint under Submit.
-    expect(container.querySelector('[data-sign="wrapUpHint"]')).toBeNull();
+    expect(onValidateDisposition).not.toHaveBeenCalled();
   });
 
-  test("opens on the host's tab once the disposition is saved", () => {
-    const { container } = render(<WrapUpPanel {...props({ isDisposed: true })} />);
+  test.each([
+    ['no disposition', { dispositionId: null, notes: '', summary: '' }, { notes: false }],
+    ['notes the disposition requires', { dispositionId: 'disp-1', notes: '', summary: '' }, { notes: true }],
+  ])('stays on the Disposition step with %s', (_name, dispositionData, required) => {
+    const onValidateDisposition = jest.fn(async () => false);
+    render(<WrapUpPanel {...props({ dispositionData, required, onValidateDisposition })} />);
 
-    expect(activeTab(container)).toBe('log');
-    expect(container.querySelector('[data-sign="dispositionRecap"]')).toBeTruthy();
-    // Only the call log is left: the host's own save button.
+    fireEvent.click(bySign('wrapUpNext'));
+    expect(activeStep()).toBe('0');
+    expect(onValidateDisposition).toHaveBeenCalledTimes(1);
+
+    // The host step itself runs the same check.
+    fireEvent.click(stepButton('wrapUpStep-log'));
+    expect(activeStep()).toBe('0');
+    expect(onValidateDisposition).toHaveBeenCalledTimes(2);
+  });
+
+  test('marks the Disposition step with its errors', () => {
+    render(<WrapUpPanel {...props({ validated: { dispositionId: false, notes: true } })} />);
+
+    expect(stepButton('wrapUpStep-disposition').getAttribute('data-error')).toBe('true');
+    expect(stepButton('wrapUpStep-log').getAttribute('data-error')).toBe('false');
+  });
+
+  test('goes back to the Disposition step, with Back or the step itself', () => {
+    render(<WrapUpPanel {...props()} />);
+
+    fireEvent.click(bySign('wrapUpNext'));
+    fireEvent.click(bySign('wrapUpBack'));
+    expect(activeStep()).toBe('0');
+
+    fireEvent.click(stepButton('wrapUpStep-log'));
+    expect(activeStep()).toBe('1');
+    fireEvent.click(stepButton('wrapUpStep-disposition'));
+    expect(activeStep()).toBe('0');
+  });
+
+  test('returns to the Disposition step when a submit finds it invalid', () => {
+    const { rerender } = render(<WrapUpPanel {...props()} />);
+    fireEvent.click(bySign('wrapUpNext'));
+
+    rerender(<WrapUpPanel {...props({ validated: { dispositionId: false, notes: true } })} />);
+
+    expect(activeStep()).toBe('0');
+  });
+
+  test('opens on the host step once the disposition is saved', () => {
+    render(<WrapUpPanel {...props({ isDisposed: true })} />);
+
+    expect(activeStep()).toBe('1');
+    expect(bySign('wrapUpStep-disposition').getAttribute('data-completed')).toBe('true');
+    expect(bySign('dispositionRecap')).toBeTruthy();
+    // Only the call log is left: the host's own save button, and no Back.
     expect(submitButton().textContent).toBe('Save to TestService');
+    expect(bySign('wrapUpBack')).toBeNull();
   });
 
-  test('shows a call log without a disposition step without tabs', () => {
-    const { container } = render(
+  test('shows a call log without a disposition step without steps', () => {
+    render(
       <WrapUpPanel
         {...props({
           showSubmitStep: false,
@@ -138,9 +211,9 @@ describe('WrapUpPanel layout', () => {
       />,
     );
 
-    expect(activeTab(container)).toBeUndefined();
-    expect(container.querySelector('[data-sign="dispositionForm"]')).toBeNull();
-    expect(container.querySelector('[data-sign="wrapUpCallLog"]')).toBeTruthy();
+    expect(bySign('wrapUpSteps')).toBeNull();
+    expect(bySign('dispositionForm')).toBeNull();
+    expect(bySign('wrapUpCallLog')).toBeTruthy();
     expect(submitButton().textContent).toBe('Save to TestService');
   });
 
@@ -156,29 +229,28 @@ describe('WrapUpPanel layout', () => {
     expect(submitButton().textContent).toBe('save');
   });
 
-  test('shows only the disposition for a host without a log form', () => {
-    const { container } = render(
-      <WrapUpPanel {...props({ wrapUp: wrapUp({ logMode: 'none', entry: null }) })} />,
-    );
+  test('shows only the disposition, with Submit, for a host without a log form', () => {
+    render(<WrapUpPanel {...props({ wrapUp: wrapUp({ logMode: 'none', entry: null }) })} />);
 
-    expect(activeTab(container)).toBeUndefined();
-    expect(container.querySelector('[data-sign="wrapUpLog"]')).toBeNull();
-    expect(container.querySelector('[data-sign="dispositionForm"]')).toBeTruthy();
+    expect(bySign('wrapUpSteps')).toBeNull();
+    expect(bySign('wrapUpLog')).toBeNull();
+    expect(bySign('dispositionForm')).toBeTruthy();
+    expect(submitButton().textContent).toBe('submit');
   });
 
-  test('shows the call log form during the call, with no timer', () => {
-    const { container } = render(<WrapUpPanel {...props({ callEnded: false })} />);
+  test('keeps the call log form mounted during the call, with no timer', () => {
+    render(<WrapUpPanel {...props({ callEnded: false })} />);
 
-    expect(container.querySelector('[data-sign="wrapUpCallLog"]')).toBeTruthy();
-    expect(container.querySelector('[data-sign="wrapUpTimer"]')).toBeNull();
+    expect(bySign('wrapUpCallLog')).toBeTruthy();
+    expect(bySign('wrapUpTimer')).toBeNull();
   });
 
   test('shows the wrap-up time until the disposition is saved', () => {
-    const { container, rerender } = render(<WrapUpPanel {...props()} />);
-    expect(container.querySelector('[data-sign="wrapUpTimer"]')).toBeTruthy();
+    const { rerender } = render(<WrapUpPanel {...props()} />);
+    expect(bySign('wrapUpTimer')).toBeTruthy();
 
     rerender(<WrapUpPanel {...props({ isDisposed: true })} />);
-    expect(container.querySelector('[data-sign="wrapUpTimer"]')).toBeNull();
+    expect(bySign('wrapUpTimer')).toBeNull();
   });
 });
 
@@ -198,7 +270,7 @@ describe("WrapUpPanel host's form", () => {
     );
 
     expect(onPrepareLogForm).toHaveBeenCalledWith(CALL_ID);
-    expect(document.querySelector('[data-sign="wrapUpLogFormLoading"]')).toBeTruthy();
+    expect(bySign('wrapUpLogFormLoading')).toBeTruthy();
   });
 
   test("asks again once another call's form replaced it", () => {
@@ -219,10 +291,12 @@ describe("WrapUpPanel host's form", () => {
     expect(onPrepareLogForm).not.toHaveBeenCalled();
   });
 
-  test("shows the host's reason when it has no form", () => {
+  test("shows the host's reason, and submits the disposition only, when it has no form", () => {
+    const onSubmit = jest.fn();
     render(
       <WrapUpPanel
         {...props({
+          onSubmit,
           wrapUp: wrapUp({
             entry: {
               hasDispositionStep: true,
@@ -237,6 +311,11 @@ describe("WrapUpPanel host's form", () => {
 
     expect(screen.getByText('No contact found')).toBeTruthy();
     expect(JSONSchemaPage).not.toHaveBeenCalled();
+
+    fireEvent.click(bySign('wrapUpNext'));
+    fireEvent.click(submitButton());
+    // The call stays Unlogged.
+    expect(onSubmit).toHaveBeenCalledWith({ formData: null, skipLog: true });
   });
 
   test('closes a call log page with no form', () => {
@@ -253,7 +332,7 @@ describe("WrapUpPanel host's form", () => {
       />,
     );
 
-    fireEvent.click(document.querySelector('[data-sign="wrapUpClose"]'));
+    fireEvent.click(bySign('wrapUpClose'));
     expect(onLogLater).toHaveBeenCalled();
   });
 
@@ -262,6 +341,7 @@ describe("WrapUpPanel host's form", () => {
     render(
       <WrapUpPanel
         {...props({
+          showSubmitStep: false,
           onLoadLogCall,
           wrapUp: wrapUp({
             logMode: 'page',
@@ -318,6 +398,7 @@ describe('WrapUpPanel Submit', () => {
     const onSubmit = jest.fn();
     render(<WrapUpPanel {...props({ onSubmit })} />);
 
+    fireEvent.click(bySign('wrapUpNext'));
     fireEvent.click(submitButton());
 
     expect(onSubmit).toHaveBeenCalledWith({
@@ -325,12 +406,10 @@ describe('WrapUpPanel Submit', () => {
     });
   });
 
-  test('sends no form while it is loading', () => {
-    const onSubmit = jest.fn();
+  test('waits for the form while it is loading', () => {
     render(
       <WrapUpPanel
         {...props({
-          onSubmit,
           wrapUp: wrapUp({
             entry: { hasDispositionStep: true, formStatus: 'loading', logStatus: 'pending' },
           }),
@@ -338,14 +417,14 @@ describe('WrapUpPanel Submit', () => {
       />,
     );
 
-    fireEvent.click(submitButton());
+    fireEvent.click(bySign('wrapUpNext'));
 
-    expect(onSubmit).toHaveBeenCalledWith({ formData: null });
+    expect(submitButton().disabled).toBe(true);
   });
 
-  test("opens the host's tab when only its required fields block Submit", () => {
+  test('offers Submit without logging when only the required host fields block Submit', () => {
     const onSubmit = jest.fn();
-    const { container } = render(
+    render(
       <WrapUpPanel
         {...props({
           onSubmit,
@@ -359,21 +438,22 @@ describe('WrapUpPanel Submit', () => {
       />,
     );
 
+    fireEvent.click(bySign('wrapUpNext'));
     fireEvent.click(submitButton());
 
     expect(onSubmit).not.toHaveBeenCalled();
-    expect(activeTab(container)).toBe('log');
-    expect(container.querySelector('[data-sign="wrapUpCallLogError"]')).toBeTruthy();
-    expect(container.querySelector('[data-sign="wrapUpPillError"]')).toBeTruthy();
+    expect(activeStep()).toBe('1');
+    expect(bySign('wrapUpCallLogError')).toBeTruthy();
+    expect(stepButton('wrapUpStep-log').getAttribute('data-error')).toBe('true');
 
-    fireEvent.click(container.querySelector('[data-sign="submitWithoutLogging"]'));
+    fireEvent.click(bySign('submitWithoutLogging'));
     expect(onSubmit).toHaveBeenCalledWith({ formData: null, skipLog: true });
   });
 
   test('offers Retry and Log later, with no hint, after a failed save', () => {
     const onSubmit = jest.fn();
     const onLogLater = jest.fn();
-    const { container } = render(
+    render(
       <WrapUpPanel
         {...props({
           isDisposed: true,
@@ -391,21 +471,20 @@ describe('WrapUpPanel Submit', () => {
       />,
     );
 
-    expect(container.querySelector('[data-sign="wrapUpCallLogError"]').textContent).toContain(
-      'CRM is down',
-    );
-    expect(container.querySelector('p')).toBeNull();
+    expect(bySign('wrapUpCallLogError').textContent).toContain('CRM is down');
+    expect(stepButton('wrapUpStep-log').getAttribute('data-error')).toBe('true');
+    expect(document.querySelector('p')).toBeNull();
 
-    fireEvent.click(container.querySelector('[data-sign="wrapUpRetry"]'));
+    fireEvent.click(bySign('wrapUpRetry'));
     expect(onSubmit).toHaveBeenCalledWith({
       formData: { contact: 'contact-1', note: '' },
     });
-    fireEvent.click(container.querySelector('[data-sign="wrapUpLogLater"]'));
+    fireEvent.click(bySign('wrapUpLogLater'));
     expect(onLogLater).toHaveBeenCalled();
   });
 
-  test('marks a call log queued during the call', () => {
-    const { container } = render(
+  test('checks the host step for a call log queued during the call', () => {
+    render(
       <WrapUpPanel
         {...props({
           callEnded: false,
@@ -422,13 +501,26 @@ describe('WrapUpPanel Submit', () => {
       />,
     );
 
-    expect(container.querySelector('[data-sign="wrapUpPillQueued"]')).toBeTruthy();
+    expect(bySign('wrapUpStep-log').getAttribute('data-completed')).toBe('true');
   });
 });
 
-describe('WrapUpPanel notes sync', () => {
+describe('WrapUpPanel Use disposition notes', () => {
   beforeEach(() => {
     jest.useFakeTimers();
+    // Renders the note field as the form does: disabled by its uiSchema, with
+    // its help under it.
+    JSONSchemaPage.mockImplementation(({ formData, uiSchema, onFormDataChange }) => (
+      <div>
+        <textarea
+          data-sign="note"
+          value={formData.note ?? ''}
+          disabled={Boolean(uiSchema.note?.['ui:disabled'])}
+          onChange={(event) => onFormDataChange({ ...formData, note: event.target.value })}
+        />
+        <div data-sign="noteHelp">{uiSchema.note?.['ui:help']}</div>
+      </div>
+    ));
   });
 
   afterEach(() => {
@@ -442,19 +534,44 @@ describe('WrapUpPanel notes sync', () => {
     });
   }
 
-  test('follows Notes into the log note and tells the host once typing stops', () => {
+  const noteField = () => bySign('note');
+  const useNotesCheckbox = () =>
+    bySign('wrapUpUseDispositionNotes').querySelector('input[type="checkbox"]');
+
+  test('is ticked by default: the note is read only and takes the Notes', () => {
+    const onLogFormChange = jest.fn();
+    render(
+      <WrapUpPanel
+        {...withNotes('Asked for pricing', {
+          onLogFormChange,
+          wrapUp: wrapUp({
+            logCallPage: logPage({ formData: { contact: 'contact-1', note: 'AI note' } }),
+          }),
+        })}
+      />,
+    );
+
+    expect(useNotesCheckbox().checked).toBe(true);
+    expect(bySign('noteHelp').contains(useNotesCheckbox())).toBe(true);
+    expect(noteField().disabled).toBe(true);
+    expect(noteField().value).toBe('Asked for pricing');
+    act(() => {
+      jest.advanceTimersByTime(500);
+    });
+    expect(onLogFormChange).toHaveBeenCalledWith(
+      { contact: 'contact-1', note: 'Asked for pricing' },
+      ['note'],
+    );
+  });
+
+  test('follows the Notes and tells the host once typing stops', () => {
     const onLogFormChange = jest.fn();
     const { rerender } = render(<WrapUpPanel {...withNotes('', { onLogFormChange })} />);
 
     rerender(<WrapUpPanel {...withNotes('Asked', { onLogFormChange })} />);
     rerender(<WrapUpPanel {...withNotes('Asked for pricing', { onLogFormChange })} />);
 
-    expect(JSONSchemaPage).toHaveBeenLastCalledWith(
-      expect.objectContaining({
-        formData: { contact: 'contact-1', note: 'Asked for pricing' },
-      }),
-      expect.anything(),
-    );
+    expect(noteField().value).toBe('Asked for pricing');
     expect(onLogFormChange).not.toHaveBeenCalled();
     act(() => {
       jest.advanceTimersByTime(500);
@@ -466,73 +583,55 @@ describe('WrapUpPanel notes sync', () => {
     );
   });
 
-  test("keeps the form's own note until Notes change", () => {
+  test('unticked, the note is editable and stops following; ticked again, it takes the Notes', () => {
     const onLogFormChange = jest.fn();
+    const { rerender } = render(
+      <WrapUpPanel {...withNotes('Asked', { onLogFormChange })} />,
+    );
+
+    fireEvent.click(useNotesCheckbox());
+    expect(noteField().disabled).toBe(false);
+    fireEvent.change(noteField(), { target: { value: 'My own note' } });
+    expect(onLogFormChange).toHaveBeenLastCalledWith(
+      { contact: 'contact-1', note: 'My own note' },
+      ['note'],
+    );
+
+    rerender(<WrapUpPanel {...withNotes('Asked for pricing', { onLogFormChange })} />);
+    expect(noteField().value).toBe('My own note');
+
+    fireEvent.click(useNotesCheckbox());
+    expect(noteField().disabled).toBe(true);
+    expect(noteField().value).toBe('Asked for pricing');
+  });
+
+  test("keeps the host's own help for the note", () => {
     render(
       <WrapUpPanel
         {...withNotes('', {
-          onLogFormChange,
           wrapUp: wrapUp({
-            logCallPage: logPage({ formData: { contact: 'contact-1', note: 'AI note' } }),
+            logCallPage: logPage({ noteUiSchema: { 'ui:help': 'Shown on the activity' } }),
           }),
         })}
       />,
     );
-    act(() => {
-      jest.advanceTimersByTime(500);
-    });
 
-    expect(JSONSchemaPage).toHaveBeenLastCalledWith(
-      expect.objectContaining({
-        formData: { contact: 'contact-1', note: 'AI note' },
-      }),
-      expect.anything(),
-    );
-    expect(onLogFormChange).not.toHaveBeenCalled();
+    expect(bySign('noteHelp').textContent).toContain('Shown on the activity');
+    expect(useNotesCheckbox()).toBeTruthy();
   });
 
-  test('stops following once the agent edits the log note, until Use notes', () => {
-    JSONSchemaPage.mockImplementation(({ formData, onFormDataChange }) => (
-      <button
-        type="button"
-        data-sign="editNote"
-        onClick={() => onFormDataChange({ ...formData, note: 'Edited here' })}
-      >
-        {formData.note}
-      </button>
-    ));
-    const onLogFormChange = jest.fn();
-    const { container, rerender } = render(
-      <WrapUpPanel {...withNotes('', { onLogFormChange })} />,
-    );
-
-    fireEvent.click(container.querySelector('[data-sign="editNote"]'));
-    expect(onLogFormChange).toHaveBeenCalledWith(
-      { contact: 'contact-1', note: 'Edited here' },
-      ['note'],
-    );
-    rerender(<WrapUpPanel {...withNotes('New notes', { onLogFormChange })} />);
-    expect(container.querySelector('[data-sign="editNote"]').textContent).toBe('Edited here');
-    expect(container.querySelector('[data-sign="wrapUpNoteSync"]').textContent).toContain(
-      'noteEdited',
-    );
-
-    fireEvent.click(container.querySelector('[data-sign="wrapUpUseNotes"]'));
-    expect(container.querySelector('[data-sign="editNote"]').textContent).toBe('New notes');
-    JSONSchemaPage.mockReset();
-  });
-
-  test('does not follow Notes when the form has no note field', () => {
+  test('has no checkbox when the form has no note field', () => {
     const page = logPage();
     delete page.schema.properties.note;
-    const { container, rerender } = render(
-      <WrapUpPanel {...withNotes('', { wrapUp: wrapUp({ logCallPage: page }) })} />,
-    );
+    render(<WrapUpPanel {...withNotes('Asked', { wrapUp: wrapUp({ logCallPage: page }) })} />);
 
-    rerender(
-      <WrapUpPanel {...withNotes('Asked', { wrapUp: wrapUp({ logCallPage: page }) })} />,
-    );
+    expect(bySign('wrapUpUseDispositionNotes')).toBeNull();
+    expect(noteField().disabled).toBe(false);
+  });
 
-    expect(container.querySelector('[data-sign="wrapUpNoteSync"]')).toBeNull();
+  test('has no checkbox once the disposition is saved', () => {
+    render(<WrapUpPanel {...withNotes('Asked', { isDisposed: true })} />);
+
+    expect(bySign('wrapUpUseDispositionNotes')).toBeNull();
   });
 });

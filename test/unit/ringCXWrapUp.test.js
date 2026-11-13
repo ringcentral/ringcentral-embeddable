@@ -190,6 +190,7 @@ function createView({
   view._scheduleSubmitNavigation = jest.fn();
   return {
     bridge,
+    cxCallDisposition,
     cxCallMonitor,
     disposedIds,
     order,
@@ -560,18 +561,67 @@ describe('one Submit for the wrap-up page', () => {
     expect(view._scheduleSubmitNavigation).toHaveBeenCalled();
   });
 
-  test('sends nothing when the disposition is not valid', async () => {
-    const { bridge, view, wrapUpLog } = createView({
+  test('sends nothing when no disposition was picked', async () => {
+    const { bridge, cxCallDisposition, view, wrapUpLog } = createView({
       call: createCall({ ended: true }),
       live: false,
     });
     wrapUpLog.open(CALL_ID, true);
-    view.setValidated({ dispositionId: false });
+    // Never picked, so never flagged by a change either.
+    cxCallDisposition.getDisposition.mockReturnValue({
+      dispositionId: null,
+      notes: '',
+      summary: '',
+    });
 
     await view.submitWrapUp({ formData: FORM_DATA });
 
+    expect(view.validated.dispositionId).toBe(false);
     expect(view.doDisposeCall).not.toHaveBeenCalled();
     expect(bridge.saveLogForm).not.toHaveBeenCalled();
+  });
+});
+
+describe('checking the disposition before the call log step', () => {
+  test('passes a picked disposition', async () => {
+    const { view } = createView();
+
+    await expect(view.validateDisposition()).resolves.toBe(true);
+    expect(view.validated).toEqual({ dispositionId: true, notes: true });
+  });
+
+  test('flags a disposition never picked', async () => {
+    const { cxCallDisposition, view } = createView();
+    cxCallDisposition.getDisposition.mockReturnValue({
+      dispositionId: null,
+      notes: '',
+      summary: '',
+    });
+
+    await expect(view.validateDisposition()).resolves.toBe(false);
+    expect(view.validated.dispositionId).toBe(false);
+  });
+
+  test('flags notes the disposition requires', async () => {
+    const { cxCallDisposition, view } = createView();
+    view.setRequired({ notes: true });
+    cxCallDisposition.getDisposition.mockReturnValue({
+      dispositionId: 'disp-1',
+      notes: '',
+      summary: '',
+    });
+
+    await expect(view.validateDisposition()).resolves.toBe(false);
+    expect(view.validated).toEqual({ dispositionId: true, notes: false });
+  });
+
+  test('needs no disposition for a call without dispositions', async () => {
+    const { cxCallDisposition, view } = createView({
+      call: createCall({ dispositions: null }),
+    });
+    cxCallDisposition.getDisposition.mockReturnValue(undefined);
+
+    await expect(view.validateDisposition()).resolves.toBe(true);
   });
 });
 

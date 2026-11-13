@@ -1,5 +1,13 @@
 import { useLocale } from '@ringcentral-integration/micro-core/src/app/hooks';
-import { Button, Icon, Tab, TabContext, Tabs } from '@ringcentral/spring-ui';
+import {
+  Button,
+  Checkbox,
+  FormLabel,
+  Icon,
+  Step,
+  StepButton,
+  Stepper,
+} from '@ringcentral/spring-ui';
 import { CheckMd } from '@ringcentral/spring-icon';
 import clsx from 'clsx';
 import type { FunctionComponent, ReactNode } from 'react';
@@ -15,26 +23,35 @@ import { resolveLogCallPage } from '../../../app/views/LogCallView/LogCallPage.h
 import { useCallLogFormData } from '../../../app/views/LogCallView/useCallLogFormData';
 import { CallInfoHeader } from '../../components/CallInfoHeader';
 import { DispositionForm } from '../../components/DispositionForm';
-import type { WrapUpPillMark } from '../../components/WrapUp';
 import {
   DispositionRecap,
   WrapUpCallLog,
-  WrapUpPillLabel,
   WrapUpTimer,
 } from '../../components/WrapUp';
 import type { WrapUpPanelProps } from './WrapUpPanel.interface';
 import i18n from './i18n';
 
-type WrapUpTab = 'disposition' | 'log';
+/** The disposition step, then the host's call log step. */
+type WrapUpStep = 0 | 1;
+
+/**
+ * Passed to Spring's step and its label: a shorter step with a smaller label
+ * for the narrow column.
+ */
+const STEP_CLASSES = { horizontal: 'py-2' };
+const STEP_LABEL_PROPS = {
+  className: 'mt-1 block max-w-full truncate typography-descriptor',
+};
 
 /** How long the notes sync waits before it tells the host. */
 const NOTE_SYNC_DELAY = 500;
 
 /**
  * The RingCX wrap-up page for a call: its disposition and the host's call
- * log form, with one Submit. With both parts they are pill tabs named
- * Disposition and the host; a page with one part shows it on its own, named
- * by its side widget tab.
+ * log form. With both parts they are two steps, Disposition and the host:
+ * Next checks the disposition and moves on, and the host step's Submit saves
+ * the disposition, then the call log. A page with one part shows it on its
+ * own, named by its side widget tab.
  */
 export const WrapUpPanel: FunctionComponent<WrapUpPanelProps> = ({
   callId,
@@ -61,6 +78,7 @@ export const WrapUpPanel: FunctionComponent<WrapUpPanelProps> = ({
   onUpdateSummary,
   onSubmit,
   onLogLater,
+  onValidateDisposition,
   onPrepareLogForm,
   onLoadLogCall,
   onLogFormChange,
@@ -146,17 +164,24 @@ export const WrapUpPanel: FunctionComponent<WrapUpPanelProps> = ({
   const hasLogForm = showLog && logPartStatus === 'ready';
   const showDispositionPart = showSubmitStep;
   const dispositionSaved = isDisposed;
-  const useTabs = showLog && showDispositionPart;
+  const useSteps = showLog && showDispositionPart;
 
-  const [activeTab, setActiveTab] = useState<WrapUpTab>(
-    dispositionSaved ? 'log' : 'disposition',
+  const [activeStep, setActiveStep] = useState<WrapUpStep>(
+    dispositionSaved ? 1 : 0,
   );
   // A saved disposition leaves only the call log to do.
   useEffect(() => {
     if (dispositionSaved && showLog) {
-      setActiveTab('log');
+      setActiveStep(1);
     }
   }, [dispositionSaved, showLog]);
+  // A submit that finds the disposition invalid shows it again.
+  const dispositionHasErrors = !validated.dispositionId || !validated.notes;
+  useEffect(() => {
+    if (dispositionHasErrors && !dispositionSaved) {
+      setActiveStep(0);
+    }
+  }, [dispositionHasErrors, dispositionSaved]);
 
   const [logBlocked, setLogBlocked] = useState(false);
   const requiredLogFieldsFilled = page
@@ -168,11 +193,9 @@ export const WrapUpPanel: FunctionComponent<WrapUpPanelProps> = ({
     }
   }, [requiredLogFieldsFilled]);
 
-  // Notes sync: the log note follows Notes until the agent edits it.
-  const [noteEdited, setNoteEdited] = useState(false);
-  useEffect(() => {
-    setNoteEdited(false);
-  }, [callId]);
+  // The log note can take the disposition Notes, ticked by default. While it
+  // does, the note field is read only and follows Notes.
+  const [useDispositionNotes, setUseDispositionNotes] = useState(true);
   const canSyncNote =
     hasLogForm &&
     showDispositionPart &&
@@ -193,26 +216,58 @@ export const WrapUpPanel: FunctionComponent<WrapUpPanelProps> = ({
       onLogFormChange(next, ['note']);
     }, NOTE_SYNC_DELAY);
   };
-  // Only a change to Notes is followed: the form's own prefill, such as the
-  // default form's AI note, stays until the agent types notes.
-  const syncedNotes = useRef(notes);
+  const followsNotes = canSyncNote && useDispositionNotes;
+  // Also when the host's form arrives or is posted again.
   useEffect(() => {
-    if (syncedNotes.current === notes) {
-      return;
-    }
-    syncedNotes.current = notes;
-    if (canSyncNote && !noteEdited) {
+    if (followsNotes) {
       syncNote(notes);
     }
-  }, [notes]);
+  }, [followsNotes, notes, page]);
 
   const onLogFormDataChange = (next: UnknownRecord, keys: string[]) => {
     setFormData(next);
-    if (canSyncNote && keys.includes('note')) {
-      setNoteEdited(true);
-    }
     onLogFormChange(next, keys);
   };
+
+  // The form as shown: with the Notes checkbox under the host's note field,
+  // where the field's help goes, and the field read only while it is ticked.
+  const shownPage = useMemo(() => {
+    if (!page || !canSyncNote) {
+      return page;
+    }
+    const uiSchema = page.uiSchema ?? {};
+    const noteUiSchema = (uiSchema.note ?? {}) as UnknownRecord;
+    const hostHelp = noteUiSchema['ui:help'];
+    return {
+      ...page,
+      uiSchema: {
+        ...uiSchema,
+        note: {
+          ...noteUiSchema,
+          'ui:disabled': useDispositionNotes || noteUiSchema['ui:disabled'],
+          'ui:help': (
+            <>
+              {hostHelp ? <div>{hostHelp as ReactNode}</div> : null}
+              <div className="mt-2">
+                <FormLabel
+                  label={t('useDispositionNotes')}
+                  classes={{ label: 'typography-descriptor text-neutral-b1' }}
+                  rootProps={{ 'data-sign': 'wrapUpUseDispositionNotes' }}
+                >
+                  <Checkbox
+                    checked={useDispositionNotes}
+                    onChange={(event) =>
+                      setUseDispositionNotes(event.target.checked)
+                    }
+                  />
+                </FormLabel>
+              </div>
+            </>
+          ),
+        },
+      },
+    };
+  }, [page, canSyncNote, useDispositionNotes, t]);
 
   const dispositionInvalid =
     showDispositionPart &&
@@ -220,43 +275,51 @@ export const WrapUpPanel: FunctionComponent<WrapUpPanelProps> = ({
     ((dispositionPickList.length > 0 && !dispositionData?.dispositionId) ||
       (required.notes && !dispositionData?.notes));
 
+  /**
+   * Moves between the steps. The call log step needs a valid disposition
+   * first; its errors show on the disposition step.
+   */
+  const goToStep = (step: WrapUpStep): void => {
+    if (step === 1 && !dispositionSaved && dispositionInvalid) {
+      setActiveStep(0);
+      void onValidateDisposition();
+      return;
+    }
+    setActiveStep(step);
+  };
+
   const submit = (): void => {
     if (hasLogForm && !requiredLogFieldsFilled && !isLogDone) {
-      if (dispositionInvalid || !validated.dispositionId || !validated.notes) {
-        setActiveTab('disposition');
-        onSubmit({ formData: null });
+      if (dispositionInvalid || dispositionHasErrors) {
+        goToStep(0);
+        void onValidateDisposition();
         return;
       }
       setLogBlocked(true);
-      setActiveTab('log');
       return;
     }
-    if (!validated.dispositionId || !validated.notes) {
-      setActiveTab('disposition');
-    }
-    onSubmit({ formData: hasLogForm ? formData : null });
+    // A host with no form for the call leaves it Unlogged.
+    const noLogForm = showLog && logPartStatus === 'none';
+    onSubmit(
+      noLogForm
+        ? { formData: null, skipLog: true }
+        : { formData: hasLogForm ? formData : null },
+    );
   };
 
-  const dispositionMark: WrapUpPillMark = dispositionSaved
-    ? 'done'
-    : isSaving
-      ? 'saving'
-      : !validated.dispositionId || !validated.notes
-        ? 'error'
-        : 'none';
-  const logMark: WrapUpPillMark =
-    logStatus === 'saving'
-      ? 'saving'
-      : logStatus === 'saved'
-        ? 'done'
-        : logStatus === 'failed' || logBlocked
-          ? 'error'
-          : isLogQueued
-            ? 'queued'
-            : 'none';
+  // The step icon carries the status: a check once done, an alert for an
+  // error, which the step's form explains.
+  const dispositionStep = {
+    completed: dispositionSaved || (activeStep === 1 && !dispositionInvalid),
+    error: !dispositionSaved && dispositionHasErrors,
+  };
+  const logStep = {
+    completed: logStatus === 'saved' || isLogQueued,
+    error: logStatus === 'failed' || logBlocked,
+  };
 
-  const panelClassName = (tab: WrapUpTab): string | undefined =>
-    clsx(useTabs && activeTab !== tab && 'hidden');
+  const panelClassName = (step: WrapUpStep): string | undefined =>
+    clsx(useSteps && activeStep !== step && 'hidden');
 
   // The Pending Disposition banner's timer, which hides itself on this page.
   // The call page next to it already shows a live call's duration.
@@ -282,7 +345,7 @@ export const WrapUpPanel: FunctionComponent<WrapUpPanelProps> = ({
         : undefined;
 
   const dispositionPart = showDispositionPart ? (
-    <div className={panelClassName('disposition')} data-sign="wrapUpDisposition">
+    <div className={panelClassName(0)} data-sign="wrapUpDisposition">
       {dispositionSaved && showLog ? (
         <DispositionRecap
           title={t('savedDisposition')}
@@ -322,33 +385,20 @@ export const WrapUpPanel: FunctionComponent<WrapUpPanelProps> = ({
   ) : null;
 
   const logPart = showLog ? (
-    <div className={panelClassName('log')} data-sign="wrapUpLog">
+    <div className={panelClassName(1)} data-sign="wrapUpLog">
       <WrapUpCallLog
         status={logPartStatus}
         loadingText={t('logFormLoading', { host: hostName })}
         noFormText={
           entry?.noLogFormReason || t('noLogForm', { host: hostName })
         }
-        page={page}
+        page={shownPage}
         formData={formData}
         onChange={onLogFormDataChange}
         onButtonClick={onLogFormButtonClick}
         onSubmit={() => submit()}
         errorText={logErrorText}
         locked={logStatus === 'saving' || isSaved}
-        noteSync={
-          canSyncNote
-            ? {
-                edited: noteEdited,
-                text: noteEdited ? t('noteEdited') : t('noteFollowsNotes'),
-                useNotesLabel: t('useNotes'),
-                onUseNotes: () => {
-                  setNoteEdited(false);
-                  syncNote(notes);
-                },
-              }
-            : null
-        }
       />
     </div>
   ) : null;
@@ -381,6 +431,19 @@ export const WrapUpPanel: FunctionComponent<WrapUpPanelProps> = ({
         {t('close')}
       </Button>
     );
+  } else if (useSteps && activeStep === 0) {
+    // The disposition step saves nothing: Next checks it and moves on.
+    footer = (
+      <Button
+        data-sign="wrapUpNext"
+        size="large"
+        fullWidth
+        disabled={isSaving}
+        onClick={() => goToStep(1)}
+      >
+        {t('next')}
+      </Button>
+    );
   } else if (showDispositionPart || showLog) {
     const savesDisposition = showDispositionPart && !dispositionSaved;
     // With only the call log left, the button reads as the host's own save
@@ -389,6 +452,31 @@ export const WrapUpPanel: FunctionComponent<WrapUpPanelProps> = ({
       ? t(submitEndsCall ? 'submitAndHangUp' : 'submit')
       : page?.uiSchema?.submitButtonOptions?.submitText || t('save');
     const isBusy = isSaving || logStatus === 'saving';
+    // With both parts, the call log step waits for the host's form.
+    const waitsForLogForm = useSteps && !hasLogForm && logPartStatus === 'loading';
+    const submitButton = (
+      <Button
+        data-sign="submitButton"
+        size="large"
+        fullWidth
+        disabled={
+          submitBlockedByVoicemailDrop ||
+          isBusy ||
+          waitsForLogForm ||
+          (!isSaved && savesDisposition && dispositionInvalid) ||
+          (!isSaved && !savesDisposition && !hasLogForm)
+        }
+        loading={isBusy}
+        onClick={submit}
+        color={isSaved ? 'success' : 'primary'}
+      >
+        {isSaved ? (
+          <Icon symbol={CheckMd} size="medium" />
+        ) : isBusy ? null : (
+          label
+        )}
+      </Button>
+    );
     footer = (
       <>
         {submitBlockedByVoicemailDrop ? (
@@ -399,26 +487,24 @@ export const WrapUpPanel: FunctionComponent<WrapUpPanelProps> = ({
             {t('submitAfterVoicemailDrop')}
           </p>
         ) : null}
-        <Button
-          data-sign="submitButton"
-          size="large"
-          fullWidth
-          disabled={
-            submitBlockedByVoicemailDrop ||
-            isBusy ||
-            (!isSaved && savesDisposition && dispositionInvalid) ||
-            (!isSaved && !savesDisposition && !hasLogForm)
-          }
-          loading={isBusy}
-          onClick={submit}
-          color={isSaved ? 'success' : 'primary'}
-        >
-          {isSaved ? (
-            <Icon symbol={CheckMd} size="medium" />
-          ) : isBusy ? null : (
-            label
-          )}
-        </Button>
+        {useSteps && savesDisposition ? (
+          <div className="flex gap-2">
+            <Button
+              data-sign="wrapUpBack"
+              size="large"
+              variant="outlined"
+              color="neutral"
+              fullWidth
+              disabled={isBusy || isSaved}
+              onClick={() => setActiveStep(0)}
+            >
+              {t('back')}
+            </Button>
+            {submitButton}
+          </div>
+        ) : (
+          submitButton
+        )}
         {logBlocked ? (
           <Button
             variant="text"
@@ -449,57 +535,44 @@ export const WrapUpPanel: FunctionComponent<WrapUpPanelProps> = ({
         className="flex-1 overflow-auto px-4 pb-4"
         data-sign="wrapUpPage"
       >
-        {useTabs ? (
-          <TabContext
-            value={activeTab}
-            onChange={(_, value) => setActiveTab(value as WrapUpTab)}
-          >
-            {/*
-              The pill tab list pads 2px above, 10px below and 4px to the
-              left of the pills; the wrapper offsets that so the pills sit
-              14px from the header and the first field, lined up with the
-              field labels.
-            */}
-            <div className="sticky top-0 z-10 -ml-1 bg-neutral-base pt-3">
-              <Tabs
-                variant="scrollable"
-                pill
-                size="small"
-                aria-label={t('wrapUpForms')}
-                data-sign="wrapUpPillTabs"
+        {/* Scrolls with the form, so a long form keeps the column. */}
+        {useSteps ? (
+          <div data-sign="wrapUpSteps">
+            <Stepper activeStep={activeStep} nonLinear aria-label={t('wrapUpSteps')}>
+              <Step
+                completed={dispositionStep.completed}
+                classes={STEP_CLASSES}
+                data-sign="wrapUpStep-disposition"
               >
-                <Tab
-                  value="disposition"
-                  id="wrapUpTab-disposition"
-                  data-sign="wrapUpTab-disposition"
-                  label={
-                    <WrapUpPillLabel
-                      text={t('disposition')}
-                      mark={dispositionMark}
-                      needsInputLabel={t('needsInput')}
-                      savedLabel={t('saved')}
-                    />
-                  }
-                />
-                <Tab
-                  value="log"
-                  id="wrapUpTab-log"
-                  data-sign="wrapUpTab-log"
-                  label={
-                    <WrapUpPillLabel
-                      text={hostName}
-                      mark={logMark}
-                      needsInputLabel={t('needsInput')}
-                      savedLabel={t('saved')}
-                      queuedLabel={t('logQueued')}
-                    />
-                  }
-                />
-              </Tabs>
-            </div>
-          </TabContext>
+                <StepButton
+                  onClick={() => goToStep(0)}
+                  StepLabelProps={{
+                    error: dispositionStep.error,
+                    labelProps: STEP_LABEL_PROPS,
+                  }}
+                >
+                  {t('disposition')}
+                </StepButton>
+              </Step>
+              <Step
+                completed={logStep.completed}
+                classes={STEP_CLASSES}
+                data-sign="wrapUpStep-log"
+              >
+                <StepButton
+                  onClick={() => goToStep(1)}
+                  StepLabelProps={{
+                    error: logStep.error,
+                    labelProps: STEP_LABEL_PROPS,
+                  }}
+                >
+                  {hostName}
+                </StepButton>
+              </Step>
+            </Stepper>
+          </div>
         ) : null}
-        <div className={useTabs ? 'pt-1' : 'pt-4'}>
+        <div className="pt-4">
           {dispositionPart}
           {logPart}
         </div>

@@ -1,10 +1,9 @@
 import {
   Announcement,
-  Button,
   CircularProgressIndicator,
   Icon,
 } from '@ringcentral/spring-ui';
-import { InfoMd, LinkMd } from '@ringcentral/spring-icon';
+import { InfoMd } from '@ringcentral/spring-icon';
 import clsx from 'clsx';
 import type { FunctionComponent } from 'react';
 import React from 'react';
@@ -16,7 +15,7 @@ const SKELETON_LINES = 3;
 
 /**
  * The host's call log form on a wrap-up page: a skeleton while the host
- * builds it, the reason when it has none, and the form with its notes sync.
+ * builds it, the reason when it has none, and the form.
  */
 export const WrapUpCallLog: FunctionComponent<WrapUpCallLogProps> = ({
   status,
@@ -29,7 +28,6 @@ export const WrapUpCallLog: FunctionComponent<WrapUpCallLogProps> = ({
   onSubmit,
   errorText,
   locked = false,
-  noteSync,
 }) => {
   if (status === 'none') {
     return (
@@ -78,28 +76,6 @@ export const WrapUpCallLog: FunctionComponent<WrapUpCallLogProps> = ({
           onSubmit={onSubmit}
         />
       </div>
-      {noteSync && !locked ? (
-        <div
-          className="-mt-2 flex items-center justify-between gap-2 typography-descriptorMini text-neutral-b2"
-          data-sign="wrapUpNoteSync"
-        >
-          <span className="inline-flex min-w-0 items-center gap-1">
-            <Icon symbol={LinkMd} size="xsmall" />
-            <span className="min-w-0">{noteSync.text}</span>
-          </span>
-          {noteSync.edited ? (
-            <Button
-              variant="text"
-              size="small"
-              className="flex-none"
-              onClick={noteSync.onUseNotes}
-              data-sign="wrapUpUseNotes"
-            >
-              {noteSync.useNotesLabel}
-            </Button>
-          ) : null}
-        </div>
-      ) : null}
     </div>
   );
 };

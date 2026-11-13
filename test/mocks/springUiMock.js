@@ -341,6 +341,72 @@ function Tooltip({ children, title }) {
   return React.createElement("span", { title }, children);
 }
 
+function Checkbox({ checked, onChange, inputProps, disabled, className }) {
+  return React.createElement("input", {
+    type: "checkbox",
+    checked: Boolean(checked),
+    disabled,
+    className,
+    onChange,
+    ...inputProps,
+  });
+}
+
+function FormLabel({ children, label, rootProps, disabled }) {
+  return React.createElement(
+    "label",
+    { "data-disabled": Boolean(disabled), ...rootProps },
+    children,
+    label
+  );
+}
+
+// Steps know their index and whether they are active, as Spring's Stepper
+// tells them through context.
+function Stepper({ children, activeStep = 0, nonLinear, ...props }) {
+  let index = 0;
+  return React.createElement(
+    "ol",
+    { "data-active-step": activeStep, ...props },
+    React.Children.map(children, (child) => {
+      if (!React.isValidElement(child)) {
+        return child;
+      }
+      const stepIndex = index;
+      index += 1;
+      return React.cloneElement(child, {
+        index: stepIndex,
+        active: stepIndex === activeStep,
+      });
+    })
+  );
+}
+
+function Step({ children, active, completed, index, classes, ...props }) {
+  return React.createElement(
+    "li",
+    {
+      "data-active": Boolean(active),
+      "data-completed": Boolean(completed),
+      "data-index": index,
+      ...props,
+    },
+    children
+  );
+}
+
+function StepButton({ children, onClick, StepLabelProps, symbol, optional }) {
+  return React.createElement(
+    "button",
+    {
+      type: "button",
+      onClick,
+      "data-error": Boolean(StepLabelProps?.error),
+    },
+    children
+  );
+}
+
 function useEventCallback(callback) {
   return callback;
 }
@@ -353,6 +419,7 @@ module.exports = {
   Block,
   BlockHeader,
   Button,
+  Checkbox,
   CircularProgressIndicator,
   Dialog,
   DialogActions: createContainer(),
@@ -360,7 +427,7 @@ module.exports = {
   DialogTitle: createContainer("h2"),
   Divider,
   EmptyState,
-  FormLabel: createContainer("label"),
+  FormLabel,
   Icon,
   IconButton,
   Link,
@@ -377,6 +444,9 @@ module.exports = {
   PageHeaderRight: createContainer(),
   PageHeaderTitle: createContainer("h1"),
   Slider,
+  Step,
+  StepButton,
+  Stepper,
   Tab,
   TabContext,
   TabPanel,
