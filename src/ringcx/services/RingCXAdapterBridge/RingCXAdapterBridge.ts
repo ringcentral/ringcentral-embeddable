@@ -32,6 +32,7 @@ import { RingCX } from '../../../app/services/RingCX';
 import { t } from '../../../app/services/RingCX/i18n';
 import { ThirdParty } from '../../../app/services/ThirdParty';
 import { hasLoggedCallActivity } from '../../../app/views/CallHistoryView/CallHistoryLogAction';
+import { directTransferTypes } from '../../enums';
 import type { RingCXAdapterBridge as RingCXAdapterBridgeContract } from '../../interfaces/RingCXAdapterBridge.interface';
 import {
   formatRingCXCall,
@@ -59,6 +60,8 @@ import { CxLeads, PHONE_DELIMETER } from '../CxLeads';
 import type { CxLeadEvent, Lead } from '../CxLeads';
 import { CxPresence } from '../CxPresence';
 import { CxProgressiveDial } from '../CxProgressiveDial';
+import { CxTransferCall } from '../CxTransferCall';
+import type { CxTransferMode } from '../CxTransferCall';
 import type { ProgressiveDialStatus } from '../CxProgressiveDial';
 import { CxWorkingState } from '../CxWorkingState';
 import { shouldShowDispositionSubmitStep } from '../../utils/shouldShowDispositionSubmitStep';
@@ -112,6 +115,21 @@ const HISTORY_LOG_SOURCE = 'ringcx';
 const MAIN_SESSION_ID = '1';
 
 /**
+ * The transfer mode of a host `transfer` action's `transferType`: cold unless
+ * asked otherwise, as the RingEX `transfer` action is a blind transfer.
+ */
+function resolveTransferMode(transferType?: string): CxTransferMode | null {
+  switch (transferType?.toLowerCase() ?? 'cold') {
+    case 'cold':
+      return directTransferTypes.COLD;
+    case 'warm':
+      return directTransferTypes.WARM;
+    default:
+      return null;
+  }
+}
+
+/**
  * Translates the RingCX call lifecycle into the host Adapter / ThirdParty
  * protocol. This is the only CX module that talks to those host services.
  */
@@ -151,6 +169,7 @@ export class RingCXAdapterBridge
     private readonly _cxLeads: CxLeads,
     private readonly _cxProgressiveDial: CxProgressiveDial,
     private readonly _cxActiveCallControl: CxActiveCallControl,
+    private readonly _cxTransferCall: CxTransferCall,
     private readonly _cxIntegratedSoftphone: CxIntegratedSoftphone,
     @optional() private readonly _contactMatcher?: ContactMatcher,
     @optional() private readonly _activityMatcher?: ActivityMatcher,
@@ -760,9 +779,40 @@ export class RingCXAdapterBridge
         }
         await this._cxActiveCallControl.onKeypadClick(options.dtmf!);
         return;
+      case 'transfer':
+        await this._transfer(options);
+        return;
       default:
         this.logger.warn('Unsupported RingCX call action', action);
         this._toast.warning({ message: t('callControlUnsupported') });
+    }
+  }
+
+  /**
+   * Transfers the current call to `options.transferNumber`, as the Manual
+   * entry tab of the transfer page does. Gated like the Transfer button.
+   */
+  private async _transfer(options: RingCXCallControlOptions): Promise<void> {
+    const call = this._cxCall.currentCall;
+    const mode = resolveTransferMode(options.transferType);
+    if (
+      !this._requireCallPermission(
+        Boolean(
+          options.transferNumber &&
+            mode &&
+            call?.allowTransfer &&
+            !call.endedCall,
+        ),
+      )
+    ) {
+      return;
+    }
+    const transferred = await this._cxTransferCall.transferToNumber(
+      options.transferNumber!,
+      mode!,
+    );
+    if (!transferred) {
+      throw new Error('RingCX transfer failed');
     }
   }
 

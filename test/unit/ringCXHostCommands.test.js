@@ -1,4 +1,4 @@
-// Host page side of `rc-adapter-control-call` refusals and
+// Host page side of `rc-adapter-control-call` refusals, RingCX transfer and
 // `rc-adapter-ringcx-set-agent-state` validation.
 
 jest.mock('@ringcentral-integration/micro-phone/src/app/views', () => ({
@@ -59,6 +59,9 @@ jest.mock('../../src/ringcx/services/CxProgressiveDial', () => ({
 jest.mock('../../src/ringcx/services/CxWorkingState', () => ({
   CxWorkingState: class {},
 }));
+jest.mock('../../src/ringcx/services/CxTransferCall', () => ({
+  CxTransferCall: class {},
+}));
 
 const {
   RingCXAdapterBridge,
@@ -81,8 +84,17 @@ function findAvailableAgentState(agentState, agentAuxState) {
   );
 }
 
-function createBridge({ isIntegratedSoftphone = true, isRinging = false } = {}) {
+function createBridge({
+  isIntegratedSoftphone = true,
+  isRinging = false,
+  currentCall = { allowTransfer: true, endedCall: false },
+  transferred = true,
+} = {}) {
   const deps = {
+    _cxCall: { currentCall },
+    _cxTransferCall: {
+      transferToNumber: jest.fn(async () => transferred),
+    },
     _cxAgentSession: { isIntegratedSoftphone },
     _cxIntegratedSoftphone: {
       isRinging,
@@ -217,5 +229,66 @@ describe('RingCXAdapterBridge controlCall refusals', () => {
     expect(_toast.warning).toHaveBeenCalledWith({
       message: 'callControlNotAllowed',
     });
+  });
+});
+
+describe('RingCXAdapterBridge controlCall transfer', () => {
+  const transferNumber = '+16505550100';
+
+  test.each([
+    ['cold by default', undefined, 'COLD'],
+    ['cold', 'cold', 'COLD'],
+    ['warm', 'warm', 'WARM'],
+    ['warm in any case', 'Warm', 'WARM'],
+  ])('transfers %s', async (_name, transferType, mode) => {
+    const { bridge, _cxTransferCall, _toast } = createBridge();
+
+    await bridge.controlCall('transfer', undefined, {
+      transferNumber,
+      transferType,
+    });
+
+    expect(_cxTransferCall.transferToNumber).toHaveBeenCalledWith(
+      transferNumber,
+      mode,
+    );
+    expect(_toast.warning).not.toHaveBeenCalled();
+  });
+
+  test.each([
+    ['without a number', {}, {}],
+    [
+      'with an unknown transfer type',
+      { transferNumber, transferType: 'voicemail' },
+      {},
+    ],
+    ['without a call', { transferNumber }, { currentCall: null }],
+    [
+      'when the call does not allow transfer',
+      { transferNumber },
+      { currentCall: { allowTransfer: false } },
+    ],
+    [
+      'when the call has ended',
+      { transferNumber },
+      { currentCall: { allowTransfer: true, endedCall: true } },
+    ],
+  ])('is refused with a message %s', async (_name, options, bridgeOptions) => {
+    const { bridge, _cxTransferCall, _toast } = createBridge(bridgeOptions);
+
+    await bridge.controlCall('transfer', undefined, options);
+
+    expect(_cxTransferCall.transferToNumber).not.toHaveBeenCalled();
+    expect(_toast.warning).toHaveBeenCalledWith({
+      message: 'callControlNotAllowed',
+    });
+  });
+
+  test('throws when the transfer was not sent, so the Adapter reports it', async () => {
+    const { bridge } = createBridge({ transferred: false });
+
+    await expect(
+      bridge.controlCall('transfer', undefined, { transferNumber }),
+    ).rejects.toThrow('RingCX transfer failed');
   });
 });

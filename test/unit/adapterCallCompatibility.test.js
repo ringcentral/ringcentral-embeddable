@@ -161,6 +161,92 @@ describe("Adapter call compatibility", () => {
     });
   });
 
+  describe("RingCX call routing", () => {
+    function createRoutingAdapter({ hasActiveCall, sessions = [] }) {
+      const adapter = createAdapterInstance();
+      adapter._ringCX =
+        hasActiveCall === undefined ? undefined : { hasActiveCall };
+      adapter._webphone = { sessions };
+      adapter._controlCall = jest.fn(async () => {});
+      adapter._controlRingCXCall = jest.fn(async () => {});
+      return adapter;
+    }
+
+    function sendControlCall(adapter, data) {
+      adapter._onWindowMessage({
+        data: { type: "rc-adapter-control-call", ...data },
+      });
+    }
+
+    test.each([
+      ["source", { source: "ringcx" }],
+      ["options.source", { options: { source: "ringcx" } }],
+    ])(
+      "controls the RingCX call when %s asks for it",
+      (_name, data) => {
+        const adapter = createRoutingAdapter({ hasActiveCall: false });
+
+        sendControlCall(adapter, { callAction: "hold", ...data });
+
+        expect(adapter._controlRingCXCall).toHaveBeenCalledWith(
+          "hold",
+          undefined,
+          data.options
+        );
+        expect(adapter._controlCall).not.toHaveBeenCalled();
+      }
+    );
+
+    test("controls the active RingCX call without a source", () => {
+      const adapter = createRoutingAdapter({ hasActiveCall: true });
+      const options = { transferNumber: "+16505550100" };
+
+      sendControlCall(adapter, { callAction: "transfer", options });
+
+      expect(adapter._controlRingCXCall).toHaveBeenCalledWith(
+        "transfer",
+        undefined,
+        options
+      );
+      expect(adapter._controlCall).not.toHaveBeenCalled();
+    });
+
+    test("keeps a named RingEX webphone call on RingEX", () => {
+      const adapter = createRoutingAdapter({
+        hasActiveCall: true,
+        sessions: [{ id: "webphone-session" }],
+      });
+
+      sendControlCall(adapter, {
+        callAction: "hold",
+        callId: "webphone-session",
+      });
+
+      expect(adapter._controlCall).toHaveBeenCalledWith(
+        "hold",
+        "webphone-session",
+        undefined
+      );
+      expect(adapter._controlRingCXCall).not.toHaveBeenCalled();
+    });
+
+    test.each([
+      ["no RingCX call is active", { hasActiveCall: false }],
+      ["RingCX is not enabled", { hasActiveCall: undefined }],
+    ])("controls the RingEX call when %s", (_name, routing) => {
+      const adapter = createRoutingAdapter(routing);
+
+      sendControlCall(adapter, { callAction: "hold", callId: "call-id" });
+
+      expect(adapter._controlCall).toHaveBeenCalledWith(
+        "hold",
+        "call-id",
+        undefined
+      );
+      expect(adapter._controlRingCXCall).not.toHaveBeenCalled();
+    });
+  });
+
   test("executes call control through the raw host-message boundary", async () => {
     const adapter = createAdapterInstance();
     const webphone = createWebphone();
