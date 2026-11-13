@@ -58,6 +58,7 @@ import {
   CallLogger,
   CallMonitor,
   CallingSettings,
+  PreinsertCall,
   RingtoneConfiguration,
   Webphone,
 } from '@ringcentral-integration/micro-phone/src/app/services';
@@ -142,6 +143,14 @@ type ControlCallOptions = {
   dtmf?: string;
   forwardNumber?: string;
   transferNumber?: string;
+};
+
+type PickupInboundCallParams = {
+  sessionId?: string;
+  serverId?: string;
+  fromNumber?: string;
+  toNumber?: string;
+  telephonySessionId?: string;
 };
 
 type LegacyPresenceData = {
@@ -395,6 +404,7 @@ export class Adapter extends RcModule {
     protected _toast: Toast,
     protected _locale: Locale,
     protected _ringtoneConfiguration: RingtoneConfiguration,
+    protected _preinsertCall: PreinsertCall,
     @optional('Prefix') protected _prefix?: string,
     @optional() protected _messageStore?: MessageStore,
     @optional() protected _dialerView?: DialerView,
@@ -1132,6 +1142,9 @@ export class Adapter extends RcModule {
         break;
       case 'rc-adapter-pick-call':
         void this._pickCall(data.extensionId, data.telephonySessionId);
+        break;
+      case 'rc-adapter-pickup-inbound-call':
+        void this._pickupInboundCall(data);
         break;
       case 'rc-adapter-logout':
         if (this._auth.loggedIn) {
@@ -2489,6 +2502,83 @@ export class Adapter extends RcModule {
     } catch (error: unknown) {
       this._notifyPickCallError(getErrorMessage(error) || 'Failed to pick call');
     }
+  }
+
+  /**
+   * Picks up an inbound call that is ringing on the user's other devices.
+   *
+   * Hosts that wake the widget from a mobile push (e.g. iOS PushKit) send this
+   * with the identifiers from the ring notification, since the original INVITE
+   * was sent before this webphone registered. Failures are reported with
+   * `rc-control-call-error`; a started pickup shows up in the call events.
+   */
+  private async _pickupInboundCall({
+    sessionId,
+    serverId,
+    fromNumber,
+    toNumber,
+    telephonySessionId,
+  }: PickupInboundCallParams): Promise<void> {
+    if (!sessionId || !serverId || !fromNumber || !toNumber) {
+      this._notifyPickupInboundCallError(
+        'sessionId, serverId, fromNumber and toNumber are required',
+      );
+      return;
+    }
+    if (!this._auth.loggedIn) {
+      this._notifyPickupInboundCallError('User is not logged in');
+      return;
+    }
+    if (this._callingSettings.callingMode !== callingModes.webphone) {
+      this._notifyPickupInboundCallError(
+        'Pickup inbound call is only supported in webphone mode',
+      );
+      return;
+    }
+    // The host is expected to wait for `rc-webphone-connection-status-notify`
+    // before sending this, so do not connect on its behalf.
+    if (!this._webphone.connected) {
+      this._notifyPickupInboundCallError('Web phone is not connected');
+      return;
+    }
+    const resolvedTelephonySessionId =
+      telephonySessionId ||
+      this._activeCallControl.sessions.find(
+        (session) => session.sessionId === sessionId,
+      )?.telephonySessionId;
+    try {
+      const result = (await this._webphone.pickupInboundCall({
+        sessionId,
+        serverId,
+        fromNumber,
+        toNumber,
+        telephonySessionId: resolvedTelephonySessionId ?? '',
+      })) as { id: string } | undefined;
+      // Errors thrown on the server port do not reach this port, so a missing
+      // result is the only failure signal in that case.
+      if (!result?.id) {
+        this._notifyPickupInboundCallError('Failed to pick up the call');
+        return;
+      }
+      if (resolvedTelephonySessionId) {
+        // Ignoring the local ring marks the call `ignore`, which hides it from
+        // the call list until it ends, so the picked-up call would get no call
+        // page or banner. Clear the mark to let the normal flow show it.
+        await this._preinsertCall.removePreinsert(resolvedTelephonySessionId);
+      }
+    } catch (error: unknown) {
+      this._notifyPickupInboundCallError(
+        getErrorMessage(error) || 'Failed to pick up the call',
+      );
+    }
+  }
+
+  private _notifyPickupInboundCallError(message: string): void {
+    this._postMessage({
+      type: 'rc-control-call-error',
+      error: 'PickupInboundCallError',
+      message,
+    });
   }
 
   private async _executePickCall(
