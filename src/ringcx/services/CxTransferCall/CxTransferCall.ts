@@ -575,10 +575,8 @@ class CxTransferCall extends RcModule {
    * Orchestrate the full transfer flow: parse number, set status, dispatch by type.
    */
   async transfer(mode: CxTransferMode): Promise<void> {
-    try {
+    await this._runTransfer(async () => {
       const parsed = this.parseNumber();
-      this._eventEmitter.emit(transferEvents.START);
-      this.setTransferStatus(transferStatuses.loading);
       switch (this.transferType) {
         case transferTypes.internal:
           await this.internalTransferCall(mode);
@@ -599,6 +597,52 @@ class CxTransferCall extends RcModule {
             data: `Abnormal Transfer: this.transferType -> ${this.transferType}`,
           });
       }
+    });
+  }
+
+  /**
+   * Transfer the current call to a phone number given by the host app, as a
+   * typed number on the Manual entry tab would be. It leaves the transfer
+   * page's selection alone, so an open transfer page is not changed under the
+   * agent.
+   *
+   * Delegated because the transfer status is server state, and errors do not
+   * cross ports: the outcome is returned instead.
+   *
+   * @returns whether the transfer request was sent
+   */
+  @delegate('server')
+  async transferToNumber(
+    phoneNumber: string,
+    mode: CxTransferMode,
+  ): Promise<boolean> {
+    if (this.transferring || mode === directTransferTypes.VOICEMAIL) {
+      return false;
+    }
+    try {
+      await this._runTransfer(async () => {
+        checkCountryCode(phoneNumber, this.cxAuth.availableCountries);
+        // Same country as a typed number on the Manual entry tab
+        await this.transferCall(
+          { dialDest: parseNumber(phoneNumber), countryId: 'USA' },
+          mode,
+        );
+      });
+      return true;
+    } catch (error) {
+      this.logger.error('Transfer to number failed:', error);
+      return false;
+    }
+  }
+
+  /**
+   * Run a transfer with the loading status and transfer events around it.
+   */
+  private async _runTransfer(run: () => Promise<void>): Promise<void> {
+    try {
+      this._eventEmitter.emit(transferEvents.START);
+      this.setTransferStatus(transferStatuses.loading);
+      await run();
       this._eventEmitter.emit(transferEvents.SUCCESS);
     } catch (e) {
       this._eventEmitter.emit(transferEvents.ERROR, e);

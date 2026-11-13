@@ -36,6 +36,13 @@ export interface RingCXDispositionOption {
 
 export interface RingCXCallControlOptions {
   dtmf?: string;
+  /** Destination phone number of the `transfer` action */
+  transferNumber?: string;
+  /**
+   * How the `transfer` action hands the call over: `cold` (default) transfers
+   * it right away, `warm` asks the destination first
+   */
+  transferType?: string;
 }
 
 export interface RingCXCommandBridge {

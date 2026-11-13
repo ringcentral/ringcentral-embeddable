@@ -143,6 +143,8 @@ type ControlCallOptions = {
   dtmf?: string;
   forwardNumber?: string;
   transferNumber?: string;
+  /** RingCX calls only: `cold` (default) or `warm` */
+  transferType?: string;
 };
 
 type PickupInboundCallParams = {
@@ -1112,7 +1114,7 @@ export class Adapter extends RcModule {
         void this._autoPopulateConversation(data.text, data.attachments);
         break;
       case 'rc-adapter-control-call':
-        if (data.source === 'ringcx' || data.options?.source === 'ringcx') {
+        if (this._isRingCXCallControl(data)) {
           void this._controlRingCXCall(
             data.callAction,
             data.callId,
@@ -3414,6 +3416,31 @@ export class Adapter extends RcModule {
       return;
     }
     await bridge.dialout(phoneNumber, callerId);
+  }
+
+  /**
+   * Whether a host `rc-adapter-control-call` targets the RingCX call: asked
+   * for with `source: 'ringcx'`, or by default while a RingCX call is active,
+   * since no RingEX call can be placed then. A `callId` of a RingEX webphone
+   * call still controls that call.
+   */
+  private _isRingCXCallControl(data: {
+    callId?: string;
+    source?: string;
+    options?: { source?: string };
+  }): boolean {
+    if (data.source === 'ringcx' || data.options?.source === 'ringcx') {
+      return true;
+    }
+    if (!this._ringCX?.hasActiveCall) {
+      return false;
+    }
+    return !(
+      data.callId &&
+      this._webphone.sessions.some(
+        (session: { id?: string }) => session.id === data.callId,
+      )
+    );
   }
 
   private async _controlRingCXCall(

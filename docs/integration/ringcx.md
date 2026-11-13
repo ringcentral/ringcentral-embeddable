@@ -210,7 +210,7 @@ Each command has an `RCAdapter` helper. `rc-adapter-new-call` and `rc-adapter-co
 | `rc-adapter-ringcx-end-agent-session` | `endRingCXAgentSession()` | `{}` | Ends the session. Refused while a call or pending disposition is active. |
 | `rc-adapter-ringcx-set-agent-state` | `setRingCXAgentState(state, auxState?)` | `{ state, auxState? }` | Sets the agent state. See below. |
 | [`rc-adapter-new-call`](api.md#open-the-dialer-and-start-a-call) | `clickToCall(number, { callWith: 'ringcx', callerId })` | `{ phoneNumber, callWith: 'ringcx', callerId? }` | Places a RingCX call right away; `toCall` is not needed. `callerId` becomes the agent's manual dial caller ID. |
-| [`rc-adapter-control-call`](api.md#active-call-control) | `controlCall(action, id, { source: 'ringcx' })` | `{ callAction, callId, source: 'ringcx', options? }` | Controls the current RingCX call. See below. |
+| [`rc-adapter-control-call`](api.md#active-call-control) | `controlCall(action, id, { source: 'ringcx' })` | `{ callAction, callId, source: 'ringcx', options? }` | Controls the current RingCX call. `source` can be left out while a RingCX call is active. See below. |
 | `rc-adapter-ringcx-dial-lead` | `dialRingCXLead(lead, destination)` | `{ lead, destination }` | Dials a preview lead. See below. |
 | `rc-adapter-ringcx-start-progressive-dial` | `startRingCXProgressiveDial()` | `{}` | Same as **Start dialing** on the Leads tab. Needs `permissions.progressiveEnabled`. When the agent is not available, the widget opens on the Leads tab and asks the agent to go available. |
 | `rc-adapter-ringcx-stop-progressive-dial` | `stopRingCXProgressiveDial()` | `{}` | Same as **Stop dialing** on the Leads tab. |
@@ -220,7 +220,7 @@ Each command has an `RCAdapter` helper. `rc-adapter-new-call` and `rc-adapter-co
 
 **Set agent state.** `auxState` picks one of the agent's aux states for `state`, as `rc-ringcx-agent-state-notify` reports them. Without it, the first aux state listed for `state` is used. A state the agent cannot choose is refused.
 
-**Control call.** Actions apply to the current RingCX call, as the Agent tab controls do:
+**Control call.** Actions apply to the current RingCX call, as the Agent tab controls do. While a RingCX call is active no RingEX call can be placed, so `rc-adapter-control-call` without `source` also controls the RingCX call, unless `callId` is the id of a RingEX call. Otherwise, send `source: 'ringcx'`.
 
 | `callAction` | Requirement |
 | --- | --- |
@@ -228,6 +228,21 @@ Each command has an `RCAdapter` helper. `rc-adapter-new-call` and `rc-adapter-co
 | `mute`, `unmute` | The integrated softphone. |
 | `answer`, `reject` | The integrated softphone, with a call ringing there. |
 | `dtmf` | The integrated softphone, and `options.dtmf`. |
+| `transfer` | The agent's transfer permission for the call, and `options.transferNumber`. See below. |
+
+**Transfer.** `options.transferNumber` is the destination phone number, the same as a number typed on the **Manual entry** tab of the transfer page. `options.transferType` is `cold` (default), which hands the call over right away, or `warm`, which calls the destination first while the customer stays on the call (on hold when the account holds warm transfers). A number in a country the agent cannot transfer to is refused.
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-control-call',
+  callAction: 'transfer',
+  source: 'ringcx',
+  options: {
+    transferNumber: '+16505550100',
+    transferType: 'warm', // or 'cold' (default)
+  },
+}, '*');
+```
 
 **Dial lead.** `lead` can be the lead from `rc-ringcx-lead-notify`, its `raw` lead, or `{ leadId, campaignId }`. With only `leadId`, the lead must be in the agent's current lead list. `destination` must be one of the lead's numbers, in its national or E.164 form; another number is not dialed.
 
