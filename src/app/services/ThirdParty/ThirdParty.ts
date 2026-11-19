@@ -238,6 +238,12 @@ export class ThirdParty extends RcModule {
   callLoggerHideEditLogButton = false;
 
   /**
+   * Whether logged calls hide their "View log details" button.
+   */
+  @state
+  callLoggerHideViewLogButton = false;
+
+  /**
    * The host builds its RingCX call log form on a `prepareLogForm` request,
    * for the app's own wrap-up page, instead of opening a log page itself.
    */
@@ -284,6 +290,12 @@ export class ThirdParty extends RcModule {
    */
   @state
   messageLoggerGranularSelectionEnabled = false;
+
+  /**
+   * Whether logged conversations hide their "View log details" button.
+   */
+  @state
+  messageLoggerHideViewLogButton = false;
 
   /**
    * Log entry of each logged message, keyed by message id. Kept in memory and
@@ -1067,6 +1079,7 @@ export class ThirdParty extends RcModule {
       callLoggerAutoSettingWarning: service.callLoggerAutoSettingWarning,
       callLoggerAutoLogOnCallSync: service.callLoggerAutoLogOnCallSync,
       callLoggerHideEditLogButton: service.callLoggerHideEditLogButton,
+      callLoggerHideViewLogButton: service.callLoggerHideViewLogButton,
       callLoggerPrepareLogForm: service.callLoggerPrepareLogForm,
     });
   }
@@ -1124,6 +1137,7 @@ export class ThirdParty extends RcModule {
       messageLoggerAutoSettingHidden: service.messageLoggerAutoSettingHidden,
       messageLoggerGranularSelectionEnabled:
         service.messageLoggerGranularSelectionEnabled,
+      messageLoggerHideViewLogButton: service.messageLoggerHideViewLogButton,
     });
   }
 
@@ -2571,6 +2585,7 @@ export class ThirdParty extends RcModule {
     callLoggerAutoSettingWarning = '',
     callLoggerAutoLogOnCallSync,
     callLoggerHideEditLogButton = false,
+    callLoggerHideViewLogButton = false,
     callLoggerPrepareLogForm = false,
   }: {
     callLoggerTitle?: string;
@@ -2584,6 +2599,7 @@ export class ThirdParty extends RcModule {
     callLoggerAutoSettingWarning?: string;
     callLoggerAutoLogOnCallSync?: boolean;
     callLoggerHideEditLogButton?: boolean;
+    callLoggerHideViewLogButton?: boolean;
     callLoggerPrepareLogForm?: boolean;
   }): void {
     if (callLoggerTitle) {
@@ -2610,6 +2626,7 @@ export class ThirdParty extends RcModule {
     this.callLoggerRegistered = true;
     this.callLoggerAutoLogOnCallSync = Boolean(callLoggerAutoLogOnCallSync);
     this.callLoggerHideEditLogButton = Boolean(callLoggerHideEditLogButton);
+    this.callLoggerHideViewLogButton = Boolean(callLoggerHideViewLogButton);
     this.callLoggerPrepareLogForm = Boolean(callLoggerPrepareLogForm);
     this.callLoggerAutoLogSettingHidden = Boolean(
       callLoggerAutoLogSettingHidden
@@ -2626,6 +2643,7 @@ export class ThirdParty extends RcModule {
     messageLoggerAutoSettingReadOnlyValue,
     messageLoggerAutoSettingHidden,
     messageLoggerGranularSelectionEnabled,
+    messageLoggerHideViewLogButton,
   }: {
     messageLoggerTitle?: string;
     messageLoggerAutoSettingLabel?: string;
@@ -2635,6 +2653,7 @@ export class ThirdParty extends RcModule {
     messageLoggerAutoSettingReadOnlyValue?: boolean;
     messageLoggerAutoSettingHidden?: boolean;
     messageLoggerGranularSelectionEnabled?: boolean;
+    messageLoggerHideViewLogButton?: boolean;
   }): void {
     if (messageLoggerTitle) {
       this.messageLoggerTitle = messageLoggerTitle;
@@ -2663,6 +2682,9 @@ export class ThirdParty extends RcModule {
     );
     this.messageLoggerGranularSelectionEnabled = Boolean(
       messageLoggerGranularSelectionEnabled
+    );
+    this.messageLoggerHideViewLogButton = Boolean(
+      messageLoggerHideViewLogButton
     );
     this.messageLoggerRegistered = true;
   }

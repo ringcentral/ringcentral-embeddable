@@ -302,14 +302,21 @@ export class LogCallView extends RcViewModule {
       rawSource && rawSource !== "undefined" && rawSource !== "null"
         ? rawSource
         : undefined;
-    const { call, customizedPage, loading, logButtonTitle, saving } =
-      useConnector(() => ({
-        call: this.getCurrentCallWithExtraLogData(),
-        customizedPage: this._thirdParty.customizedLogCallPage,
-        loading: this.loading,
-        logButtonTitle: this._thirdParty.callLoggerTitle,
-        saving: this.saving,
-      }));
+    const {
+      call,
+      customizedPage,
+      hideViewLogButton,
+      loading,
+      logButtonTitle,
+      saving,
+    } = useConnector(() => ({
+      call: this.getCurrentCallWithExtraLogData(),
+      customizedPage: this._thirdParty.customizedLogCallPage,
+      hideViewLogButton: this._thirdParty.callLoggerHideViewLogButton,
+      loading: this.loading,
+      logButtonTitle: this._thirdParty.callLoggerTitle,
+      saving: this.saving,
+    }));
     useEffect(() => {
       void this.loadCall(sessionId, source);
     }, [sessionId, source]);
@@ -384,6 +391,7 @@ export class LogCallView extends RcViewModule {
       <LogCallPage
         call={call}
         customizedPage={customizedPage}
+        hideViewLogButton={hideViewLogButton}
         loading={loading}
         logButtonTitle={logButtonTitle}
         saving={saving}

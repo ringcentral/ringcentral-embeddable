@@ -456,7 +456,7 @@ describe("LogCallView in a routed side widget tab", () => {
     mockLogCallPageProps.length = 0;
   });
 
-  function renderInTab({ callLogger = {}, closeTab }) {
+  function renderInTab({ callLogger = {}, closeTab, thirdParty = {} }) {
     const router = {
       currentPath: "/log/call/session-1",
       goBack: jest.fn(),
@@ -468,6 +468,7 @@ describe("LogCallView in a routed side widget tab", () => {
         callLoggerTitle: null,
         customizedLogCallPage: null,
         setLogCallPageOwner: jest.fn(),
+        ...thirdParty,
       },
       router,
       {},
@@ -505,6 +506,17 @@ describe("LogCallView in a routed side widget tab", () => {
     expect(callLogger.logCall).toHaveBeenCalled();
     expect(closeTab).toHaveBeenCalledTimes(1);
     expect(router.goBack).not.toHaveBeenCalled();
+  });
+
+  test("passes the service's view log policy to the page", () => {
+    renderInTab({
+      closeTab: jest.fn(),
+      thirdParty: { callLoggerHideViewLogButton: true },
+    });
+
+    expect(
+      mockLogCallPageProps[mockLogCallPageProps.length - 1].hideViewLogButton
+    ).toBe(true);
   });
 
   test("closes its tab from the page's back", () => {

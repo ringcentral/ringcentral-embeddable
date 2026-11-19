@@ -8,10 +8,15 @@ jest.mock('@ringcentral-integration/micro-auth/src/app/components', () => ({
 }));
 jest.mock('@ringcentral-integration/micro-core/src/app/components', () => ({
   AppFooterNav: () => null,
-  AppHeaderNav: () => null,
+  AppHeaderNav: ({ children }) => <>{children}</>,
 }));
 jest.mock('@ringcentral-integration/next-widgets/components', () => ({
-  ActionMenuList: () => null,
+  ActionMenuList: ({ buttons }) =>
+    buttons.map(({ actionType, label, symbol }) => (
+      <span data-sign={`headerAction-${actionType}`} key={actionType}>
+        {`${label}:${symbol}`}
+      </span>
+    )),
   PageHeader: () => null,
   PageHeaderBackButton: () => null,
 }));
@@ -36,7 +41,7 @@ jest.mock('@ringcentral/spring-ui', () => ({
   ),
 }));
 
-function renderPanel(callMeta) {
+function renderPanel(callMeta, props = {}) {
   render(
     <CallHistoryDetailPanel
       callDetail={{
@@ -59,8 +64,13 @@ function renderPanel(callMeta) {
       onCopyCallId={jest.fn()}
       loadRecording={jest.fn()}
       loadLeadHistory={jest.fn()}
+      {...props}
     />,
   );
+}
+
+function renderSourceCard(callMeta) {
+  renderPanel(callMeta);
   return screen.getByTestId('sourceBlock');
 }
 
@@ -68,7 +78,9 @@ describe('CallHistoryDetailPanel source card', () => {
   test('gives a lone From value the whole width', () => {
     // A lead call's campaign is both its From and its source, so the source
     // is not repeated.
-    const card = renderPanel({ campaignName: 'Embbnux preview campaign' });
+    const card = renderSourceCard({
+      campaignName: 'Embbnux preview campaign',
+    });
 
     expect(within(card).getByTestId('toFromField')).toHaveTextContent(
       'Embbnux preview campaign',
@@ -79,10 +91,41 @@ describe('CallHistoryDetailPanel source card', () => {
   });
 
   test('splits the card when the source differs from From', () => {
-    const card = renderPanel({ outboundType: 'MANUAL', queueName: 'PSR' });
+    const card = renderSourceCard({ outboundType: 'MANUAL', queueName: 'PSR' });
 
     expect(within(card).getByTestId('toFromField')).toBeInTheDocument();
     expect(within(card).getByTestId('sourceField')).toHaveTextContent('PSR');
     expect(card.firstChild).toHaveClass('grid-cols-2');
+  });
+});
+
+describe('CallHistoryDetailPanel host log actions', () => {
+  test('shows the log icon on Log call for an unlogged call', () => {
+    renderPanel(
+      {},
+      {
+        hostLogActions: [{ label: 'Log call', type: 'createLog' }],
+        isLogged: false,
+      },
+    );
+
+    expect(screen.getByTestId('headerAction-createLog')).toHaveTextContent(
+      'Log call:DispositionMd',
+    );
+  });
+
+  test('keeps the edit icon on Edit log when view log is hidden', () => {
+    renderPanel(
+      {},
+      {
+        hostLogActions: [{ label: 'Edit log', type: 'createLog' }],
+        isLogged: true,
+      },
+    );
+
+    expect(screen.getByTestId('headerAction-createLog')).toHaveTextContent(
+      'Edit log:EditMd',
+    );
+    expect(screen.queryByTestId('headerAction-viewLog')).toBeNull();
   });
 });

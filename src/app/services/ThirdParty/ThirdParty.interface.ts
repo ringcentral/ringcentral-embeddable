@@ -201,6 +201,11 @@ export type ThirdPartyServiceRegistration = {
   callLoggerAutoLogOnCallSync?: boolean;
   callLoggerHideEditLogButton?: boolean;
   /**
+   * Hides the "View log details" button of logged calls in call history,
+   * the call detail page and the log call page.
+   */
+  callLoggerHideViewLogButton?: boolean;
+  /**
    * The host answers a RingCX `prepareLogForm` request with its call log
    * form, for the app's wrap-up page. Needs `callLoggerPath`.
    */
@@ -218,6 +223,11 @@ export type ThirdPartyServiceRegistration = {
   messageLoggerAutoSettingReadOnlyValue?: boolean;
   messageLoggerAutoSettingHidden?: boolean;
   messageLoggerGranularSelectionEnabled?: boolean;
+  /**
+   * Hides the "View log details" button of logged SMS, voicemail and fax
+   * conversations on the log message page.
+   */
+  messageLoggerHideViewLogButton?: boolean;
   attachmentWithToken?: boolean;
   messageLogEntityMatcherPath?: string;
   messageLogOpenPath?: string;

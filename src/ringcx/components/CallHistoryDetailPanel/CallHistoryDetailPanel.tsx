@@ -132,6 +132,7 @@ export const CallHistoryDetailPanel: FunctionComponent<
   dialableNumber,
   canDial,
   isDialDisabled,
+  isLogged,
   onBack,
   onDial,
   onCopyNumber,
@@ -144,9 +145,6 @@ export const CallHistoryDetailPanel: FunctionComponent<
   loadLeadHistory,
 }) => {
   const { t } = useLocale(i18n);
-  const hasViewLogAction = Boolean(
-    hostLogActions?.some((action) => action.type === 'viewLog'),
-  );
 
   const phoneNumber = useMemo(() => {
     if (!callDetail) return '';
@@ -247,7 +245,7 @@ export const CallHistoryDetailPanel: FunctionComponent<
         symbol:
           action.type === 'viewLog'
             ? ArrowRightUpMd
-            : hasViewLogAction
+            : isLogged
             ? EditMd
             : DispositionMd,
         disabled: action.disabled,

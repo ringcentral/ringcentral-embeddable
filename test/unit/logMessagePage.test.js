@@ -242,6 +242,23 @@ describe("LogMessagePage", () => {
     expect(props.onViewLog).toHaveBeenCalledTimes(1);
   });
 
+  test("hides the view-log action when the service hides it", () => {
+    const props = createProps({
+      conversation: {
+        ...createConversation(),
+        conversationMatches: [{ id: "activity-id" }],
+      },
+      hideViewLogButton: true,
+    });
+
+    render(<LogMessagePage {...props} />);
+
+    expect(screen.queryByTestId("logMessageHeaderActions")).toBeNull();
+    expect(
+      screen.queryByRole("button", { name: "viewLogDetails" })
+    ).toBeNull();
+  });
+
   test("shows the missing state for an unknown conversation", () => {
     render(<LogMessagePage {...createProps({ conversation: undefined })} />);
 

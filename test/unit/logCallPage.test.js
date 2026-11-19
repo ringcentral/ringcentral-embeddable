@@ -227,6 +227,24 @@ describe("LogCallPage", () => {
     expect(props.onViewLog).toHaveBeenCalledWith({ name: "Ada" });
   });
 
+  test("hides the view-log action when the service hides it", () => {
+    const props = createProps({
+      call: {
+        ...createCall(),
+        activityMatches: [{ id: "activity-id", type: "callLog" }],
+      },
+      hideViewLogButton: true,
+    });
+    render(<LogCallPage {...props} />);
+
+    expect(screen.getByTestId("headerActions")).not.toHaveTextContent(
+      "viewLog"
+    );
+    expect(
+      screen.queryByRole("button", { name: "viewLogDetails" })
+    ).toBeNull();
+  });
+
   test("disables and loads the footer button while saving", () => {
     render(<LogCallPage {...createProps({ saving: true })} />);
 

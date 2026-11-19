@@ -29,6 +29,8 @@ const HIDDEN_LOG_CALL_HEADER_ACTIONS = new Set([
 interface LogCallPageProps {
   call: CompatibleCall | null;
   customizedPage?: ThirdPartyPage;
+  /** Hides the header "View log details" button of a logged call. */
+  hideViewLogButton?: boolean;
   loading: boolean;
   logButtonTitle: string | null;
   onBack: () => void;
@@ -44,6 +46,7 @@ interface LogCallPageProps {
 export function LogCallPage({
   call,
   customizedPage,
+  hideViewLogButton = false,
   loading,
   logButtonTitle,
   onBack,
@@ -98,9 +101,10 @@ export function LogCallPage({
   const useLogCallItemInfo: CallDetailViewPanelProps["useCallHistoryItemInfo"] =
     (historyCall, options) => {
       const result = useCallHistoryItemInfo(historyCall, options);
-      const viewLogAction = getLoggedActivity(call)
-        ? [{ label: t("viewLogDetails"), type: "viewLog" as const }]
-        : [];
+      const viewLogAction =
+        !hideViewLogButton && getLoggedActivity(call)
+          ? [{ label: t("viewLogDetails"), type: "viewLog" as const }]
+          : [];
       return {
         ...result,
         actions: [

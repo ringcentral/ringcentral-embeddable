@@ -33,6 +33,8 @@ interface LogMessagePageProps {
   conversation?: LoggableConversation;
   conversationLog?: Record<string, ConversationLogItem>;
   customizedPage?: ThirdPartyPage;
+  /** Hides the header "View log details" button of a logged conversation. */
+  hideViewLogButton?: boolean;
   onBack: () => void;
   onButtonClick: (buttonId: string, formData: UnknownRecord) => void;
   onFormDataChange: (formData: UnknownRecord, changedKeys: string[]) => void;
@@ -55,6 +57,7 @@ function LogMessageContent({
   conversation,
   conversationLog,
   formData,
+  hideViewLogButton = false,
   onBack,
   onButtonClick,
   onFormDataChange,
@@ -105,7 +108,7 @@ function LogMessageContent({
       ? t("fax")
       : t("sms");
   const viewLogButtons = useHistoryActionButtons(
-    hasLoggedConversation(conversation)
+    !hideViewLogButton && hasLoggedConversation(conversation)
       ? [{ label: t("viewLogDetails"), type: "viewLog" as const }]
       : [],
     async (actionType) => {
@@ -241,6 +244,7 @@ export function LogMessagePage({
   conversation,
   conversationLog,
   customizedPage,
+  hideViewLogButton = false,
   onBack,
   onButtonClick,
   onFormDataChange,
@@ -293,6 +297,7 @@ export function LogMessagePage({
       conversation={conversation}
       conversationLog={conversationLog}
       formData={formData}
+      hideViewLogButton={hideViewLogButton}
       onBack={onBack}
       onButtonClick={onButtonClick}
       onFormDataChange={onFormDataChange}
