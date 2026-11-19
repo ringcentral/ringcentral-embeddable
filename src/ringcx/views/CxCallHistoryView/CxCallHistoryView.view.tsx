@@ -327,6 +327,7 @@ class CxCallHistoryView extends RcViewModule {
     const logId = ringCXLogId(call);
     const logState = useConnector(() => ({
       hideEditLogButton: this._thirdParty.callLoggerHideEditLogButton,
+      hideViewLogButton: this._thirdParty.callLoggerHideViewLogButton,
       isLogging: Boolean(this._callLogger.loggingMap?.[logId]),
       logButtonTitle: this._thirdParty.callLoggerTitle,
       ready: this._callLogger.ready,
@@ -420,6 +421,7 @@ class CxCallHistoryView extends RcViewModule {
         call: logCall as Parameters<typeof createCallHistoryLogActions>[0]['call'],
         editLogLabel: hostCallHistoryI18n.getString('editLog', currentLocale),
         hideEditLogButton: logState.hideEditLogButton,
+        hideViewLogButton: logState.hideViewLogButton,
         isLogging: logState.isLogging,
         logButtonTitle: logState.logButtonTitle,
         logCallLabel: hostCallHistoryI18n.getString('logCall', currentLocale),
@@ -437,6 +439,7 @@ class CxCallHistoryView extends RcViewModule {
       dialToPhoneNumber,
       isDialDisabled,
       logState.hideEditLogButton,
+      logState.hideViewLogButton,
       logState.isLogging,
       logState.logButtonTitle,
       logState.ready,

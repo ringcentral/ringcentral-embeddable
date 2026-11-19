@@ -58,6 +58,8 @@ interface CxCallHistoryDetailViewUIProps {
   canDial: boolean;
   /** Historical dialing is unavailable while another call is in progress. */
   isDialDisabled: boolean;
+  /** Whether the host has logged this call, which turns Log call into Edit log. */
+  isLogged: boolean;
   /** The lead of a lead call, as Lead details rows; `null` otherwise. */
   pastLead: { leadId: string; rows: CxLeadInfoRow[] } | null;
   /** Whether the agent may see lead history. */

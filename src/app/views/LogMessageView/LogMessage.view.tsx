@@ -62,19 +62,25 @@ export class LogMessageView extends RcViewModule {
     match,
   }: RouteComponentProps<{ conversationId: string }>): React.ReactElement {
     const conversationId = match.params.conversationId;
-    const { conversation, conversationLog, customizedPage, saving } =
-      useConnector(() => {
-        const currentConversation = this._getConversation(conversationId);
-        const currentConversationId =
-          currentConversation?.conversationId ?? conversationId;
-        return {
-          conversation: currentConversation,
-          conversationLog:
-            this._conversationLogger.conversationLogMap[currentConversationId],
-          customizedPage: this._thirdParty.customizedLogMessagesPage,
-          saving: this.saving,
-        };
-      });
+    const {
+      conversation,
+      conversationLog,
+      customizedPage,
+      hideViewLogButton,
+      saving,
+    } = useConnector(() => {
+      const currentConversation = this._getConversation(conversationId);
+      const currentConversationId =
+        currentConversation?.conversationId ?? conversationId;
+      return {
+        conversation: currentConversation,
+        conversationLog:
+          this._conversationLogger.conversationLogMap[currentConversationId],
+        customizedPage: this._thirdParty.customizedLogMessagesPage,
+        hideViewLogButton: this._thirdParty.messageLoggerHideViewLogButton,
+        saving: this.saving,
+      };
+    });
     const conversationRef = useRef(conversation);
     conversationRef.current = conversation;
     const sideWidgetBack = useSideWidgetBack();
@@ -146,6 +152,7 @@ export class LogMessageView extends RcViewModule {
         conversation={conversation}
         conversationLog={conversationLog}
         customizedPage={customizedPage}
+        hideViewLogButton={hideViewLogButton}
         saving={saving}
         useConversationItemInfo={
           this._conversationsView.useConversationItemInfo

@@ -175,6 +175,27 @@ document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
 }, '*');
 ```
 
+### Hide the view log button
+
+<!-- md:version 3.1.0 -->
+
+When a call is logged, the widget shows a "View log details" button in the call history, the call detail page and the log call page. Clicking it posts a request to `callLoggerPath` with `triggerType: 'viewLog'`. If your service can't show a call log, pass `callLoggerHideViewLogButton` to hide this button:
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-register-third-party-service',
+  service: {
+    name: 'TestService',
+    callLoggerPath: '/callLogger',
+    callLoggerTitle: 'Log to TestService',
+    callLogEntityMatcherPath: '/callLogger/match',
+    callLoggerHideViewLogButton: true,
+  }
+}, '*');
+```
+
+The log and edit log buttons stay available.
+
 ## Get un-logged calls
 
 <!-- md:version 2.1.0 -->

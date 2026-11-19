@@ -319,6 +319,7 @@ describe('ThirdParty service', () => {
         callLoggerAutoSettingWarning: 'Warning',
         callLoggerAutoLogOnCallSync: true,
         callLoggerHideEditLogButton: true,
+        callLoggerHideViewLogButton: true,
       }),
     );
     service._registerMessageLogger(
@@ -329,6 +330,7 @@ describe('ThirdParty service', () => {
         messageLoggerAutoSettingReadOnlyReason: 'Readonly',
         messageLoggerAutoSettingReadOnlyValue: true,
         messageLoggerAutoSettingHidden: true,
+        messageLoggerHideViewLogButton: true,
       }),
     );
 
@@ -341,6 +343,7 @@ describe('ThirdParty service', () => {
     expect(service.callLoggerAutoSettingWarning).toBe('Warning');
     expect(service.callLoggerAutoLogOnCallSync).toBe(true);
     expect(service.callLoggerHideEditLogButton).toBe(true);
+    expect(service.callLoggerHideViewLogButton).toBe(true);
     expect(service.callLoggerAutoLogSettingHidden).toBe(true);
     expect(service.messageLoggerAutoSettingLabel).toBe('Auto log messages');
     expect(service.messageLoggerAutoSettingDescription).toBe('Message description');
@@ -348,6 +351,16 @@ describe('ThirdParty service', () => {
     expect(service.messageLoggerAutoSettingReadOnlyReason).toBe('Readonly');
     expect(service.messageLoggerAutoSettingReadOnlyValue).toBe(true);
     expect(service.messageLoggerAutoSettingHidden).toBe(true);
+    expect(service.messageLoggerHideViewLogButton).toBe(true);
+  });
+
+  test('keeps the view log buttons unless the service hides them', () => {
+    const { service } = createThirdParty();
+    service._registerCallLogger(createFullRegistration());
+    service._registerMessageLogger(createFullRegistration());
+
+    expect(service.callLoggerHideViewLogButton).toBe(false);
+    expect(service.messageLoggerHideViewLogButton).toBe(false);
   });
 
   test('dispatches every adapter message type', async () => {

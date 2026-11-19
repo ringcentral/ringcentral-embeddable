@@ -109,6 +109,34 @@ describe('call-history log actions', () => {
     ]);
   });
 
+  test('hides view log for a logged call when the service hides it', () => {
+    const call = {
+      activityMatches: [{ type: 'callLog' }],
+      type: 'Voice',
+    };
+
+    expect(
+      createCallHistoryLogActions(
+        createOptions({ call, hideViewLogButton: true }),
+      ),
+    ).toEqual([
+      {
+        disabled: false,
+        label: 'Edit log',
+        type: 'createLog',
+      },
+    ]);
+    expect(
+      createCallHistoryLogActions(
+        createOptions({
+          call,
+          hideEditLogButton: true,
+          hideViewLogButton: true,
+        }),
+      ),
+    ).toEqual([]);
+  });
+
   test.each([
     [{ ready: false }, 'callLoggerNotReady'],
     [{ call: { activityMatches: [], type: 'Fax' } }, 'faxCall'],

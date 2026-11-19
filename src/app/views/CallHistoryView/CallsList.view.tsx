@@ -143,6 +143,7 @@ export class CallsListView extends CallsListViewSpringBase {
       const { t } = useLocale(i18n);
       const logState = useConnector(() => ({
         hideEditLogButton: this._thirdParty.callLoggerHideEditLogButton,
+        hideViewLogButton: this._thirdParty.callLoggerHideViewLogButton,
         isLogging: Boolean(this._appCallLogger.loggingMap[call.sessionId]),
         logButtonTitle: this._thirdParty.callLoggerTitle,
         ready: this._appCallLogger.ready,

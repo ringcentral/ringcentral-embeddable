@@ -61,6 +61,7 @@ interface CreateCallHistoryLogActionsOptions {
   call: CallWithActivityMatches;
   editLogLabel: string;
   hideEditLogButton: boolean;
+  hideViewLogButton?: boolean;
   isLogging: boolean;
   logCallLabel: string;
   logButtonTitle?: string | null;
@@ -110,6 +111,7 @@ export function createCallHistoryLogActions({
   call,
   editLogLabel,
   hideEditLogButton,
+  hideViewLogButton = false,
   isLogging,
   logCallLabel,
   logButtonTitle,
@@ -133,7 +135,7 @@ export function createCallHistoryLogActions({
       disabled: isLogging || hasPendingCallActivity(call),
     });
   }
-  if (isLogged) {
+  if (isLogged && !hideViewLogButton) {
     actions.push({
       type: "viewLog",
       label: viewLogLabel,

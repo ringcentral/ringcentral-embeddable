@@ -21,7 +21,10 @@ import {
 } from '../../../app/services/CallLogger';
 import { MatchedContactSelection } from '../../../app/services/MatchedContactSelection';
 import { ThirdParty } from '../../../app/services/ThirdParty';
-import { createCallHistoryLogActions } from '../../../app/views/CallHistoryView/CallHistoryLogAction';
+import {
+  createCallHistoryLogActions,
+  hasLoggedCallActivity,
+} from '../../../app/views/CallHistoryView/CallHistoryLogAction';
 import hostCallHistoryI18n from '../../../app/views/CallHistoryView/i18n';
 import type { RingCXAdapterBridge } from '../../interfaces/RingCXAdapterBridge.interface';
 import { canDialHistoryCall } from '../../services/CxCallHistory/can-dial-history-call';
@@ -192,6 +195,9 @@ class CxCallHistoryDetailView extends RcViewModule {
       canDial: !!this._cxAuth.agentPermissions?.allowHistoricalDialing,
       isDialDisabled: !this._cxCall.isIdle,
       hostLogActions: this._hostLogActions(callDetail),
+      isLogged: Boolean(
+        callDetail && hasLoggedCallActivity(this._toLogCall(callDetail)),
+      ),
       pastLead: callDetail?.lead
         ? {
             leadId: callDetail.lead.leadId,
@@ -225,20 +231,28 @@ class CxCallHistoryDetailView extends RcViewModule {
       return [];
     }
     const logId = ringCXLogId(callDetail);
-    const logCall = {
-      activityMatches: callDetail.activityMatches,
-      type: 'Voice',
-    };
     return createCallHistoryLogActions({
-      call: logCall as Parameters<typeof createCallHistoryLogActions>[0]['call'],
+      call: this._toLogCall(callDetail),
       editLogLabel: hostCallHistoryI18n.getString('editLog', this._locale.currentLocale),
       hideEditLogButton: this._thirdParty.callLoggerHideEditLogButton,
+      hideViewLogButton: this._thirdParty.callLoggerHideViewLogButton,
       isLogging: Boolean(this._callLogger.loggingMap?.[logId]),
       logButtonTitle: this._thirdParty.callLoggerTitle,
       logCallLabel: hostCallHistoryI18n.getString('logCall', this._locale.currentLocale),
       ready: this._callLogger.ready,
       viewLogLabel: hostCallHistoryI18n.getString('viewLogDetails', this._locale.currentLocale),
     });
+  }
+
+  /** Shapes a RingCX call as the host call history log actions read it. */
+  private _toLogCall(
+    callDetail: FormattedCall,
+  ): Parameters<typeof createCallHistoryLogActions>[0]['call'] {
+    const logCall = {
+      activityMatches: callDetail.activityMatches,
+      type: 'Voice',
+    };
+    return logCall as Parameters<typeof createCallHistoryLogActions>[0]['call'];
   }
 
   /**

@@ -17,8 +17,15 @@ jest.mock("../../src/app/views/SideWidgetView", () => ({
 }));
 
 jest.mock("../../src/app/views/LogMessageView/LogMessagePage", () => ({
-  LogMessagePage: ({ conversation, onFormDataChange, onSubmit, onViewLog }) => (
+  LogMessagePage: ({
+    conversation,
+    hideViewLogButton,
+    onFormDataChange,
+    onSubmit,
+    onViewLog,
+  }) => (
     <div>
+      <span data-sign="hideViewLogButton">{String(hideViewLogButton)}</span>
       <span data-sign="normalizedConversationId">
         {conversation?.conversationId}
       </span>
@@ -76,6 +83,34 @@ describe("LogMessageView", () => {
     expect(screen.getByTestId("normalizedConversationId")).toHaveTextContent(
       "conversation-id"
     );
+  });
+
+  test("passes the service's view log policy to the page", () => {
+    const view = new LogMessageView(
+      {
+        conversationLogMap: { "conversation-id": {} },
+        dataMapping: {},
+      },
+      {
+        formattedConversationsMap: new Map([
+          ["conversation-id", { conversationId: "conversation-id" }],
+        ]),
+      },
+      { useConversationItemInfo: jest.fn() },
+      {
+        customizedLogMessagesPage: undefined,
+        messageLoggerHideViewLogButton: true,
+      },
+      { goBack: jest.fn() }
+    );
+
+    const Host = () =>
+      view.component({
+        match: { params: { conversationId: "conversation-id" } },
+      });
+    render(<Host />);
+
+    expect(screen.getByTestId("hideViewLogButton")).toHaveTextContent("true");
   });
 
   test("keeps the legacy input-change and log-form request payloads", async () => {

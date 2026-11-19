@@ -123,6 +123,27 @@ window.addEventListener('message', function (e) {
 });
 ```
 
+### Hide the view log button
+
+<!-- md:version 3.1.0 -->
+
+When a SMS, voicemail or fax conversation is logged, the message log page shows a "View log details" button. Clicking it posts a request to `messageLoggerPath` with `triggerType: 'viewLog'`. If your service can't show a message log, pass `messageLoggerHideViewLogButton` to hide this button:
+
+```js
+document.querySelector("#rc-widget-adapter-frame").contentWindow.postMessage({
+  type: 'rc-adapter-register-third-party-service',
+  service: {
+    name: 'TestService',
+    messageLoggerPath: '/messageLogger',
+    messageLoggerTitle: 'Log to TestService',
+    messageLogEntityMatcherPath: '/messageLogger/match',
+    messageLoggerHideViewLogButton: true,
+  }
+}, '*');
+```
+
+The log and edit log button of the conversation stays available.
+
 ## Message log page
 
 <!-- md:version 2.0.0 -->
