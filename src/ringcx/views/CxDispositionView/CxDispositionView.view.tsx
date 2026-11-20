@@ -909,12 +909,13 @@ class CxDispositionView extends RcViewModule {
 
   /**
    * Leaves the wrap-up page without logging the call, which stays Unlogged
-   * in history.
+   * in history. During the call, such as Close after a mid-call submit with
+   * no host form, only the page closes and the call page stays.
    */
   @delegate('server')
   async logLater(): Promise<void> {
     this.cxWrapUpLog.update(this.callId, { logStatus: 'skipped' });
-    this.leaveEndedDisposition();
+    await this.goBack();
   }
 
   /**

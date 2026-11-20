@@ -190,6 +190,7 @@ function createView({
   view._scheduleSubmitNavigation = jest.fn();
   return {
     bridge,
+    cxCall,
     cxCallDisposition,
     cxCallMonitor,
     disposedIds,
@@ -626,15 +627,39 @@ describe('checking the disposition before the call log step', () => {
 });
 
 describe('Log later', () => {
-  test('leaves the call Unlogged', async () => {
-    const { view, wrapUpLog } = createView({ live: false, disposed: true });
+  test('leaves an ended call Unlogged and goes to the agent home', async () => {
+    const { cxCall, router, view, wrapUpLog } = createView({
+      call: createCall({ ended: true }),
+      live: false,
+      disposed: true,
+    });
     wrapUpLog.open(CALL_ID, false);
     wrapUpLog.update(CALL_ID, { logStatus: 'failed' });
-    view.leaveEndedDisposition = jest.fn();
 
     await view.logLater();
 
     expect(wrapUpLog.get(CALL_ID).logStatus).toBe('skipped');
-    expect(view.leaveEndedDisposition).toHaveBeenCalled();
+    expect(router.replace).toHaveBeenCalledWith('/agent/home/dialer');
+    expect(router.goBack).not.toHaveBeenCalled();
+    expect(cxCall.setActivityCallId).toHaveBeenCalledWith('');
+  });
+
+  test('Close during the call only closes the page and keeps the call page', async () => {
+    const { cxCall, router, view, wrapUpLog } = createView({
+      bridge: createBridge({
+        prepareLogForm: jest.fn(async () => ({ status: 'none' })),
+      }),
+      disposed: true,
+    });
+    wrapUpLog.open(CALL_ID, false);
+    wrapUpLog.update(CALL_ID, { formStatus: 'none' });
+
+    await view.logLater();
+
+    expect(wrapUpLog.get(CALL_ID).logStatus).toBe('skipped');
+    expect(router.goBack).toHaveBeenCalledTimes(1);
+    expect(router.replace).not.toHaveBeenCalled();
+    expect(cxCall.setActivityCallId).not.toHaveBeenCalled();
+    expect(cxCall.setDialoutStatus).not.toHaveBeenCalled();
   });
 });
