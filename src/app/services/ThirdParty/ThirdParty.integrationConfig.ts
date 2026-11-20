@@ -9,8 +9,8 @@ const DEFAULT_INTEGRATION_KEY = 'thirdParty';
 /**
  * The framework's own default, restated because it is not exported.
  *
- * Kept in the list so RC directory rows behave exactly as before: dropping
- * these would flip their action button from `viewEntity` to `addEntity`.
+ * Kept in the list so RC directory rows keep their `viewEntity` action
+ * button and clickable name.
  */
 const RC_DIRECTORY_ENTITY_TYPES = ['company', 'personal'];
 
@@ -96,8 +96,7 @@ export function createThirdPartyIntegrationConfig(
     onViewEntity: (entity) => viewEntity(entity),
     // Enables the per-row "view record" button inside the match picker.
     viewExternalEntity: (entity) => viewEntity(entity),
-    onCreateEntity: (entity) => {
-      console.log('🐞 ~ onCreateEntity entity:', entity);
-    },
+    // No `onCreateEntity`: the service API has no create-contact path, and
+    // upstream shows a "Create new contact" action whenever it is set.
   };
 }
