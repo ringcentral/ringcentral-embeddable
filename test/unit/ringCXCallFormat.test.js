@@ -31,4 +31,57 @@ describe("formatRingCXCall", () => {
       formatRingCXCall(createInput({ summary: "" })).call.aiNote
     ).toBeUndefined();
   });
+
+  describe("segmentId and dialogId", () => {
+    it("reads them from the live call session", () => {
+      const { call } = formatRingCXCall(
+        createInput({
+          session: { sessionId: "2", segmentId: "seg-1", dialogId: "dialog-1" },
+          segmentContext: {
+            segmentId: "seg-context",
+            dialog: { dialogId: "dialog-context" },
+          },
+        })
+      );
+
+      expect(call.ringcx.segmentId).toBe("seg-1");
+      expect(call.ringcx.dialogId).toBe("dialog-1");
+    });
+
+    it("falls back to the segment context when the session has none", () => {
+      const { call } = formatRingCXCall(
+        createInput({
+          session: { sessionId: "2", segmentId: "", dialogId: "" },
+          segmentContext: {
+            segmentId: "seg-context",
+            dialog: { dialogId: "dialog-context" },
+          },
+        })
+      );
+
+      expect(call.ringcx.segmentId).toBe("seg-context");
+      expect(call.ringcx.dialogId).toBe("dialog-context");
+    });
+
+    it("reads the flat fields of a history row", () => {
+      const { call } = formatRingCXCall(
+        createInput({ segmentId: "seg-history", dialogId: "dialog-history" })
+      );
+
+      expect(call.ringcx.segmentId).toBe("seg-history");
+      expect(call.ringcx.dialogId).toBe("dialog-history");
+    });
+
+    it("leaves them unset when the SDK sends empty strings", () => {
+      const { call } = formatRingCXCall(
+        createInput({
+          session: { sessionId: "2", segmentId: "", dialogId: "" },
+          segmentContext: { segmentId: "", dialog: { dialogId: "" } },
+        })
+      );
+
+      expect(call.ringcx.segmentId).toBeUndefined();
+      expect(call.ringcx.dialogId).toBeUndefined();
+    });
+  });
 });

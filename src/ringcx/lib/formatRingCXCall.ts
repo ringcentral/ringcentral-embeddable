@@ -18,6 +18,13 @@ export interface RingCXDispositionRef {
 
 export interface RingCXCallInfo {
   uii: string;
+  /**
+   * This agent's leg of the call. One uii can have several segments, e.g.
+   * after a transfer.
+   */
+  segmentId?: string;
+  /** Dialog id. A cold transfer starts a new dialog under the same uii. */
+  dialogId?: string;
   callType: string;
   agentId: string;
   queue?: { id: string; name: string };
@@ -67,8 +74,18 @@ export interface FormatRingCXCallInput {
   id?: string;
   uii?: string;
   sessionId?: string;
-  session?: { sessionId?: string; recordingUrl?: string; segmentId?: string };
+  session?: {
+    sessionId?: string;
+    recordingUrl?: string;
+    segmentId?: string;
+    dialogId?: string;
+  };
+  segmentContext?: {
+    segmentId?: string;
+    dialog?: { dialogId?: string };
+  };
   segmentId?: string;
+  dialogId?: string;
   callType?: string;
   direction?: string;
   agentId?: string;
@@ -281,6 +298,17 @@ export function formatRingCXCall(
     input.endedCall?.recordingUrl ||
     input.session?.recordingUrl;
   const queueName = input.queue?.name || input.queueName;
+  // The agent library fills absent fields with '', so empty values fall through.
+  const segmentId =
+    input.session?.segmentId ||
+    input.segmentContext?.segmentId ||
+    input.segmentId ||
+    undefined;
+  const dialogId =
+    input.session?.dialogId ||
+    input.segmentContext?.dialog?.dialogId ||
+    input.dialogId ||
+    undefined;
   const leadId = input.lead?.leadId || input.lead?.id;
   const fromName = !outbound
     ? matchName || input.fromName || input.from?.name
@@ -314,6 +342,8 @@ export function formatRingCXCall(
     source: 'ringcx',
     ringcx: {
       uii: uii.split(ENCODE_SYMBOL)[0] || uii,
+      segmentId,
+      dialogId,
       callType: input.callType || (outbound ? 'OUTBOUND' : 'INBOUND'),
       agentId: input.agentId || '',
       queue: queueName

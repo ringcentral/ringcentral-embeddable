@@ -1207,6 +1207,7 @@ function historyCallInput(call: FormattedCall): FormatRingCXCallInput {
     uii: call.uii,
     sessionId: call.sessionId,
     segmentId: call.segmentId,
+    dialogId: call.dialogId,
     direction: call.direction,
     callType: outbound ? 'OUTBOUND' : 'INBOUND',
     agentId: undefined,
