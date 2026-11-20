@@ -27,6 +27,19 @@ describe('third-party integration configuration', () => {
     expect(config.name).toBe('crm');
   });
 
+  test('offers no create-contact action, which the service cannot handle', () => {
+    // Upstream shows "Create new contact" on any unviewable row while this is
+    // set, such as a service match without `viewMatchedContactPath`.
+    const config = createThirdPartyIntegrationConfig({
+      displayName: 'CRM Display',
+      sourceName: 'crm',
+      viewMatchedContactExternal: false,
+      matchedContactEntityTypes: ['lead'],
+    });
+
+    expect(config.onCreateEntity).toBeUndefined();
+  });
+
   describe('matched-contact viewing', () => {
     const CRM_MATCH = { id: 'lead-1', type: 'lead', resourceType: 'crm' };
 
@@ -52,7 +65,7 @@ describe('third-party integration configuration', () => {
 
     test('adds the service types without dropping the RC directory ones', () => {
       // Both the clickable name and the viewEntity action button are gated on
-      // this list; dropping the RC types would flip those rows to addEntity.
+      // this list; dropping the RC types would hide them on those rows.
       const { config } = createConfig();
 
       expect(config.viewableEntityTypes).toEqual([
