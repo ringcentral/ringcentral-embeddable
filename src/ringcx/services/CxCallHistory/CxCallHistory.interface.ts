@@ -44,7 +44,9 @@ export interface FormattedCall {
   segmentId?: string;
   /** Dialog id. Not invariant per call: a cold transfer starts a new dialog. */
   dialogId?: string;
+  queueId?: string;
   queueName?: string;
+  campaignId?: string;
   campaignName?: string;
   /** Secondary line: queue name, else campaign name, else "Manual". */
   infoLine?: string;

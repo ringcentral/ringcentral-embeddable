@@ -647,17 +647,22 @@ export class RingCXAdapterBridge
     contact?: CallLogContact,
   ): Promise<void> {
     const id = call.localCallId || call.id;
-    const compatible = await this.getCallForLog(id);
-    if (!compatible) {
+    const raw = this._findRawCall(id);
+    const formatted = raw ? this._format(raw) : null;
+    if (!raw || !formatted) {
       return;
     }
+    const compatible = this._toPageCall(formatted);
     if (this.shouldOpenLogPage && actionType !== 'viewLog') {
       await this.openLogPage(compatible.sessionId || id);
       return;
     }
     const logged = hasLoggedCallActivity(call);
+    // `logCall` formats the call itself, so it takes the raw call: a
+    // formatted one keeps queue, campaign, lead and segment ids under
+    // `ringcx` and loses them when formatted again.
     await this.logCall({
-      call: compatible,
+      call: raw,
       contact,
       note: compatible.ringcx?.notes,
       redirect: true,
@@ -1221,7 +1226,12 @@ function historyCallInput(call: FormattedCall): FormatRingCXCallInput {
     result: call.result,
     termReason: call.termReason,
     disposition: call.disposition,
-    queueName: call.queueName,
+    queue: call.queueName
+      ? { id: call.queueId, name: call.queueName }
+      : undefined,
+    campaign: call.campaignName
+      ? { id: call.campaignId, name: call.campaignName }
+      : undefined,
     contactMatches: outbound ? call.toMatches : call.fromMatches,
     ani: outbound ? call.to.phoneNumber : call.from.phoneNumber,
     dnis: outbound ? call.from.phoneNumber : call.to.phoneNumber,
