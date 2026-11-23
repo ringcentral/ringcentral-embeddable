@@ -84,4 +84,48 @@ describe("formatRingCXCall", () => {
       expect(call.ringcx.dialogId).toBeUndefined();
     });
   });
+
+  describe("queue and campaign", () => {
+    it("maps an inbound queue to ringcx.queue", () => {
+      const { call } = formatRingCXCall(
+        createInput({
+          callType: "INBOUND",
+          queue: { number: "100", name: "Support", isCampaign: false },
+        })
+      );
+
+      expect(call.ringcx.queue).toEqual({ id: "100", name: "Support" });
+      expect(call.ringcx.campaign).toBeUndefined();
+    });
+
+    it("maps a live campaign call's queue to ringcx.campaign", () => {
+      const { call } = formatRingCXCall(
+        createInput({
+          queue: { number: "500", name: "Spring Promo", isCampaign: true },
+        })
+      );
+
+      expect(call.ringcx.campaign).toEqual({ id: "500", name: "Spring Promo" });
+      expect(call.ringcx.queue).toBeUndefined();
+    });
+
+    it("maps a history row's queue and campaign separately", () => {
+      const { call } = formatRingCXCall(
+        createInput({
+          queue: { id: "100", name: "Support" },
+          campaign: { id: "500", name: "Spring Promo" },
+        })
+      );
+
+      expect(call.ringcx.queue).toEqual({ id: "100", name: "Support" });
+      expect(call.ringcx.campaign).toEqual({ id: "500", name: "Spring Promo" });
+    });
+
+    it("leaves both unset when the call has neither", () => {
+      const { call } = formatRingCXCall(createInput());
+
+      expect(call.ringcx.queue).toBeUndefined();
+      expect(call.ringcx.campaign).toBeUndefined();
+    });
+  });
 });

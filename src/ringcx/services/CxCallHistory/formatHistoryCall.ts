@@ -159,6 +159,10 @@ export function getHistoryInfoLine(
   );
 }
 
+function idText(value: number | null | undefined): string | undefined {
+  return value == null ? undefined : String(value);
+}
+
 function parseTimestamp(value: string | null | undefined): number {
   if (!value) return 0;
   const timestamp = Date.parse(value);
@@ -248,7 +252,9 @@ export function formatHistoryCall(
     uii: dialog?.uii,
     segmentId: agentSegment?.segmentId ?? undefined,
     dialogId: dialog?.dialogId,
+    queueId: idText(agentSegment?.queue?.queueId),
     queueName: agentSegment?.queue?.queueName,
+    campaignId: idText(item.outbound?.campaignId),
     campaignName: item.outbound?.campaignName ?? undefined,
     infoLine: getHistoryInfoLine(item, manualLabel),
     outboundType:

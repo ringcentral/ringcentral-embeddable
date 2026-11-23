@@ -538,7 +538,16 @@ export const WrapUpPanel: FunctionComponent<WrapUpPanelProps> = ({
         {/* Scrolls with the form, so a long form keeps the column. */}
         {useSteps ? (
           <div data-sign="wrapUpSteps">
-            <Stepper activeStep={activeStep} nonLinear aria-label={t('wrapUpSteps')}>
+            {/* Spring's stepper root scrolls (`overflow: auto`), and the step
+                buttons' negative margins reach past the steps' `py-2`, so it
+                showed a Y scroll bar. Labels truncate, so nothing overflows
+                sideways. */}
+            <Stepper
+              activeStep={activeStep}
+              nonLinear
+              aria-label={t('wrapUpSteps')}
+              className="!overflow-visible"
+            >
               <Step
                 completed={dispositionStep.completed}
                 classes={STEP_CLASSES}

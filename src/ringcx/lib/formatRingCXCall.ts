@@ -27,7 +27,10 @@ export interface RingCXCallInfo {
   dialogId?: string;
   callType: string;
   agentId: string;
+  /** Inbound queue. Left out for campaign calls, which set `campaign`. */
   queue?: { id: string; name: string };
+  /** Outbound campaign of a dialer (preview, predictive, progressive) call. */
+  campaign?: { id: string; name: string };
   dialGroup?: { id: string; name: string };
   skillProfileId?: string;
   dispositions?: RingCXDispositionRef[];
@@ -94,8 +97,14 @@ export interface FormatRingCXCallInput {
   aniE164?: string;
   dnisE164?: string;
   queueDts?: string;
-  queue?: { number?: string; name?: string; id?: string };
+  /**
+   * NEW-CALL `queue`. For campaign calls the agent library puts the campaign
+   * here and sets `isCampaign`.
+   */
+  queue?: { number?: string; name?: string; id?: string; isCampaign?: boolean };
   queueName?: string;
+  /** Campaign of a history row, from the history `outbound` block. */
+  campaign?: { id?: string; name?: string };
   scriptId?: string;
   isMonitoring?: boolean;
   lead?: { leadId?: string; id?: string; [key: string]: unknown };
@@ -298,6 +307,13 @@ export function formatRingCXCall(
     input.endedCall?.recordingUrl ||
     input.session?.recordingUrl;
   const queueName = input.queue?.name || input.queueName;
+  const queueRef = queueName
+    ? { id: input.queue?.number || input.queue?.id || '', name: queueName }
+    : undefined;
+  const isCampaign = !!input.queue?.isCampaign;
+  const campaignRef = input.campaign?.name
+    ? { id: input.campaign.id || '', name: input.campaign.name }
+    : undefined;
   // The agent library fills absent fields with '', so empty values fall through.
   const segmentId =
     input.session?.segmentId ||
@@ -346,12 +362,8 @@ export function formatRingCXCall(
       dialogId,
       callType: input.callType || (outbound ? 'OUTBOUND' : 'INBOUND'),
       agentId: input.agentId || '',
-      queue: queueName
-        ? {
-            id: input.queue?.number || input.queue?.id || '',
-            name: queueName,
-          }
-        : undefined,
+      queue: isCampaign ? undefined : queueRef,
+      campaign: campaignRef || (isCampaign ? queueRef : undefined),
       dialGroup: input.dialGroup,
       skillProfileId: input.skillProfileId,
       dispositions: mapDispositions(input),
