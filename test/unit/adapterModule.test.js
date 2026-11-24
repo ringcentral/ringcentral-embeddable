@@ -723,6 +723,66 @@ describe('Adapter module methods', () => {
     }));
   });
 
+  it('tracks a webphone call end once per call across repeated call end events', () => {
+    const storage = new Map();
+    global.localStorage = {
+      getItem: jest.fn((key) => (storage.has(key) ? storage.get(key) : null)),
+      setItem: jest.fn((key, value) => storage.set(key, value)),
+      removeItem: jest.fn((key) => storage.delete(key)),
+    };
+    const adapter = createAdapter({
+      _prefix: 'test',
+      _analytics: { track: jest.fn() },
+    });
+    adapter.endCallNotify = jest.fn();
+    adapter._webphone.isWebphoneActiveTab = true;
+    adapter._webphone.originalSessions = {};
+    const session = {
+      id: 'call-1',
+      direction: callDirections.inbound,
+      startTime: Date.now() - 5000,
+    };
+
+    adapter._onWebphoneCallEnd(session);
+    adapter._onWebphoneCallEnd({ ...session });
+
+    expect(adapter.endCallNotify).toHaveBeenCalledTimes(2);
+    expect(adapter._analytics.track).toHaveBeenCalledTimes(1);
+    expect(adapter._analytics.track).toHaveBeenCalledWith('WebRTC Call Ended', {
+      direction: callDirections.inbound,
+      duration: 6,
+      result: 'Terminated',
+    });
+
+    adapter._onWebphoneCallEnd({ id: 'call-2', direction: callDirections.outbound });
+    expect(adapter._analytics.track).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not track a webphone call end from an inactive tab or for a live session', () => {
+    const storage = new Map();
+    global.localStorage = {
+      getItem: jest.fn((key) => (storage.has(key) ? storage.get(key) : null)),
+      setItem: jest.fn((key, value) => storage.set(key, value)),
+      removeItem: jest.fn((key) => storage.delete(key)),
+    };
+    const adapter = createAdapter({
+      _prefix: 'test',
+      _analytics: { track: jest.fn() },
+    });
+    adapter.endCallNotify = jest.fn();
+    adapter._webphone.isWebphoneActiveTab = false;
+    adapter._webphone.originalSessions = {};
+
+    adapter._onWebphoneCallEnd({ id: 'inactive-tab-call' });
+    expect(adapter.endCallNotify).toHaveBeenCalledWith({ id: 'inactive-tab-call' });
+
+    adapter._webphone.isWebphoneActiveTab = true;
+    adapter._webphone.originalSessions = { 'live-call': {} };
+    adapter._onWebphoneCallEnd({ id: 'live-call' });
+
+    expect(adapter._analytics.track).not.toHaveBeenCalled();
+  });
+
   it('controls webphone calls, records, and pick-call flows', async () => {
     const adapter = createAdapter();
     [

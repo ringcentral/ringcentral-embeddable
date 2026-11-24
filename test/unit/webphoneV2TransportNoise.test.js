@@ -85,7 +85,7 @@ function createAudioContext(state = 'running') {
   };
 }
 
-function createWebphoneModule(overrides = {}) {
+function createWebphoneModule(overrides = {}, { keepEventEmitter = false } = {}) {
   const deps = {
     alert: {
       alert: jest.fn(),
@@ -117,7 +117,8 @@ function createWebphoneModule(overrides = {}) {
   };
   const webphone = new Webphone(deps);
   Object.assign(webphone, {
-    _eventEmitter: new EventEmitter(),
+    // keep the constructor emitter to test its cross-tab broadcast listeners
+    _eventEmitter: keepEventEmitter ? webphone._eventEmitter : new EventEmitter(),
     _multipleTabsTransport: {
       broadcast: jest.fn(),
       events: {
@@ -602,5 +603,85 @@ describe('WebphoneV2 transport, voicemail drop, and noise reduction', () => {
       { callStatus: sessionStatus.connected, id: 'active' },
     ]);
     expect(webphone.shouldSetRingtoneSinkId).toEqual([true, true, 'speaker-1']);
+  });
+
+  it('broadcasts local events from the active webphone tab to other tabs', () => {
+    const webphone = createWebphoneModule({
+      _sharedSipClient: { active: true, activeTabId: 'tab-id' },
+    }, { keepEventEmitter: true });
+
+    webphone._eventEmitter.emit('callRing', { id: 'ring-session' });
+
+    expect(webphone._multipleTabsTransport.broadcast).toHaveBeenCalledWith({
+      event: 'callRing',
+      message: [{ id: 'ring-session' }],
+    });
+  });
+
+  it('does not broadcast local events from an inactive webphone tab', () => {
+    const webphone = createWebphoneModule({}, { keepEventEmitter: true });
+
+    webphone._eventEmitter.emit('callRing', { id: 'ring-session' });
+
+    expect(webphone._multipleTabsTransport.broadcast).not.toHaveBeenCalled();
+  });
+
+  it('re-emits events from other tabs locally without broadcasting them back', () => {
+    const basePrototype = Object.getPrototypeOf(Webphone.prototype);
+    jest.spyOn(basePrototype, '_setActive').mockImplementation(async () => {});
+    // both tabs consider themselves active, e.g. tabs on different builds
+    // that each own a separate SharedWorker
+    const webphone = createWebphoneModule({
+      _sharedSipClient: { active: true, activeTabId: 'tab-id' },
+    }, { keepEventEmitter: true });
+    const callEndHandler = jest.fn();
+    webphone.onCallEnd(callEndHandler);
+
+    webphone._onMultipleTabsChannelBroadcast({
+      event: 'callEnd',
+      message: [{ id: 'remote-session' }],
+    });
+
+    expect(callEndHandler).toHaveBeenCalledTimes(1);
+    expect(callEndHandler).toHaveBeenCalledWith({ id: 'remote-session' });
+    expect(webphone._multipleTabsTransport.broadcast).not.toHaveBeenCalled();
+
+    // local events are still broadcast after a remote event was handled
+    webphone._eventEmitter.emit('callEnd', { id: 'local-session' });
+    expect(webphone._multipleTabsTransport.broadcast).toHaveBeenCalledTimes(1);
+    expect(webphone._multipleTabsTransport.broadcast).toHaveBeenCalledWith({
+      event: 'callEnd',
+      message: [{ id: 'local-session' }],
+    });
+  });
+
+  it('clears the remote event guard when a local listener throws', () => {
+    const webphone = createWebphoneModule({
+      _sharedSipClient: { active: true, activeTabId: 'tab-id' },
+    }, { keepEventEmitter: true });
+    webphone.onCallRing(() => {
+      throw new Error('listener failed');
+    });
+
+    expect(() => webphone._onMultipleTabsChannelBroadcast({
+      event: 'callRing',
+      message: [{ id: 'remote-session' }],
+    })).toThrow('listener failed');
+    expect(webphone._isEmittingRemoteEvent).toBe(false);
+  });
+
+  it('ignores unknown events from other tabs', () => {
+    const webphone = createWebphoneModule({
+      _sharedSipClient: { active: true, activeTabId: 'tab-id' },
+    }, { keepEventEmitter: true });
+    const emitSpy = jest.spyOn(webphone._eventEmitter, 'emit');
+
+    webphone._onMultipleTabsChannelBroadcast({
+      event: 'unknownEvent',
+      message: [],
+    });
+
+    expect(emitSpy).not.toHaveBeenCalled();
+    expect(webphone._multipleTabsTransport.broadcast).not.toHaveBeenCalled();
   });
 });

@@ -22,6 +22,13 @@ import { EVENTS } from './events';
 export class Webphone extends WebphoneCommon {
   protected _multipleTabsTransport: MultipleTabsTransport;
   protected _proxyActionTypes: ObjectMapValue<typeof proxyActionTypes>;
+  /**
+   * True while re-emitting an event received from another tab, so it is not
+   * broadcast back. Without it, two tabs that both consider themselves the
+   * active webphone tab (e.g. tabs on different builds, each owning its own
+   * SharedWorker) bounce every event between each other forever.
+   */
+  protected _isEmittingRemoteEvent = false;
 
   constructor(deps) {
     super(deps);
@@ -52,6 +59,9 @@ export class Webphone extends WebphoneCommon {
         return;
       }
       this._eventEmitter.on(event, (...args) => {
+        if (this._isEmittingRemoteEvent) {
+          return;
+        }
         if (this.isWebphoneActiveTab && this._sharedSipClient) {
           this._multipleTabsTransport.broadcast({ event, message: args });
         }
@@ -105,7 +115,12 @@ export class Webphone extends WebphoneCommon {
 
   _onMultipleTabsChannelBroadcast = ({ event, message }) => {
     if (EVENTS[event]) {
-      this._eventEmitter.emit(EVENTS[event], ...message);
+      this._isEmittingRemoteEvent = true;
+      try {
+        this._eventEmitter.emit(EVENTS[event], ...message);
+      } finally {
+        this._isEmittingRemoteEvent = false;
+      }
       if (event === EVENTS.callEnd) {
         // on call end, check and set active after 1.2s
         setTimeout(() => {

@@ -237,10 +237,7 @@ export default class Adapter extends AdapterModuleCore {
       });
     });
     this._webphone.onCallEnd((session) => {
-      this.endCallNotify(session);
-      if (this._webphone.isWebphoneActiveTab && !this._webphone.originalSessions[session.id]) {
-        trackWebphoneCallEnded(this._analytics, session);
-      }
+      this._onWebphoneCallEnd(session);
     });
     this._webphone.onCallInit((session) => {
       this.initCallNotify(session);
@@ -986,6 +983,17 @@ export default class Adapter extends AdapterModuleCore {
         contactMatch: getWebphoneSessionContactMatch(session, this._contactMatcher.dataMapping),
       },
     });
+  }
+
+  _onWebphoneCallEnd(session) {
+    this.endCallNotify(session);
+    if (
+      this._webphone.isWebphoneActiveTab &&
+      !this._webphone.originalSessions[session.id] &&
+      !isDuplicated(`${this.prefix}-deduplicate-webrtc-call-ended-track`, session.id)
+    ) {
+      trackWebphoneCallEnded(this._analytics, session);
+    }
   }
 
   endCallNotify(session) {
