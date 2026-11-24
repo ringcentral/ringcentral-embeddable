@@ -36,6 +36,28 @@ export class CallMonitor extends CallMonitorBase {
     return calls;
   }
 
+  /**
+   * Every tab runs `handleCalls` on the same call list, so without this guard
+   * each open tab tracks the same connected call. Only the main tab tracks.
+   */
+  protected get _isTrackingTab(): boolean {
+    return !this._deps.tabManager || this._deps.tabManager.active;
+  }
+
+  override inboundCallConnectedTrack() {
+    if (!this._isTrackingTab) {
+      return;
+    }
+    super.inboundCallConnectedTrack();
+  }
+
+  override outboundCallConnectedTrack() {
+    if (!this._isTrackingTab) {
+      return;
+    }
+    super.outboundCallConnectedTrack();
+  }
+
   override setMatchedData({
     sessionId,
     toEntityId,

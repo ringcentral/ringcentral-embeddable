@@ -47,7 +47,15 @@ jest.mock('@ringcentral-integration/commons/modules/Ringout/ringoutStatus', () =
 }));
 
 jest.mock('@ringcentral-integration/commons/modules/CallMonitor', () => ({
-  CallMonitor: class MockCallMonitor {},
+  CallMonitor: class MockCallMonitor {
+    inboundCallConnectedTrack() {
+      this.trackedConnectedCalls.push('inbound');
+    }
+
+    outboundCallConnectedTrack() {
+      this.trackedConnectedCalls.push('outbound');
+    }
+  },
 }));
 
 jest.mock('@ringcentral-integration/commons/modules/CompanyContacts', () => ({
@@ -423,6 +431,32 @@ test('normalizes call monitor matches and persists selected matched entity', () 
     sessionId: 'sessionC',
     toEntityId: 'contact-4',
   })).not.toThrow();
+});
+
+test('tracks connected calls only from the main tab', () => {
+  const createCallMonitor = (tabManager) => {
+    const callMonitor = Object.create(CallMonitor.prototype);
+    Object.assign(callMonitor, {
+      _deps: { tabManager },
+      trackedConnectedCalls: [],
+    });
+    return callMonitor;
+  };
+
+  const mainTab = createCallMonitor({ active: true });
+  mainTab.inboundCallConnectedTrack();
+  mainTab.outboundCallConnectedTrack();
+  expect(mainTab.trackedConnectedCalls).toEqual(['inbound', 'outbound']);
+
+  const otherTab = createCallMonitor({ active: false });
+  otherTab.inboundCallConnectedTrack();
+  otherTab.outboundCallConnectedTrack();
+  expect(otherTab.trackedConnectedCalls).toEqual([]);
+
+  const noTabManager = createCallMonitor(undefined);
+  noTabManager.inboundCallConnectedTrack();
+  noTabManager.outboundCallConnectedTrack();
+  expect(noTabManager.trackedConnectedCalls).toEqual(['inbound', 'outbound']);
 });
 
 test('applies company contact subscription create update delete events only when active', () => {
